@@ -71,7 +71,7 @@ import Json.Decode.Extra exposing ((|:))
 
 host : String
 host =
-    "http://localhost:8080"
+    ""
 
 
 
@@ -202,6 +202,9 @@ type alias Build =
     { id : BuildId
     , url : String
     , name : BuildName
+    , teamName : TeamName
+    , pipelineName : PipelineName
+    , jobName : JobName
     , job : Maybe JobIdentifier
     , status : BuildStatus
     , duration : BuildDuration
@@ -230,6 +233,9 @@ decodeBuild =
         |: (Json.Decode.field "id" Json.Decode.int)
         |: (defaultTo "" <| Json.Decode.field "url" Json.Decode.string)
         |: (Json.Decode.field "name" Json.Decode.string)
+        |: (Json.Decode.field "teamName" Json.Decode.string)
+        |: (Json.Decode.field "pipelineName" Json.Decode.string)
+        |: (Json.Decode.field "jobName" Json.Decode.string)
         |: (Json.Decode.maybe
                 (Json.Decode.succeed JobIdentifier
                     |: (Json.Decode.field "team_name" Json.Decode.string)
@@ -546,6 +552,8 @@ type alias JobIdentifier =
 type alias Job =
     { pipeline : PipelineIdentifier
     , name : JobName
+    , teamName : TeamName
+    , pipelineName : PipelineName
     , url : String
     , nextBuild : Maybe Build
     , finishedBuild : Maybe Build
@@ -576,6 +584,8 @@ decodeJob : PipelineIdentifier -> Json.Decode.Decoder Job
 decodeJob pi =
     Json.Decode.succeed (Job pi)
         |: (Json.Decode.field "name" Json.Decode.string)
+        |: (Json.Decode.field "teamName" Json.Decode.string)
+        |: (Json.Decode.field "pipelineName" Json.Decode.string)
         |: (defaultTo "" <| Json.Decode.field "url" Json.Decode.string)
         |: (Json.Decode.maybe (Json.Decode.field "next_build" decodeBuild))
         |: (Json.Decode.maybe (Json.Decode.field "finished_build" decodeBuild))
@@ -671,6 +681,8 @@ decodePipelineGroup =
 
 type alias Resource =
     { name : String
+    , teamName : TeamName
+    , pipelineName : PipelineName
     , paused : Bool
     , failingToCheck : Bool
     , checkError : String
@@ -706,6 +718,8 @@ decodeResource : Json.Decode.Decoder Resource
 decodeResource =
     Json.Decode.succeed Resource
         |: (Json.Decode.field "name" Json.Decode.string)
+        |: (Json.Decode.field "teamName" Json.Decode.string)
+        |: (Json.Decode.field "pipelineName" Json.Decode.string)
         |: (defaultTo False <| Json.Decode.field "paused" Json.Decode.bool)
         |: (defaultTo False <| Json.Decode.field "failing_to_check" Json.Decode.bool)
         |: (defaultTo "" <| Json.Decode.field "check_error" Json.Decode.string)
@@ -846,3 +860,9 @@ customDecoder decoder toResult =
                     Json.Decode.fail err
         )
         decoder
+
+
+type Foo
+    = Job
+    | Build
+    | Resource

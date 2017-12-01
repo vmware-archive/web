@@ -154,21 +154,21 @@ createPageFromSearch search =
         limit =
             Maybe.withDefault 100 <| QueryString.one QueryString.int "limit" q
     in
-    case ( since, until ) of
-        ( Nothing, Just u ) ->
-            Just
-                { direction = Pagination.Until u
-                , limit = limit
-                }
+        case ( since, until ) of
+            ( Nothing, Just u ) ->
+                Just
+                    { direction = Pagination.Until u
+                    , limit = limit
+                    }
 
-        ( Just s, Nothing ) ->
-            Just
-                { direction = Pagination.Since s
-                , limit = limit
-                }
+            ( Just s, Nothing ) ->
+                Just
+                    { direction = Pagination.Since s
+                    , limit = limit
+                    }
 
-        _ ->
-            Nothing
+            _ ->
+                Nothing
 
 
 navigateTo : Route -> Cmd msg

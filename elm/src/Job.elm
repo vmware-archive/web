@@ -1,5 +1,6 @@
 port module Job exposing (Flags, Model, changeToJob, subscriptions, init, update, updateWithMessage, view, Msg(..))
 
+import Concourse.Url
 import Dict exposing (Dict)
 import Html exposing (Html)
 import Html.Attributes exposing (class, href, id, disabled, attribute)
@@ -566,7 +567,7 @@ viewBuildHeader : Model -> Concourse.Build -> Html Msg
 viewBuildHeader model b =
     Html.a
         [ class <| Concourse.BuildStatus.show b.status
-        , StrictEvents.onLeftClick <| NavTo <| Concourse.Build.url b
+        , StrictEvents.onLeftClick <| NavTo <| Concourse.Url.url b
         , href <| Concourse.Build.url b
         ]
         [ Html.text ("#" ++ b.name)
