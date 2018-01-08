@@ -22,7 +22,7 @@ import Concourse.Build
 import Concourse.BuildPrep
 import Concourse.BuildStatus
 import Concourse.Job
-import Concourse.Pagination exposing (Paginated)
+import Concourse.Pagination exposing (Paginated, Pagination)
 import Date exposing (Date)
 import Date.Format
 import Debug
@@ -88,6 +88,7 @@ type alias Model =
     , previousTriggerBuildByKey : Bool
     , showHelp : Bool
     , hash : String
+    , pagination : Pagination
     }
 
 
@@ -101,6 +102,7 @@ type StepRenderingState
 type Msg
     = Noop
     | SwitchToBuild Concourse.Build
+    | SwitchToNextBuilds Concourse.JobIdentifier (Maybe Concourse.Pagination.Page)
     | TriggerBuild (Maybe Concourse.JobIdentifier)
     | BuildTriggered (Result Http.Error Concourse.Build)
     | AbortBuild Int
@@ -112,7 +114,6 @@ type Msg
     | ScrollBuilds StrictEvents.MouseWheelEvent
     | ClockTick Time.Time
     | BuildAborted (Result Http.Error ())
-    | RevealCurrentBuildInHistory
     | WindowScrolled Scroll.FromBottom
     | NavTo String
     | NewCSRFToken String
@@ -145,6 +146,10 @@ init ports flags page =
                 , previousTriggerBuildByKey = False
                 , showHelp = False
                 , hash = flags.hash
+                , pagination =
+                    { previousPage = Nothing
+                    , nextPage = Nothing
+                    }
                 }
     in
         ( model, Cmd.batch [ cmd, getCurrentTime ] )
@@ -228,7 +233,10 @@ update action model =
             ( model, Cmd.none )
 
         SwitchToBuild build ->
-            ( model, Navigation.newUrl <| Concourse.Build.url build )
+            ( model
+            , Cmd.batch
+                [ Navigation.newUrl <| Concourse.Build.url build ]
+            )
 
         TriggerBuild job ->
             case job of
@@ -340,9 +348,6 @@ update action model =
             flip always (Debug.log ("failed to fetch build job details") (err)) <|
                 ( model, Cmd.none )
 
-        RevealCurrentBuildInHistory ->
-            ( model, scrollToCurrentBuildInHistory )
-
         ScrollBuilds event ->
             if event.deltaX == 0 then
                 ( model, scrollBuilds event.deltaY )
@@ -374,6 +379,9 @@ update action model =
 
                 _ ->
                     ( model, Cmd.none )
+
+        SwitchToNextBuilds job page ->
+            ( model, fetchBuildHistory job page )
 
 
 handleKeyPressed : Char -> Model -> ( Model, Cmd Msg )
@@ -476,66 +484,76 @@ prevBuild builds build =
 
 handleBuildFetched : Int -> Concourse.Build -> Model -> ( Model, Cmd Msg )
 handleBuildFetched browsingIndex build model =
-    if browsingIndex == model.browsingIndex then
-        let
-            currentBuild =
-                case model.currentBuild |> RemoteData.toMaybe of
-                    Nothing ->
-                        { build = build
-                        , prep = Nothing
-                        , output = Nothing
-                        }
+    let
+        _ =
+            Debug.log "+++browsingIndex+++" browsingIndex
 
-                    Just currentBuild ->
-                        { currentBuild | build = build }
+        _ =
+            Debug.log "+++model+++" model
 
-            withBuild =
-                { model
-                    | currentBuild = RemoteData.Success currentBuild
-                    , history = updateHistory build model.history
-                }
-
-            fetchJobAndHistory =
-                case ( model.job, build.job ) of
-                    ( Nothing, Just buildJob ) ->
-                        Cmd.batch
-                            [ fetchBuildJobDetails buildJob
-                            , fetchBuildHistory buildJob Nothing
-                            ]
-
-                    _ ->
-                        Cmd.none
-
-            ( newModel, cmd ) =
-                if build.status == Concourse.BuildStatusPending then
-                    ( withBuild, pollUntilStarted browsingIndex build.id )
-                else if build.reapTime == Nothing then
-                    case model.currentBuild |> RemoteData.toMaybe |> Maybe.andThen .prep of
+        _ =
+            Debug.log "+++build+++" build
+    in
+        if browsingIndex == model.browsingIndex then
+            let
+                currentBuild =
+                    case model.currentBuild |> RemoteData.toMaybe of
                         Nothing ->
-                            initBuildOutput build withBuild
+                            { build = build
+                            , prep = Nothing
+                            , output = Nothing
+                            }
 
-                        Just _ ->
-                            let
-                                ( newModel, cmd ) =
-                                    initBuildOutput build withBuild
-                            in
-                                ( newModel
-                                , Cmd.batch
-                                    [ cmd, fetchBuildPrep Time.second browsingIndex build.id ]
-                                )
-                else
-                    ( withBuild, Cmd.none )
-        in
-            ( newModel
-            , Cmd.batch
-                [ cmd
-                , setFavicon build.status
-                , model.ports.title <| extractTitle newModel
-                , fetchJobAndHistory
-                ]
-            )
-    else
-        ( model, Cmd.none )
+                        Just currentBuild ->
+                            { currentBuild | build = build }
+
+                withBuild =
+                    { model
+                        | currentBuild = RemoteData.Success currentBuild
+                        , history = updateHistory build model.history
+                    }
+
+                fetchJobAndHistory =
+                    case ( model.job, build.job ) of
+                        ( Nothing, Just buildJob ) ->
+                            Cmd.batch
+                                [ fetchBuildJobDetails buildJob
+                                , fetchBuildHistory buildJob Nothing
+                                ]
+
+                        _ ->
+                            Cmd.none
+
+                ( newModel, cmd ) =
+                    if build.status == Concourse.BuildStatusPending then
+                        ( withBuild, pollUntilStarted browsingIndex build.id )
+                    else if build.reapTime == Nothing then
+                        case model.currentBuild |> RemoteData.toMaybe |> Maybe.andThen .prep of
+                            Nothing ->
+                                initBuildOutput build withBuild
+
+                            Just _ ->
+                                let
+                                    ( newModel, cmd ) =
+                                        initBuildOutput build withBuild
+                                in
+                                    ( newModel
+                                    , Cmd.batch
+                                        [ cmd, fetchBuildPrep Time.second browsingIndex build.id ]
+                                    )
+                    else
+                        ( withBuild, Cmd.none )
+            in
+                ( newModel
+                , Cmd.batch
+                    [ cmd
+                    , setFavicon build.status
+                    , model.ports.title <| extractTitle newModel
+                    , fetchJobAndHistory
+                    ]
+                )
+        else
+            ( model, Cmd.none )
 
 
 pollUntilStarted : Int -> Int -> Cmd Msg
@@ -567,6 +585,9 @@ handleBuildJobFetched job model =
     let
         withJobDetails =
             { model | job = Just job }
+
+        _ =
+            Debug.log "+++handleBuildJobFetched+++ job" withJobDetails
     in
         ( withJobDetails, model.ports.title <| extractTitle withJobDetails )
 
@@ -575,17 +596,64 @@ handleHistoryFetched : Paginated Concourse.Build -> Model -> ( Model, Cmd Msg )
 handleHistoryFetched history model =
     let
         withBuilds =
-            { model | history = List.append model.history history.content }
+            { model
+                | history = List.append model.history history.content
+                , pagination = history.pagination
+            }
 
         currentBuild =
             model.currentBuild |> RemoteData.toMaybe
+
+        job =
+            currentBuild |> Maybe.andThen (.job << .build)
+
+        id =
+            case currentBuild of
+                Just current ->
+                    current.build.id
+
+                Nothing ->
+                    0
+
+        output =
+            currentBuild |> Maybe.andThen .output
+
+        _ =
+            Debug.log "+++handleHistoryFetched+++ currentBuild" currentBuild
+
+        _ =
+            Debug.log "+++handleHistoryFetched+++ output" output
+
+        _ =
+            Debug.log "+++handleHistoryFetched+++ currentBuildID" id
     in
-        case ( history.pagination.nextPage, currentBuild |> Maybe.andThen (.job << .build) ) of
+        case ( history.pagination.nextPage, job ) of
             ( Nothing, _ ) ->
                 ( withBuilds, Cmd.none )
 
             ( Just page, Just job ) ->
-                ( withBuilds, Cmd.batch [ fetchBuildHistory job (Just page) ] )
+                let
+                    somelength =
+                        case output of
+                            Just something ->
+                                List.filter (isIDOfBuildEqualTo id) history.content
+                                    |> List.length
+
+                            Nothing ->
+                                0
+
+                    _ =
+                        Debug.log "+++handelHistoryFetched+++ filteredListLen" somelength
+
+                    fetchCmd =
+                        case somelength of
+                            0 ->
+                                Cmd.batch [ fetchBuildHistory job (Just page) ]
+
+                            _ ->
+                                Cmd.none
+                in
+                    ( withBuilds, fetchCmd )
 
             ( Just url, Nothing ) ->
                 Debug.crash "impossible"
@@ -806,8 +874,17 @@ viewBuildPrepStatus status =
 
 
 viewBuildHeader : Concourse.Build -> Model -> Html Msg
-viewBuildHeader build { now, job, history } =
+viewBuildHeader build model =
     let
+        now =
+            model.now
+
+        job =
+            model.job
+
+        history =
+            model.history
+
         triggerButton =
             case job of
                 Just { name, pipeline } ->
@@ -879,10 +956,73 @@ viewBuildHeader build { now, job, history } =
                         Html.text ""
                 ]
             , Html.div
-                [ onMouseWheel ScrollBuilds
+                [ onMouseWheel ScrollBuilds, class "build-history" ]
+                [ lazyViewHistory build history
+                , showMoreBuilds build model
                 ]
-                [ lazyViewHistory build history ]
             ]
+
+
+showMoreBuilds : Concourse.Build -> Model -> Html Msg
+showMoreBuilds build model =
+    let
+        currentBuild =
+            model.currentBuild |> RemoteData.toMaybe
+
+        job =
+            currentBuild |> Maybe.andThen (.job << .build)
+
+        prevPage =
+            model.pagination.previousPage
+
+        nextPage =
+            model.pagination.nextPage
+
+        historyLength =
+            List.length model.history
+
+        historyPresent =
+            historyLength > 0
+
+        historyLengthAsString =
+            toString historyLength
+
+        -- _ = Debug.log "+++showMoreBuilds+++ nextPage job historyPresent" (nextPage, job, historyPresent)
+    in
+        case job of
+            Nothing ->
+                Html.text ""
+
+            Just job ->
+                let
+                    clickMsg =
+                        case ( nextPage, historyPresent ) of
+                            ( Nothing, True ) ->
+                                (Noop)
+
+                            _ ->
+                                (SwitchToNextBuilds job nextPage)
+
+                    -- _ =
+                    --     Debug.log "+++showMoreBuilds+++ clickMsg" clickMsg
+                in
+                    Html.div
+                        [ id "build-buttons", class "build-buttons" ]
+                        [ -- Html.a
+                          --     [ onLeftClick (Noop)
+                          --     , class "next"
+                          --     , title "next"
+                          --     ]
+                          --     [ Html.text "<" ]
+                          -- ,
+                          Html.span [ class "label" ] [ Html.text historyLengthAsString ]
+                        , Html.a
+                            [ onLeftClick clickMsg
+                            , class "prev"
+                            , title "more history"
+                            ]
+                            [ Html.text "+" ]
+                        ]
 
 
 lazyViewHistory : Concourse.Build -> List Concourse.Build -> Html Msg
@@ -892,7 +1032,7 @@ lazyViewHistory currentBuild builds =
 
 viewHistory : Concourse.Build -> List Concourse.Build -> Html Msg
 viewHistory currentBuild builds =
-    Html.ul [ id "builds" ]
+    Html.ul [ id "builds", class "build-items" ]
         (List.map (viewHistoryItem currentBuild) builds)
 
 
@@ -1055,3 +1195,8 @@ updateHistory newBuild =
 getCurrentTime : Cmd Msg
 getCurrentTime =
     Task.perform ClockTick Time.now
+
+
+isIDOfBuildEqualTo : Int -> Concourse.Build -> Bool
+isIDOfBuildEqualTo id build =
+    id == build.id

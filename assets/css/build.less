@@ -77,3 +77,34 @@
     }
   }
 }
+
+.build-history {
+  display: inline;
+  .build-items {
+    display: inline-block !important;
+    width: ~"calc(100% - 100px)";
+  }
+  .build-buttons {
+    box-sizing: border-box;
+    background: @base00;
+    display: inline-block;
+    font-size: 15px;
+    line-height: 30px;
+    overflow: hidden;
+    text-align: center;
+    width: 100px;
+    .prev, .next {
+      color: @base02;
+      font-weight: bold;
+      &.active, &:active, &:hover {
+        color: white;
+      }
+    }
+    .prev {
+      padding: 0 5px 0px 12px;
+    }
+    .next {
+      padding: 0 12px 0px 5px;
+    }
+  }
+}
