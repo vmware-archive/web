@@ -14,6 +14,7 @@ module Build
         )
 
 import Autoscroll
+import Window exposing (width)
 import BuildDuration
 import BuildOutput
 import Char
@@ -50,6 +51,10 @@ import UpdateMsg exposing (UpdateMsg)
 type alias Ports =
     { title : String -> Cmd Msg
     }
+
+
+type alias ScreenWidth =
+    Int
 
 
 type Page
@@ -945,7 +950,12 @@ viewBuildHeader build model =
                     Html.text ("build #" ++ toString build.id)
     in
         Html.div [ class "fixed-header" ]
-            [ Html.div [ class ("build-header " ++ Concourse.BuildStatus.show build.status) ]
+            [ Html.div
+                [ onMouseWheel ScrollBuilds, class "build-history" ]
+                [ lazyViewHistory build history
+                , showMoreBuilds build model
+                ]
+            , Html.div [ class ("build-header " ++ Concourse.BuildStatus.show build.status) ]
                 [ Html.div [ class "build-actions fr" ] [ triggerButton, abortButton ]
                 , Html.h1 [] [ buildTitle ]
                 , case now of
@@ -954,11 +964,6 @@ viewBuildHeader build model =
 
                     Nothing ->
                         Html.text ""
-                ]
-            , Html.div
-                [ onMouseWheel ScrollBuilds, class "build-history" ]
-                [ lazyViewHistory build history
-                , showMoreBuilds build model
                 ]
             ]
 
@@ -987,7 +992,11 @@ showMoreBuilds build model =
         historyLengthAsString =
             toString historyLength
 
-        -- _ = Debug.log "+++showMoreBuilds+++ nextPage job historyPresent" (nextPage, job, historyPresent)
+        scrollWidth =
+            map Window.width toInt
+
+        _ =
+            Debug.log "+++showMoreBuilds+++ nextPage job historyPresent scrollWidth" ( nextPage, job, historyPresent, scrollWidth )
     in
         case job of
             Nothing ->
@@ -1008,20 +1017,19 @@ showMoreBuilds build model =
                 in
                     Html.div
                         [ id "build-buttons", class "build-buttons" ]
-                        [ -- Html.a
-                          --     [ onLeftClick (Noop)
-                          --     , class "next"
-                          --     , title "next"
-                          --     ]
-                          --     [ Html.text "<" ]
-                          -- ,
-                          Html.span [ class "label" ] [ Html.text historyLengthAsString ]
+                        [ Html.a
+                            [ onLeftClick (Noop)
+                            , class "next"
+                            , title "next"
+                            ]
+                            [ Html.text "<" ]
+                        , Html.span [ class "label" ] [ Html.text historyLengthAsString ]
                         , Html.a
                             [ onLeftClick clickMsg
                             , class "prev"
-                            , title "more history"
+                            , title "prev"
                             ]
-                            [ Html.text "+" ]
+                            [ Html.text ">" ]
                         ]
 
 
@@ -1100,8 +1108,12 @@ fetchBuildHistory job page =
 
 scrollBuilds : Float -> Cmd Msg
 scrollBuilds delta =
-    Task.perform (always Noop) <|
-        Scroll.scroll "builds" delta
+    let
+        _ =
+            Debug.log "+++scrollBuilds+++ move" delta
+    in
+        Task.perform (always Noop) <|
+            Scroll.scroll "builds" delta
 
 
 scrollToCurrentBuildInHistory : Cmd Msg
