@@ -11239,10 +11239,6 @@ var _concourse$atc$Autoscroll$subscriptions = F2(
 			}) : subSubs;
 	});
 
-var _concourse$atc$Format$prependBeta = function (url) {
-	return A2(_elm_lang$core$Basics_ops['++'], '/beta', url);
-};
-
 var _elm_community$graph$Graph_Tree$pushMany = F2(
 	function (vals, queue) {
 		return A3(_elm_lang$core$List$foldl, _avh4$elm_fifo$Fifo$insert, queue, vals);
@@ -14147,9 +14143,9 @@ var _concourse$atc$Concourse$JobBuildIdentifier = F4(
 	function (a, b, c, d) {
 		return {teamName: a, pipelineName: b, jobName: c, buildName: d};
 	});
-var _concourse$atc$Concourse$Build = F7(
-	function (a, b, c, d, e, f, g) {
-		return {id: a, url: b, name: c, job: d, status: e, duration: f, reapTime: g};
+var _concourse$atc$Concourse$Build = F6(
+	function (a, b, c, d, e, f) {
+		return {id: a, name: b, job: c, status: d, duration: e, reapTime: f};
 	});
 var _concourse$atc$Concourse$BuildDuration = F2(
 	function (a, b) {
@@ -14211,7 +14207,9 @@ var _concourse$atc$Concourse$Job = function (a) {
 								return function (i) {
 									return function (j) {
 										return function (k) {
-											return {pipeline: a, name: b, url: c, nextBuild: d, finishedBuild: e, transitionBuild: f, paused: g, disableManualTrigger: h, inputs: i, outputs: j, groups: k};
+											return function (l) {
+												return {pipeline: a, name: b, pipelineName: c, teamName: d, nextBuild: e, finishedBuild: f, transitionBuild: g, paused: h, disableManualTrigger: i, inputs: j, outputs: k, groups: l};
+											};
 										};
 									};
 								};
@@ -14264,9 +14262,9 @@ var _concourse$atc$Concourse$PipelineIdentifier = F2(
 	function (a, b) {
 		return {teamName: a, pipelineName: b};
 	});
-var _concourse$atc$Concourse$Pipeline = F7(
-	function (a, b, c, d, e, f, g) {
-		return {id: a, name: b, url: c, paused: d, $public: e, teamName: f, groups: g};
+var _concourse$atc$Concourse$Pipeline = F6(
+	function (a, b, c, d, e, f) {
+		return {id: a, name: b, paused: c, $public: d, teamName: e, groups: f};
 	});
 var _concourse$atc$Concourse$PipelineGroup = F3(
 	function (a, b, c) {
@@ -14306,12 +14304,9 @@ var _concourse$atc$Concourse$decodePipeline = A2(
 					_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
 					A2(
 						_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-						A2(
-							_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-							_elm_lang$core$Json_Decode$succeed(_concourse$atc$Concourse$Pipeline),
-							A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$int)),
-						A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string)),
-					A2(_elm_lang$core$Json_Decode$field, 'url', _elm_lang$core$Json_Decode$string)),
+						_elm_lang$core$Json_Decode$succeed(_concourse$atc$Concourse$Pipeline),
+						A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$int)),
+					A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string)),
 				A2(_elm_lang$core$Json_Decode$field, 'paused', _elm_lang$core$Json_Decode$bool)),
 			A2(_elm_lang$core$Json_Decode$field, 'public', _elm_lang$core$Json_Decode$bool)),
 		A2(_elm_lang$core$Json_Decode$field, 'team_name', _elm_lang$core$Json_Decode$string)),
@@ -14551,11 +14546,8 @@ var _concourse$atc$Concourse$decodeBuild = A2(
 					_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
 					A2(
 						_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-						A2(
-							_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-							_elm_lang$core$Json_Decode$succeed(_concourse$atc$Concourse$Build),
-							A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$int)),
-						A2(_elm_lang$core$Json_Decode$field, 'url', _elm_lang$core$Json_Decode$string)),
+						_elm_lang$core$Json_Decode$succeed(_concourse$atc$Concourse$Build),
+						A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$int)),
 					A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string)),
 				_elm_lang$core$Json_Decode$maybe(
 					A2(
@@ -14610,10 +14602,13 @@ var _concourse$atc$Concourse$decodeJob = function (pi) {
 										_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
 										A2(
 											_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-											_elm_lang$core$Json_Decode$succeed(
-												_concourse$atc$Concourse$Job(pi)),
-											A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string)),
-										A2(_elm_lang$core$Json_Decode$field, 'url', _elm_lang$core$Json_Decode$string)),
+											A2(
+												_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+												_elm_lang$core$Json_Decode$succeed(
+													_concourse$atc$Concourse$Job(pi)),
+												A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string)),
+											A2(_elm_lang$core$Json_Decode$field, 'pipeline_name', _elm_lang$core$Json_Decode$string)),
+										A2(_elm_lang$core$Json_Decode$field, 'team_name', _elm_lang$core$Json_Decode$string)),
 									_elm_lang$core$Json_Decode$maybe(
 										A2(_elm_lang$core$Json_Decode$field, 'next_build', _concourse$atc$Concourse$decodeBuild))),
 								_elm_lang$core$Json_Decode$maybe(
@@ -16927,6 +16922,14 @@ var _concourse$atc$BetaRoutes$createPageFromSearch = function (search) {
 	} while(false);
 	return _elm_lang$core$Maybe$Nothing;
 };
+var _concourse$atc$BetaRoutes$baseRoute = '/beta';
+var _concourse$atc$BetaRoutes$loginRoute = A2(_elm_lang$core$Basics_ops['++'], _concourse$atc$BetaRoutes$baseRoute, '/login');
+var _concourse$atc$BetaRoutes$loginWithRedirectRoute = function (r) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		_concourse$atc$BetaRoutes$baseRoute,
+		A2(_elm_lang$core$Basics_ops['++'], '/login?redirect=', r));
+};
 var _concourse$atc$BetaRoutes$ConcourseRoute = F4(
 	function (a, b, c, d) {
 		return {logical: a, queries: b, page: c, hash: d};
@@ -17183,15 +17186,43 @@ var _concourse$atc$BetaRoutes$toString = function (route) {
 			return '/beta';
 	}
 };
+var _concourse$atc$BetaRoutes$teamNameLoginRoute = function (teamName) {
+	return _concourse$atc$BetaRoutes$toString(
+		_concourse$atc$BetaRoutes$BetaTeamLogin(teamName));
+};
+var _concourse$atc$BetaRoutes$buildRoute = function (build) {
+	var _p2 = build.job;
+	if (_p2.ctor === 'Just') {
+		var _p3 = _p2._0;
+		return _concourse$atc$BetaRoutes$toString(
+			A4(_concourse$atc$BetaRoutes$BetaBuild, _p3.teamName, _p3.pipelineName, _p3.jobName, build.name));
+	} else {
+		return _concourse$atc$BetaRoutes$toString(
+			_concourse$atc$BetaRoutes$BetaOneOffBuild(
+				_elm_lang$core$Basics$toString(build.id)));
+	}
+};
+var _concourse$atc$BetaRoutes$jobRoute = function (j) {
+	return _concourse$atc$BetaRoutes$toString(
+		A3(_concourse$atc$BetaRoutes$BetaJob, j.teamName, j.pipelineName, j.name));
+};
+var _concourse$atc$BetaRoutes$jobIdentifierRoute = function (j) {
+	return _concourse$atc$BetaRoutes$toString(
+		A3(_concourse$atc$BetaRoutes$BetaJob, j.teamName, j.pipelineName, j.jobName));
+};
+var _concourse$atc$BetaRoutes$pipelineRoute = function (p) {
+	return _concourse$atc$BetaRoutes$toString(
+		A2(_concourse$atc$BetaRoutes$BetaPipeline, p.teamName, p.name));
+};
 var _concourse$atc$BetaRoutes$customToString = function (route) {
 	return A2(
 		_elm_lang$core$Basics_ops['++'],
 		_concourse$atc$BetaRoutes$toString(route.logical),
 		_Bogdanp$elm_querystring$QueryString$render(route.queries));
 };
-var _concourse$atc$BetaRoutes$navigateTo = function (_p2) {
+var _concourse$atc$BetaRoutes$navigateTo = function (_p4) {
 	return _elm_lang$navigation$Navigation$newUrl(
-		_concourse$atc$BetaRoutes$toString(_p2));
+		_concourse$atc$BetaRoutes$toString(_p4));
 };
 var _concourse$atc$BetaRoutes$BetaHome = {ctor: 'BetaHome'};
 var _concourse$atc$BetaRoutes$betaHome = A2(
@@ -17236,11 +17267,11 @@ var _concourse$atc$BetaRoutes$sitemap = _Bogdanp$elm_route$Route$router(
 			}
 		}
 	});
-var _concourse$atc$BetaRoutes$match = function (_p3) {
+var _concourse$atc$BetaRoutes$match = function (_p5) {
 	return A2(
 		_elm_lang$core$Maybe$withDefault,
 		_concourse$atc$BetaRoutes$BetaHome,
-		A2(_Bogdanp$elm_route$Route$match, _concourse$atc$BetaRoutes$sitemap, _p3));
+		A2(_Bogdanp$elm_route$Route$match, _concourse$atc$BetaRoutes$sitemap, _p5));
 };
 var _concourse$atc$BetaRoutes$parsePath = function (location) {
 	return {
@@ -17331,13 +17362,13 @@ var _concourse$atc$BetaPipeline$viewJobNode = function (job) {
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$html$Html_Attributes$class('job paused'),
-					_1: job.url
+					_1: _concourse$atc$BetaRoutes$jobRoute(job)
 				};
 			} else {
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$html$Html_Attributes$class('job paused started'),
-					_1: _p5._2._0.url
+					_1: _concourse$atc$BetaRoutes$buildRoute(_p5._2._0)
 				};
 			}
 		} else {
@@ -17353,7 +17384,7 @@ var _concourse$atc$BetaPipeline$viewJobNode = function (job) {
 									_elm_lang$core$Basics_ops['++'],
 									_concourse$atc$Concourse_BuildStatus$show(_p5._1._0.status),
 									' started'))),
-						_1: _p5._2._0.url
+						_1: _concourse$atc$BetaRoutes$buildRoute(_p5._2._0)
 					};
 				} else {
 					var _p6 = _p5._1._0;
@@ -17364,7 +17395,7 @@ var _concourse$atc$BetaPipeline$viewJobNode = function (job) {
 								_elm_lang$core$Basics_ops['++'],
 								'job ',
 								_concourse$atc$Concourse_BuildStatus$show(_p6.status))),
-						_1: _p6.url
+						_1: _concourse$atc$BetaRoutes$buildRoute(_p6)
 					};
 				}
 			} else {
@@ -17372,13 +17403,13 @@ var _concourse$atc$BetaPipeline$viewJobNode = function (job) {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$html$Html_Attributes$class('job no-builds started'),
-						_1: _p5._2._0.url
+						_1: _concourse$atc$BetaRoutes$buildRoute(_p5._2._0)
 					};
 				} else {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$html$Html_Attributes$class('job no-builds'),
-						_1: job.url
+						_1: _concourse$atc$BetaRoutes$jobRoute(job)
 					};
 				}
 			}
@@ -17402,8 +17433,7 @@ var _concourse$atc$BetaPipeline$viewJobNode = function (job) {
 					_0: _elm_lang$html$Html_Attributes$class('job-name'),
 					_1: {
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$href(
-							_concourse$atc$Format$prependBeta(linkTarget)),
+						_0: _elm_lang$html$Html_Attributes$href(linkTarget),
 						_1: {ctor: '[]'}
 					}
 				},
@@ -17421,8 +17451,7 @@ var _concourse$atc$BetaPipeline$viewJobNode = function (job) {
 						_0: _elm_lang$html$Html_Attributes$class('job-status'),
 						_1: {
 							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$href(
-								_concourse$atc$Format$prependBeta(linkTarget)),
+							_0: _elm_lang$html$Html_Attributes$href(linkTarget),
 							_1: {ctor: '[]'}
 						}
 					},
@@ -17886,35 +17915,6 @@ var _concourse$atc$BetaPipeline$changeToPipelineAndGroups = F2(
 	});
 var _concourse$atc$BetaPipeline$Noop = {ctor: 'Noop'};
 
-var _concourse$atc$Concourse_Build$url = function (build) {
-	var _p0 = build.job;
-	if (_p0.ctor === 'Nothing') {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			'/builds/',
-			_elm_lang$core$Basics$toString(build.id));
-	} else {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			'/teams/',
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				_p0._0.teamName,
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					'/pipelines/',
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						_p0._0.pipelineName,
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							'/jobs/',
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								_p0._0.jobName,
-								A2(_elm_lang$core$Basics_ops['++'], '/builds/', build.name)))))));
-	}
-};
 var _concourse$atc$Concourse_Build$fetchJobBuilds = F2(
 	function (job, page) {
 		var url = A2(
@@ -19748,10 +19748,12 @@ var _concourse$atc$BetaResource$viewBuildCausality = function (build) {
 				{
 					ctor: '::',
 					_0: _concourse$atc$StrictEvents$onLeftClick(
-						_concourse$atc$BetaResource$NavTo(build.url)),
+						_concourse$atc$BetaResource$NavTo(
+							_concourse$atc$BetaRoutes$buildRoute(build))),
 					_1: {
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$href(build.url),
+						_0: _elm_lang$html$Html_Attributes$href(
+							_concourse$atc$BetaRoutes$buildRoute(build)),
 						_1: {ctor: '[]'}
 					}
 				},
@@ -25406,6 +25408,393 @@ var _concourse$atc$StepTree$parseHighlight = function (hash) {
 	}
 };
 
+var _concourse$atc$Routes$createPageFromSearch = function (search) {
+	var q = _Bogdanp$elm_querystring$QueryString$parse(search);
+	var until = A3(_Bogdanp$elm_querystring$QueryString$one, _Bogdanp$elm_querystring$QueryString$int, 'until', q);
+	var since = A3(_Bogdanp$elm_querystring$QueryString$one, _Bogdanp$elm_querystring$QueryString$int, 'since', q);
+	var limit = A2(
+		_elm_lang$core$Maybe$withDefault,
+		100,
+		A3(_Bogdanp$elm_querystring$QueryString$one, _Bogdanp$elm_querystring$QueryString$int, 'limit', q));
+	var _p0 = {ctor: '_Tuple2', _0: since, _1: until};
+	_v0_2:
+	do {
+		if (_p0.ctor === '_Tuple2') {
+			if (_p0._0.ctor === 'Nothing') {
+				if (_p0._1.ctor === 'Just') {
+					return _elm_lang$core$Maybe$Just(
+						{
+							direction: _concourse$atc$Concourse_Pagination$Until(_p0._1._0),
+							limit: limit
+						});
+				} else {
+					break _v0_2;
+				}
+			} else {
+				if (_p0._1.ctor === 'Nothing') {
+					return _elm_lang$core$Maybe$Just(
+						{
+							direction: _concourse$atc$Concourse_Pagination$Since(_p0._0._0),
+							limit: limit
+						});
+				} else {
+					break _v0_2;
+				}
+			}
+		} else {
+			break _v0_2;
+		}
+	} while(false);
+	return _elm_lang$core$Maybe$Nothing;
+};
+var _concourse$atc$Routes$ConcourseRoute = F4(
+	function (a, b, c, d) {
+		return {logical: a, queries: b, page: c, hash: d};
+	});
+var _concourse$atc$Routes$TeamLogin = function (a) {
+	return {ctor: 'TeamLogin', _0: a};
+};
+var _concourse$atc$Routes$teamLogin = A2(
+	_Bogdanp$elm_route$Route_ops[':='],
+	_concourse$atc$Routes$TeamLogin,
+	A2(
+		_Bogdanp$elm_route$Route_ops['</>'],
+		A2(
+			_Bogdanp$elm_route$Route_ops['</>'],
+			_Bogdanp$elm_route$Route$static('teams'),
+			_Bogdanp$elm_route$Route$string),
+		_Bogdanp$elm_route$Route$static('login')));
+var _concourse$atc$Routes$SelectTeam = {ctor: 'SelectTeam'};
+var _concourse$atc$Routes$login = A2(
+	_Bogdanp$elm_route$Route_ops[':='],
+	_concourse$atc$Routes$SelectTeam,
+	_Bogdanp$elm_route$Route$static('login'));
+var _concourse$atc$Routes$Pipeline = F2(
+	function (a, b) {
+		return {ctor: 'Pipeline', _0: a, _1: b};
+	});
+var _concourse$atc$Routes$pipeline = A2(
+	_Bogdanp$elm_route$Route_ops[':='],
+	_concourse$atc$Routes$Pipeline,
+	A2(
+		_Bogdanp$elm_route$Route_ops['</>'],
+		A2(
+			_Bogdanp$elm_route$Route_ops['</>'],
+			A2(
+				_Bogdanp$elm_route$Route_ops['</>'],
+				_Bogdanp$elm_route$Route$static('teams'),
+				_Bogdanp$elm_route$Route$string),
+			_Bogdanp$elm_route$Route$static('pipelines')),
+		_Bogdanp$elm_route$Route$string));
+var _concourse$atc$Routes$OneOffBuild = function (a) {
+	return {ctor: 'OneOffBuild', _0: a};
+};
+var _concourse$atc$Routes$oneOffBuild = A2(
+	_Bogdanp$elm_route$Route_ops[':='],
+	_concourse$atc$Routes$OneOffBuild,
+	A2(
+		_Bogdanp$elm_route$Route_ops['</>'],
+		_Bogdanp$elm_route$Route$static('builds'),
+		_Bogdanp$elm_route$Route$string));
+var _concourse$atc$Routes$Job = F3(
+	function (a, b, c) {
+		return {ctor: 'Job', _0: a, _1: b, _2: c};
+	});
+var _concourse$atc$Routes$job = A2(
+	_Bogdanp$elm_route$Route_ops[':='],
+	_concourse$atc$Routes$Job,
+	A2(
+		_Bogdanp$elm_route$Route_ops['</>'],
+		A2(
+			_Bogdanp$elm_route$Route_ops['</>'],
+			A2(
+				_Bogdanp$elm_route$Route_ops['</>'],
+				A2(
+					_Bogdanp$elm_route$Route_ops['</>'],
+					A2(
+						_Bogdanp$elm_route$Route_ops['</>'],
+						_Bogdanp$elm_route$Route$static('teams'),
+						_Bogdanp$elm_route$Route$string),
+					_Bogdanp$elm_route$Route$static('pipelines')),
+				_Bogdanp$elm_route$Route$string),
+			_Bogdanp$elm_route$Route$static('jobs')),
+		_Bogdanp$elm_route$Route$string));
+var _concourse$atc$Routes$BetaResource = F3(
+	function (a, b, c) {
+		return {ctor: 'BetaResource', _0: a, _1: b, _2: c};
+	});
+var _concourse$atc$Routes$betaResource = A2(
+	_Bogdanp$elm_route$Route_ops[':='],
+	_concourse$atc$Routes$BetaResource,
+	A2(
+		_Bogdanp$elm_route$Route_ops['</>'],
+		A2(
+			_Bogdanp$elm_route$Route_ops['</>'],
+			A2(
+				_Bogdanp$elm_route$Route_ops['</>'],
+				A2(
+					_Bogdanp$elm_route$Route_ops['</>'],
+					A2(
+						_Bogdanp$elm_route$Route_ops['</>'],
+						A2(
+							_Bogdanp$elm_route$Route_ops['</>'],
+							_Bogdanp$elm_route$Route$static('beta'),
+							_Bogdanp$elm_route$Route$static('teams')),
+						_Bogdanp$elm_route$Route$string),
+					_Bogdanp$elm_route$Route$static('pipelines')),
+				_Bogdanp$elm_route$Route$string),
+			_Bogdanp$elm_route$Route$static('resources')),
+		_Bogdanp$elm_route$Route$string));
+var _concourse$atc$Routes$Resource = F3(
+	function (a, b, c) {
+		return {ctor: 'Resource', _0: a, _1: b, _2: c};
+	});
+var _concourse$atc$Routes$resource = A2(
+	_Bogdanp$elm_route$Route_ops[':='],
+	_concourse$atc$Routes$Resource,
+	A2(
+		_Bogdanp$elm_route$Route_ops['</>'],
+		A2(
+			_Bogdanp$elm_route$Route_ops['</>'],
+			A2(
+				_Bogdanp$elm_route$Route_ops['</>'],
+				A2(
+					_Bogdanp$elm_route$Route_ops['</>'],
+					A2(
+						_Bogdanp$elm_route$Route_ops['</>'],
+						_Bogdanp$elm_route$Route$static('teams'),
+						_Bogdanp$elm_route$Route$string),
+					_Bogdanp$elm_route$Route$static('pipelines')),
+				_Bogdanp$elm_route$Route$string),
+			_Bogdanp$elm_route$Route$static('resources')),
+		_Bogdanp$elm_route$Route$string));
+var _concourse$atc$Routes$Build = F4(
+	function (a, b, c, d) {
+		return {ctor: 'Build', _0: a, _1: b, _2: c, _3: d};
+	});
+var _concourse$atc$Routes$build = A2(
+	_Bogdanp$elm_route$Route_ops[':='],
+	_concourse$atc$Routes$Build,
+	A2(
+		_Bogdanp$elm_route$Route_ops['</>'],
+		A2(
+			_Bogdanp$elm_route$Route_ops['</>'],
+			A2(
+				_Bogdanp$elm_route$Route_ops['</>'],
+				A2(
+					_Bogdanp$elm_route$Route_ops['</>'],
+					A2(
+						_Bogdanp$elm_route$Route_ops['</>'],
+						A2(
+							_Bogdanp$elm_route$Route_ops['</>'],
+							A2(
+								_Bogdanp$elm_route$Route_ops['</>'],
+								_Bogdanp$elm_route$Route$static('teams'),
+								_Bogdanp$elm_route$Route$string),
+							_Bogdanp$elm_route$Route$static('pipelines')),
+						_Bogdanp$elm_route$Route$string),
+					_Bogdanp$elm_route$Route$static('jobs')),
+				_Bogdanp$elm_route$Route$string),
+			_Bogdanp$elm_route$Route$static('builds')),
+		_Bogdanp$elm_route$Route$string));
+var _concourse$atc$Routes$sitemap = _Bogdanp$elm_route$Route$router(
+	{
+		ctor: '::',
+		_0: _concourse$atc$Routes$build,
+		_1: {
+			ctor: '::',
+			_0: _concourse$atc$Routes$resource,
+			_1: {
+				ctor: '::',
+				_0: _concourse$atc$Routes$betaResource,
+				_1: {
+					ctor: '::',
+					_0: _concourse$atc$Routes$job,
+					_1: {
+						ctor: '::',
+						_0: _concourse$atc$Routes$login,
+						_1: {
+							ctor: '::',
+							_0: _concourse$atc$Routes$oneOffBuild,
+							_1: {
+								ctor: '::',
+								_0: _concourse$atc$Routes$pipeline,
+								_1: {
+									ctor: '::',
+									_0: _concourse$atc$Routes$teamLogin,
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	});
+var _concourse$atc$Routes$toString = function (route) {
+	var _p1 = route;
+	switch (_p1.ctor) {
+		case 'Build':
+			return A2(
+				_Bogdanp$elm_route$Route$reverse,
+				_concourse$atc$Routes$build,
+				{
+					ctor: '::',
+					_0: _p1._0,
+					_1: {
+						ctor: '::',
+						_0: _p1._1,
+						_1: {
+							ctor: '::',
+							_0: _p1._2,
+							_1: {
+								ctor: '::',
+								_0: _p1._3,
+								_1: {ctor: '[]'}
+							}
+						}
+					}
+				});
+		case 'Job':
+			return A2(
+				_Bogdanp$elm_route$Route$reverse,
+				_concourse$atc$Routes$job,
+				{
+					ctor: '::',
+					_0: _p1._0,
+					_1: {
+						ctor: '::',
+						_0: _p1._1,
+						_1: {
+							ctor: '::',
+							_0: _p1._2,
+							_1: {ctor: '[]'}
+						}
+					}
+				});
+		case 'Resource':
+			return A2(
+				_Bogdanp$elm_route$Route$reverse,
+				_concourse$atc$Routes$job,
+				{
+					ctor: '::',
+					_0: _p1._0,
+					_1: {
+						ctor: '::',
+						_0: _p1._1,
+						_1: {
+							ctor: '::',
+							_0: _p1._2,
+							_1: {ctor: '[]'}
+						}
+					}
+				});
+		case 'BetaResource':
+			return A2(
+				_Bogdanp$elm_route$Route$reverse,
+				_concourse$atc$Routes$betaResource,
+				{
+					ctor: '::',
+					_0: _p1._0,
+					_1: {
+						ctor: '::',
+						_0: _p1._1,
+						_1: {
+							ctor: '::',
+							_0: _p1._2,
+							_1: {ctor: '[]'}
+						}
+					}
+				});
+		case 'OneOffBuild':
+			return A2(
+				_Bogdanp$elm_route$Route$reverse,
+				_concourse$atc$Routes$oneOffBuild,
+				{
+					ctor: '::',
+					_0: _p1._0,
+					_1: {ctor: '[]'}
+				});
+		case 'Pipeline':
+			return A2(
+				_Bogdanp$elm_route$Route$reverse,
+				_concourse$atc$Routes$pipeline,
+				{
+					ctor: '::',
+					_0: _p1._0,
+					_1: {
+						ctor: '::',
+						_0: _p1._1,
+						_1: {ctor: '[]'}
+					}
+				});
+		case 'SelectTeam':
+			return A2(
+				_Bogdanp$elm_route$Route$reverse,
+				_concourse$atc$Routes$login,
+				{ctor: '[]'});
+		case 'TeamLogin':
+			return A2(
+				_Bogdanp$elm_route$Route$reverse,
+				_concourse$atc$Routes$teamLogin,
+				{
+					ctor: '::',
+					_0: _p1._0,
+					_1: {ctor: '[]'}
+				});
+		default:
+			return '/';
+	}
+};
+var _concourse$atc$Routes$jobRoute = function (j) {
+	return _concourse$atc$Routes$toString(
+		A3(_concourse$atc$Routes$Job, j.teamName, j.pipelineName, j.name));
+};
+var _concourse$atc$Routes$pipelineRoute = function (p) {
+	return _concourse$atc$Routes$toString(
+		A2(_concourse$atc$Routes$Pipeline, p.teamName, p.name));
+};
+var _concourse$atc$Routes$customToString = function (route) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		_concourse$atc$Routes$toString(route.logical),
+		_Bogdanp$elm_querystring$QueryString$render(route.queries));
+};
+var _concourse$atc$Routes$navigateTo = function (_p2) {
+	return _elm_lang$navigation$Navigation$newUrl(
+		_concourse$atc$Routes$toString(_p2));
+};
+var _concourse$atc$Routes$buildRoute = function (build) {
+	var _p3 = build.job;
+	if (_p3.ctor === 'Just') {
+		var _p4 = _p3._0;
+		return _concourse$atc$Routes$toString(
+			A4(_concourse$atc$Routes$Build, _p4.teamName, _p4.pipelineName, _p4.jobName, build.name));
+	} else {
+		return _concourse$atc$Routes$toString(
+			_concourse$atc$Routes$OneOffBuild(
+				_elm_lang$core$Basics$toString(build.id)));
+	}
+};
+var _concourse$atc$Routes$Home = {ctor: 'Home'};
+var _concourse$atc$Routes$match = function (_p5) {
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		_concourse$atc$Routes$Home,
+		A2(_Bogdanp$elm_route$Route$match, _concourse$atc$Routes$sitemap, _p5));
+};
+var _concourse$atc$Routes$parsePath = function (location) {
+	return {
+		logical: _concourse$atc$Routes$match(location.pathname),
+		queries: A2(
+			_Bogdanp$elm_querystring$QueryString$remove,
+			'csrf_token',
+			_Bogdanp$elm_querystring$QueryString$parse(location.search)),
+		page: _concourse$atc$Routes$createPageFromSearch(location.search),
+		hash: location.hash
+	};
+};
+
 var _concourse$atc$BuildOutput$viewLoginButton = function (build) {
 	return A2(
 		_elm_lang$html$Html$form,
@@ -25449,7 +25838,7 @@ var _concourse$atc$BuildOutput$viewLoginButton = function (build) {
 							_1: {
 								ctor: '::',
 								_0: _elm_lang$html$Html_Attributes$value(
-									_concourse$atc$Concourse_Build$url(build)),
+									_concourse$atc$Routes$buildRoute(build)),
 								_1: {ctor: '[]'}
 							}
 						}
@@ -26818,8 +27207,8 @@ var _concourse$atc$Build$handleHistoryFetched = F2(
 				return _elm_lang$core$Native_Utils.crashCase(
 					'Build',
 					{
-						start: {line: 583, column: 9},
-						end: {line: 591, column: 41}
+						start: {line: 584, column: 9},
+						end: {line: 592, column: 41}
 					},
 					_p18)('impossible');
 			}
@@ -26986,7 +27375,7 @@ var _concourse$atc$Build$viewHistoryItem = F2(
 						_1: {
 							ctor: '::',
 							_0: _elm_lang$html$Html_Attributes$href(
-								_concourse$atc$Concourse_Build$url(build)),
+								_concourse$atc$Routes$buildRoute(build)),
 							_1: {ctor: '[]'}
 						}
 					},
@@ -28006,7 +28395,7 @@ var _concourse$atc$Build$update = F2(
 						ctor: '_Tuple2',
 						_0: model,
 						_1: _elm_lang$navigation$Navigation$newUrl(
-							_concourse$atc$Concourse_Build$url(_p46._0))
+							_concourse$atc$Routes$buildRoute(_p46._0))
 					};
 				case 'TriggerBuild':
 					var _p47 = _p46._0;
@@ -28154,8 +28543,8 @@ var _concourse$atc$Build$update = F2(
 							return _elm_lang$core$Native_Utils.crashCase(
 								'Build',
 								{
-									start: {line: 305, column: 21},
-									end: {line: 325, column: 95}
+									start: {line: 306, column: 21},
+									end: {line: 326, column: 95}
 								},
 								_p54)('impossible (received action for missing BuildOutput)');
 						}
@@ -29530,11 +29919,11 @@ var _concourse$atc$Job$viewBuildHeader = F2(
 					ctor: '::',
 					_0: _concourse$atc$StrictEvents$onLeftClick(
 						_concourse$atc$Job$NavTo(
-							_concourse$atc$Concourse_Build$url(b))),
+							_concourse$atc$Routes$buildRoute(b))),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$html$Html_Attributes$href(
-							_concourse$atc$Concourse_Build$url(b)),
+							_concourse$atc$Routes$buildRoute(b)),
 						_1: {ctor: '[]'}
 					}
 				}
@@ -30855,373 +31244,6 @@ var _concourse$atc$Login$init = F3(
 	});
 var _concourse$atc$Login$Noop = {ctor: 'Noop'};
 
-var _concourse$atc$Routes$createPageFromSearch = function (search) {
-	var q = _Bogdanp$elm_querystring$QueryString$parse(search);
-	var until = A3(_Bogdanp$elm_querystring$QueryString$one, _Bogdanp$elm_querystring$QueryString$int, 'until', q);
-	var since = A3(_Bogdanp$elm_querystring$QueryString$one, _Bogdanp$elm_querystring$QueryString$int, 'since', q);
-	var limit = A2(
-		_elm_lang$core$Maybe$withDefault,
-		100,
-		A3(_Bogdanp$elm_querystring$QueryString$one, _Bogdanp$elm_querystring$QueryString$int, 'limit', q));
-	var _p0 = {ctor: '_Tuple2', _0: since, _1: until};
-	_v0_2:
-	do {
-		if (_p0.ctor === '_Tuple2') {
-			if (_p0._0.ctor === 'Nothing') {
-				if (_p0._1.ctor === 'Just') {
-					return _elm_lang$core$Maybe$Just(
-						{
-							direction: _concourse$atc$Concourse_Pagination$Until(_p0._1._0),
-							limit: limit
-						});
-				} else {
-					break _v0_2;
-				}
-			} else {
-				if (_p0._1.ctor === 'Nothing') {
-					return _elm_lang$core$Maybe$Just(
-						{
-							direction: _concourse$atc$Concourse_Pagination$Since(_p0._0._0),
-							limit: limit
-						});
-				} else {
-					break _v0_2;
-				}
-			}
-		} else {
-			break _v0_2;
-		}
-	} while(false);
-	return _elm_lang$core$Maybe$Nothing;
-};
-var _concourse$atc$Routes$ConcourseRoute = F4(
-	function (a, b, c, d) {
-		return {logical: a, queries: b, page: c, hash: d};
-	});
-var _concourse$atc$Routes$TeamLogin = function (a) {
-	return {ctor: 'TeamLogin', _0: a};
-};
-var _concourse$atc$Routes$teamLogin = A2(
-	_Bogdanp$elm_route$Route_ops[':='],
-	_concourse$atc$Routes$TeamLogin,
-	A2(
-		_Bogdanp$elm_route$Route_ops['</>'],
-		A2(
-			_Bogdanp$elm_route$Route_ops['</>'],
-			_Bogdanp$elm_route$Route$static('teams'),
-			_Bogdanp$elm_route$Route$string),
-		_Bogdanp$elm_route$Route$static('login')));
-var _concourse$atc$Routes$SelectTeam = {ctor: 'SelectTeam'};
-var _concourse$atc$Routes$login = A2(
-	_Bogdanp$elm_route$Route_ops[':='],
-	_concourse$atc$Routes$SelectTeam,
-	_Bogdanp$elm_route$Route$static('login'));
-var _concourse$atc$Routes$Pipeline = F2(
-	function (a, b) {
-		return {ctor: 'Pipeline', _0: a, _1: b};
-	});
-var _concourse$atc$Routes$pipeline = A2(
-	_Bogdanp$elm_route$Route_ops[':='],
-	_concourse$atc$Routes$Pipeline,
-	A2(
-		_Bogdanp$elm_route$Route_ops['</>'],
-		A2(
-			_Bogdanp$elm_route$Route_ops['</>'],
-			A2(
-				_Bogdanp$elm_route$Route_ops['</>'],
-				_Bogdanp$elm_route$Route$static('teams'),
-				_Bogdanp$elm_route$Route$string),
-			_Bogdanp$elm_route$Route$static('pipelines')),
-		_Bogdanp$elm_route$Route$string));
-var _concourse$atc$Routes$OneOffBuild = function (a) {
-	return {ctor: 'OneOffBuild', _0: a};
-};
-var _concourse$atc$Routes$oneOffBuild = A2(
-	_Bogdanp$elm_route$Route_ops[':='],
-	_concourse$atc$Routes$OneOffBuild,
-	A2(
-		_Bogdanp$elm_route$Route_ops['</>'],
-		_Bogdanp$elm_route$Route$static('builds'),
-		_Bogdanp$elm_route$Route$string));
-var _concourse$atc$Routes$Job = F3(
-	function (a, b, c) {
-		return {ctor: 'Job', _0: a, _1: b, _2: c};
-	});
-var _concourse$atc$Routes$job = A2(
-	_Bogdanp$elm_route$Route_ops[':='],
-	_concourse$atc$Routes$Job,
-	A2(
-		_Bogdanp$elm_route$Route_ops['</>'],
-		A2(
-			_Bogdanp$elm_route$Route_ops['</>'],
-			A2(
-				_Bogdanp$elm_route$Route_ops['</>'],
-				A2(
-					_Bogdanp$elm_route$Route_ops['</>'],
-					A2(
-						_Bogdanp$elm_route$Route_ops['</>'],
-						_Bogdanp$elm_route$Route$static('teams'),
-						_Bogdanp$elm_route$Route$string),
-					_Bogdanp$elm_route$Route$static('pipelines')),
-				_Bogdanp$elm_route$Route$string),
-			_Bogdanp$elm_route$Route$static('jobs')),
-		_Bogdanp$elm_route$Route$string));
-var _concourse$atc$Routes$BetaResource = F3(
-	function (a, b, c) {
-		return {ctor: 'BetaResource', _0: a, _1: b, _2: c};
-	});
-var _concourse$atc$Routes$betaResource = A2(
-	_Bogdanp$elm_route$Route_ops[':='],
-	_concourse$atc$Routes$BetaResource,
-	A2(
-		_Bogdanp$elm_route$Route_ops['</>'],
-		A2(
-			_Bogdanp$elm_route$Route_ops['</>'],
-			A2(
-				_Bogdanp$elm_route$Route_ops['</>'],
-				A2(
-					_Bogdanp$elm_route$Route_ops['</>'],
-					A2(
-						_Bogdanp$elm_route$Route_ops['</>'],
-						A2(
-							_Bogdanp$elm_route$Route_ops['</>'],
-							_Bogdanp$elm_route$Route$static('beta'),
-							_Bogdanp$elm_route$Route$static('teams')),
-						_Bogdanp$elm_route$Route$string),
-					_Bogdanp$elm_route$Route$static('pipelines')),
-				_Bogdanp$elm_route$Route$string),
-			_Bogdanp$elm_route$Route$static('resources')),
-		_Bogdanp$elm_route$Route$string));
-var _concourse$atc$Routes$Resource = F3(
-	function (a, b, c) {
-		return {ctor: 'Resource', _0: a, _1: b, _2: c};
-	});
-var _concourse$atc$Routes$resource = A2(
-	_Bogdanp$elm_route$Route_ops[':='],
-	_concourse$atc$Routes$Resource,
-	A2(
-		_Bogdanp$elm_route$Route_ops['</>'],
-		A2(
-			_Bogdanp$elm_route$Route_ops['</>'],
-			A2(
-				_Bogdanp$elm_route$Route_ops['</>'],
-				A2(
-					_Bogdanp$elm_route$Route_ops['</>'],
-					A2(
-						_Bogdanp$elm_route$Route_ops['</>'],
-						_Bogdanp$elm_route$Route$static('teams'),
-						_Bogdanp$elm_route$Route$string),
-					_Bogdanp$elm_route$Route$static('pipelines')),
-				_Bogdanp$elm_route$Route$string),
-			_Bogdanp$elm_route$Route$static('resources')),
-		_Bogdanp$elm_route$Route$string));
-var _concourse$atc$Routes$Build = F4(
-	function (a, b, c, d) {
-		return {ctor: 'Build', _0: a, _1: b, _2: c, _3: d};
-	});
-var _concourse$atc$Routes$build = A2(
-	_Bogdanp$elm_route$Route_ops[':='],
-	_concourse$atc$Routes$Build,
-	A2(
-		_Bogdanp$elm_route$Route_ops['</>'],
-		A2(
-			_Bogdanp$elm_route$Route_ops['</>'],
-			A2(
-				_Bogdanp$elm_route$Route_ops['</>'],
-				A2(
-					_Bogdanp$elm_route$Route_ops['</>'],
-					A2(
-						_Bogdanp$elm_route$Route_ops['</>'],
-						A2(
-							_Bogdanp$elm_route$Route_ops['</>'],
-							A2(
-								_Bogdanp$elm_route$Route_ops['</>'],
-								_Bogdanp$elm_route$Route$static('teams'),
-								_Bogdanp$elm_route$Route$string),
-							_Bogdanp$elm_route$Route$static('pipelines')),
-						_Bogdanp$elm_route$Route$string),
-					_Bogdanp$elm_route$Route$static('jobs')),
-				_Bogdanp$elm_route$Route$string),
-			_Bogdanp$elm_route$Route$static('builds')),
-		_Bogdanp$elm_route$Route$string));
-var _concourse$atc$Routes$sitemap = _Bogdanp$elm_route$Route$router(
-	{
-		ctor: '::',
-		_0: _concourse$atc$Routes$build,
-		_1: {
-			ctor: '::',
-			_0: _concourse$atc$Routes$resource,
-			_1: {
-				ctor: '::',
-				_0: _concourse$atc$Routes$betaResource,
-				_1: {
-					ctor: '::',
-					_0: _concourse$atc$Routes$job,
-					_1: {
-						ctor: '::',
-						_0: _concourse$atc$Routes$login,
-						_1: {
-							ctor: '::',
-							_0: _concourse$atc$Routes$oneOffBuild,
-							_1: {
-								ctor: '::',
-								_0: _concourse$atc$Routes$pipeline,
-								_1: {
-									ctor: '::',
-									_0: _concourse$atc$Routes$teamLogin,
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	});
-var _concourse$atc$Routes$toString = function (route) {
-	var _p1 = route;
-	switch (_p1.ctor) {
-		case 'Build':
-			return A2(
-				_Bogdanp$elm_route$Route$reverse,
-				_concourse$atc$Routes$build,
-				{
-					ctor: '::',
-					_0: _p1._0,
-					_1: {
-						ctor: '::',
-						_0: _p1._1,
-						_1: {
-							ctor: '::',
-							_0: _p1._2,
-							_1: {
-								ctor: '::',
-								_0: _p1._3,
-								_1: {ctor: '[]'}
-							}
-						}
-					}
-				});
-		case 'Job':
-			return A2(
-				_Bogdanp$elm_route$Route$reverse,
-				_concourse$atc$Routes$job,
-				{
-					ctor: '::',
-					_0: _p1._0,
-					_1: {
-						ctor: '::',
-						_0: _p1._1,
-						_1: {
-							ctor: '::',
-							_0: _p1._2,
-							_1: {ctor: '[]'}
-						}
-					}
-				});
-		case 'Resource':
-			return A2(
-				_Bogdanp$elm_route$Route$reverse,
-				_concourse$atc$Routes$job,
-				{
-					ctor: '::',
-					_0: _p1._0,
-					_1: {
-						ctor: '::',
-						_0: _p1._1,
-						_1: {
-							ctor: '::',
-							_0: _p1._2,
-							_1: {ctor: '[]'}
-						}
-					}
-				});
-		case 'BetaResource':
-			return A2(
-				_Bogdanp$elm_route$Route$reverse,
-				_concourse$atc$Routes$betaResource,
-				{
-					ctor: '::',
-					_0: _p1._0,
-					_1: {
-						ctor: '::',
-						_0: _p1._1,
-						_1: {
-							ctor: '::',
-							_0: _p1._2,
-							_1: {ctor: '[]'}
-						}
-					}
-				});
-		case 'OneOffBuild':
-			return A2(
-				_Bogdanp$elm_route$Route$reverse,
-				_concourse$atc$Routes$oneOffBuild,
-				{
-					ctor: '::',
-					_0: _p1._0,
-					_1: {ctor: '[]'}
-				});
-		case 'Pipeline':
-			return A2(
-				_Bogdanp$elm_route$Route$reverse,
-				_concourse$atc$Routes$pipeline,
-				{
-					ctor: '::',
-					_0: _p1._0,
-					_1: {
-						ctor: '::',
-						_0: _p1._1,
-						_1: {ctor: '[]'}
-					}
-				});
-		case 'SelectTeam':
-			return A2(
-				_Bogdanp$elm_route$Route$reverse,
-				_concourse$atc$Routes$login,
-				{ctor: '[]'});
-		case 'TeamLogin':
-			return A2(
-				_Bogdanp$elm_route$Route$reverse,
-				_concourse$atc$Routes$teamLogin,
-				{
-					ctor: '::',
-					_0: _p1._0,
-					_1: {ctor: '[]'}
-				});
-		default:
-			return '/';
-	}
-};
-var _concourse$atc$Routes$customToString = function (route) {
-	return A2(
-		_elm_lang$core$Basics_ops['++'],
-		_concourse$atc$Routes$toString(route.logical),
-		_Bogdanp$elm_querystring$QueryString$render(route.queries));
-};
-var _concourse$atc$Routes$navigateTo = function (_p2) {
-	return _elm_lang$navigation$Navigation$newUrl(
-		_concourse$atc$Routes$toString(_p2));
-};
-var _concourse$atc$Routes$Home = {ctor: 'Home'};
-var _concourse$atc$Routes$match = function (_p3) {
-	return A2(
-		_elm_lang$core$Maybe$withDefault,
-		_concourse$atc$Routes$Home,
-		A2(_Bogdanp$elm_route$Route$match, _concourse$atc$Routes$sitemap, _p3));
-};
-var _concourse$atc$Routes$parsePath = function (location) {
-	return {
-		logical: _concourse$atc$Routes$match(location.pathname),
-		queries: A2(
-			_Bogdanp$elm_querystring$QueryString$remove,
-			'csrf_token',
-			_Bogdanp$elm_querystring$QueryString$parse(location.search)),
-		page: _concourse$atc$Routes$createPageFromSearch(location.search),
-		hash: location.hash
-	};
-};
-
 var _elm_lang$mouse$Mouse_ops = _elm_lang$mouse$Mouse_ops || {};
 _elm_lang$mouse$Mouse_ops['&>'] = F2(
 	function (t1, t2) {
@@ -32228,10 +32250,12 @@ var _concourse$atc$SideBar$viewDraggable = F2(
 									_1: {
 										ctor: '::',
 										_0: _concourse$atc$StrictEvents$onLeftClick(
-											_concourse$atc$SideBar$NavToPipeline(uip.pipeline.url)),
+											_concourse$atc$SideBar$NavToPipeline(
+												_concourse$atc$Routes$pipelineRoute(uip.pipeline))),
 										_1: {
 											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$href(uip.pipeline.url),
+											_0: _elm_lang$html$Html_Attributes$href(
+												_concourse$atc$Routes$pipelineRoute(uip.pipeline)),
 											_1: {ctor: '[]'}
 										}
 									}
@@ -36954,9 +36978,9 @@ var _concourse$atc$TopBar$view = function (model) {
 								A2(
 									_concourse$atc$TopBar$viewGroup,
 									_concourse$atc$TopBar$getSelectedGroupsForRoute(model),
-									_p16.url),
+									_concourse$atc$Routes$pipelineRoute(_p16)),
 								_p16.groups),
-							_1: _p16.url
+							_1: _concourse$atc$Routes$pipelineRoute(_p16)
 						};
 					}
 				}();

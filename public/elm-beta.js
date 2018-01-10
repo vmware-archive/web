@@ -12527,9 +12527,9 @@ var _concourse$atc$Concourse$JobBuildIdentifier = F4(
 	function (a, b, c, d) {
 		return {teamName: a, pipelineName: b, jobName: c, buildName: d};
 	});
-var _concourse$atc$Concourse$Build = F7(
-	function (a, b, c, d, e, f, g) {
-		return {id: a, url: b, name: c, job: d, status: e, duration: f, reapTime: g};
+var _concourse$atc$Concourse$Build = F6(
+	function (a, b, c, d, e, f) {
+		return {id: a, name: b, job: c, status: d, duration: e, reapTime: f};
 	});
 var _concourse$atc$Concourse$BuildDuration = F2(
 	function (a, b) {
@@ -12591,7 +12591,9 @@ var _concourse$atc$Concourse$Job = function (a) {
 								return function (i) {
 									return function (j) {
 										return function (k) {
-											return {pipeline: a, name: b, url: c, nextBuild: d, finishedBuild: e, transitionBuild: f, paused: g, disableManualTrigger: h, inputs: i, outputs: j, groups: k};
+											return function (l) {
+												return {pipeline: a, name: b, pipelineName: c, teamName: d, nextBuild: e, finishedBuild: f, transitionBuild: g, paused: h, disableManualTrigger: i, inputs: j, outputs: k, groups: l};
+											};
 										};
 									};
 								};
@@ -12644,9 +12646,9 @@ var _concourse$atc$Concourse$PipelineIdentifier = F2(
 	function (a, b) {
 		return {teamName: a, pipelineName: b};
 	});
-var _concourse$atc$Concourse$Pipeline = F7(
-	function (a, b, c, d, e, f, g) {
-		return {id: a, name: b, url: c, paused: d, $public: e, teamName: f, groups: g};
+var _concourse$atc$Concourse$Pipeline = F6(
+	function (a, b, c, d, e, f) {
+		return {id: a, name: b, paused: c, $public: d, teamName: e, groups: f};
 	});
 var _concourse$atc$Concourse$PipelineGroup = F3(
 	function (a, b, c) {
@@ -12686,12 +12688,9 @@ var _concourse$atc$Concourse$decodePipeline = A2(
 					_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
 					A2(
 						_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-						A2(
-							_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-							_elm_lang$core$Json_Decode$succeed(_concourse$atc$Concourse$Pipeline),
-							A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$int)),
-						A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string)),
-					A2(_elm_lang$core$Json_Decode$field, 'url', _elm_lang$core$Json_Decode$string)),
+						_elm_lang$core$Json_Decode$succeed(_concourse$atc$Concourse$Pipeline),
+						A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$int)),
+					A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string)),
 				A2(_elm_lang$core$Json_Decode$field, 'paused', _elm_lang$core$Json_Decode$bool)),
 			A2(_elm_lang$core$Json_Decode$field, 'public', _elm_lang$core$Json_Decode$bool)),
 		A2(_elm_lang$core$Json_Decode$field, 'team_name', _elm_lang$core$Json_Decode$string)),
@@ -12931,11 +12930,8 @@ var _concourse$atc$Concourse$decodeBuild = A2(
 					_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
 					A2(
 						_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-						A2(
-							_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-							_elm_lang$core$Json_Decode$succeed(_concourse$atc$Concourse$Build),
-							A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$int)),
-						A2(_elm_lang$core$Json_Decode$field, 'url', _elm_lang$core$Json_Decode$string)),
+						_elm_lang$core$Json_Decode$succeed(_concourse$atc$Concourse$Build),
+						A2(_elm_lang$core$Json_Decode$field, 'id', _elm_lang$core$Json_Decode$int)),
 					A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string)),
 				_elm_lang$core$Json_Decode$maybe(
 					A2(
@@ -12990,10 +12986,13 @@ var _concourse$atc$Concourse$decodeJob = function (pi) {
 										_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
 										A2(
 											_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
-											_elm_lang$core$Json_Decode$succeed(
-												_concourse$atc$Concourse$Job(pi)),
-											A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string)),
-										A2(_elm_lang$core$Json_Decode$field, 'url', _elm_lang$core$Json_Decode$string)),
+											A2(
+												_elm_community$json_extra$Json_Decode_Extra_ops['|:'],
+												_elm_lang$core$Json_Decode$succeed(
+													_concourse$atc$Concourse$Job(pi)),
+												A2(_elm_lang$core$Json_Decode$field, 'name', _elm_lang$core$Json_Decode$string)),
+											A2(_elm_lang$core$Json_Decode$field, 'pipeline_name', _elm_lang$core$Json_Decode$string)),
+										A2(_elm_lang$core$Json_Decode$field, 'team_name', _elm_lang$core$Json_Decode$string)),
 									_elm_lang$core$Json_Decode$maybe(
 										A2(_elm_lang$core$Json_Decode$field, 'next_build', _concourse$atc$Concourse$decodeBuild))),
 								_elm_lang$core$Json_Decode$maybe(
@@ -15186,631 +15185,6 @@ var _vito$elm_ansi$Ansi_Log$update = F2(
 var _vito$elm_ansi$Ansi_Log$Cooked = {ctor: 'Cooked'};
 var _vito$elm_ansi$Ansi_Log$Raw = {ctor: 'Raw'};
 
-var _concourse$atc$Format$prependBeta = function (url) {
-	return A2(_elm_lang$core$Basics_ops['++'], '/beta', url);
-};
-
-var _elm_community$maybe_extra$Maybe_Extra$foldrValues = F2(
-	function (item, list) {
-		var _p0 = item;
-		if (_p0.ctor === 'Nothing') {
-			return list;
-		} else {
-			return {ctor: '::', _0: _p0._0, _1: list};
-		}
-	});
-var _elm_community$maybe_extra$Maybe_Extra$values = A2(
-	_elm_lang$core$List$foldr,
-	_elm_community$maybe_extra$Maybe_Extra$foldrValues,
-	{ctor: '[]'});
-var _elm_community$maybe_extra$Maybe_Extra$filter = F2(
-	function (f, m) {
-		var _p1 = A2(_elm_lang$core$Maybe$map, f, m);
-		if ((_p1.ctor === 'Just') && (_p1._0 === true)) {
-			return m;
-		} else {
-			return _elm_lang$core$Maybe$Nothing;
-		}
-	});
-var _elm_community$maybe_extra$Maybe_Extra$traverseArray = function (f) {
-	var step = F2(
-		function (e, acc) {
-			var _p2 = f(e);
-			if (_p2.ctor === 'Nothing') {
-				return _elm_lang$core$Maybe$Nothing;
-			} else {
-				return A2(
-					_elm_lang$core$Maybe$map,
-					_elm_lang$core$Array$push(_p2._0),
-					acc);
-			}
-		});
-	return A2(
-		_elm_lang$core$Array$foldl,
-		step,
-		_elm_lang$core$Maybe$Just(_elm_lang$core$Array$empty));
-};
-var _elm_community$maybe_extra$Maybe_Extra$combineArray = _elm_community$maybe_extra$Maybe_Extra$traverseArray(_elm_lang$core$Basics$identity);
-var _elm_community$maybe_extra$Maybe_Extra$traverse = function (f) {
-	var step = F2(
-		function (e, acc) {
-			var _p3 = f(e);
-			if (_p3.ctor === 'Nothing') {
-				return _elm_lang$core$Maybe$Nothing;
-			} else {
-				return A2(
-					_elm_lang$core$Maybe$map,
-					F2(
-						function (x, y) {
-							return {ctor: '::', _0: x, _1: y};
-						})(_p3._0),
-					acc);
-			}
-		});
-	return A2(
-		_elm_lang$core$List$foldr,
-		step,
-		_elm_lang$core$Maybe$Just(
-			{ctor: '[]'}));
-};
-var _elm_community$maybe_extra$Maybe_Extra$combine = _elm_community$maybe_extra$Maybe_Extra$traverse(_elm_lang$core$Basics$identity);
-var _elm_community$maybe_extra$Maybe_Extra$maybeToArray = function (m) {
-	var _p4 = m;
-	if (_p4.ctor === 'Nothing') {
-		return _elm_lang$core$Array$empty;
-	} else {
-		return A2(_elm_lang$core$Array$repeat, 1, _p4._0);
-	}
-};
-var _elm_community$maybe_extra$Maybe_Extra$maybeToList = function (m) {
-	var _p5 = m;
-	if (_p5.ctor === 'Nothing') {
-		return {ctor: '[]'};
-	} else {
-		return {
-			ctor: '::',
-			_0: _p5._0,
-			_1: {ctor: '[]'}
-		};
-	}
-};
-var _elm_community$maybe_extra$Maybe_Extra$orElse = F2(
-	function (ma, mb) {
-		var _p6 = mb;
-		if (_p6.ctor === 'Nothing') {
-			return ma;
-		} else {
-			return mb;
-		}
-	});
-var _elm_community$maybe_extra$Maybe_Extra$orElseLazy = F2(
-	function (fma, mb) {
-		var _p7 = mb;
-		if (_p7.ctor === 'Nothing') {
-			return fma(
-				{ctor: '_Tuple0'});
-		} else {
-			return mb;
-		}
-	});
-var _elm_community$maybe_extra$Maybe_Extra$orLazy = F2(
-	function (ma, fmb) {
-		var _p8 = ma;
-		if (_p8.ctor === 'Nothing') {
-			return fmb(
-				{ctor: '_Tuple0'});
-		} else {
-			return ma;
-		}
-	});
-var _elm_community$maybe_extra$Maybe_Extra$or = F2(
-	function (ma, mb) {
-		var _p9 = ma;
-		if (_p9.ctor === 'Nothing') {
-			return mb;
-		} else {
-			return ma;
-		}
-	});
-var _elm_community$maybe_extra$Maybe_Extra$prev = _elm_lang$core$Maybe$map2(_elm_lang$core$Basics$always);
-var _elm_community$maybe_extra$Maybe_Extra$next = _elm_lang$core$Maybe$map2(
-	_elm_lang$core$Basics$flip(_elm_lang$core$Basics$always));
-var _elm_community$maybe_extra$Maybe_Extra$andMap = _elm_lang$core$Maybe$map2(
-	F2(
-		function (x, y) {
-			return y(x);
-		}));
-var _elm_community$maybe_extra$Maybe_Extra$unpack = F3(
-	function (d, f, m) {
-		var _p10 = m;
-		if (_p10.ctor === 'Nothing') {
-			return d(
-				{ctor: '_Tuple0'});
-		} else {
-			return f(_p10._0);
-		}
-	});
-var _elm_community$maybe_extra$Maybe_Extra$unwrap = F3(
-	function (d, f, m) {
-		var _p11 = m;
-		if (_p11.ctor === 'Nothing') {
-			return d;
-		} else {
-			return f(_p11._0);
-		}
-	});
-var _elm_community$maybe_extra$Maybe_Extra$isJust = function (m) {
-	var _p12 = m;
-	if (_p12.ctor === 'Nothing') {
-		return false;
-	} else {
-		return true;
-	}
-};
-var _elm_community$maybe_extra$Maybe_Extra$isNothing = function (m) {
-	var _p13 = m;
-	if (_p13.ctor === 'Nothing') {
-		return true;
-	} else {
-		return false;
-	}
-};
-var _elm_community$maybe_extra$Maybe_Extra$join = function (mx) {
-	var _p14 = mx;
-	if (_p14.ctor === 'Just') {
-		return _p14._0;
-	} else {
-		return _elm_lang$core$Maybe$Nothing;
-	}
-};
-var _elm_community$maybe_extra$Maybe_Extra_ops = _elm_community$maybe_extra$Maybe_Extra_ops || {};
-_elm_community$maybe_extra$Maybe_Extra_ops['?'] = F2(
-	function (mx, x) {
-		return A2(_elm_lang$core$Maybe$withDefault, x, mx);
-	});
-
-var _concourse$atc$Concourse_Pagination$parseNum = function (_p0) {
-	return _elm_lang$core$Result$toMaybe(
-		_elm_lang$core$String$toInt(_p0));
-};
-var _concourse$atc$Concourse_Pagination$toQuery = function (page) {
-	var _p1 = page;
-	if (_p1.ctor === 'Nothing') {
-		return _elm_lang$core$Dict$empty;
-	} else {
-		var _p3 = _p1._0;
-		var limitParam = {
-			ctor: '_Tuple2',
-			_0: 'limit',
-			_1: _elm_lang$core$Basics$toString(_p3.limit)
-		};
-		var directionParam = function () {
-			var _p2 = _p3.direction;
-			switch (_p2.ctor) {
-				case 'Since':
-					return {
-						ctor: '_Tuple2',
-						_0: 'since',
-						_1: _elm_lang$core$Basics$toString(_p2._0)
-					};
-				case 'Until':
-					return {
-						ctor: '_Tuple2',
-						_0: 'until',
-						_1: _elm_lang$core$Basics$toString(_p2._0)
-					};
-				case 'From':
-					return {
-						ctor: '_Tuple2',
-						_0: 'from',
-						_1: _elm_lang$core$Basics$toString(_p2._0)
-					};
-				default:
-					return {
-						ctor: '_Tuple2',
-						_0: 'to',
-						_1: _elm_lang$core$Basics$toString(_p2._0)
-					};
-			}
-		}();
-		return _elm_lang$core$Dict$fromList(
-			{
-				ctor: '::',
-				_0: directionParam,
-				_1: {
-					ctor: '::',
-					_0: limitParam,
-					_1: {ctor: '[]'}
-				}
-			});
-	}
-};
-var _concourse$atc$Concourse_Pagination$parseQuery = function (query) {
-	var parseParam = function (p) {
-		var _p4 = A2(_elm_lang$core$String$split, '=', p);
-		if (_p4.ctor === '::') {
-			return {
-				ctor: '_Tuple2',
-				_0: _p4._0,
-				_1: A2(_elm_lang$core$String$join, '=', _p4._1)
-			};
-		} else {
-			return {ctor: '_Tuple2', _0: '', _1: ''};
-		}
-	};
-	return _elm_lang$core$Dict$fromList(
-		A2(
-			_elm_lang$core$List$map,
-			parseParam,
-			A2(_elm_lang$core$String$split, '&', query)));
-};
-var _concourse$atc$Concourse_Pagination$setQuery = F2(
-	function (baseURL, query) {
-		var params = A2(
-			_elm_lang$core$String$join,
-			'&',
-			A2(
-				_elm_lang$core$List$map,
-				function (_p5) {
-					var _p6 = _p5;
-					return A2(
-						_elm_lang$core$Basics_ops['++'],
-						_p6._0,
-						A2(_elm_lang$core$Basics_ops['++'], '=', _p6._1));
-				},
-				_elm_lang$core$Dict$toList(query)));
-		return _elm_lang$core$Native_Utils.eq(params, '') ? baseURL : A2(
-			_elm_lang$core$Basics_ops['++'],
-			baseURL,
-			A2(_elm_lang$core$Basics_ops['++'], '?', params));
-	});
-var _concourse$atc$Concourse_Pagination$extractQuery = function (url) {
-	var _p7 = A2(_elm_lang$core$String$split, '?', url);
-	if ((_p7.ctor === '::') && (_p7._1.ctor === '::')) {
-		return {
-			ctor: '_Tuple2',
-			_0: _p7._0,
-			_1: _concourse$atc$Concourse_Pagination$parseQuery(_p7._1._0)
-		};
-	} else {
-		return {ctor: '_Tuple2', _0: url, _1: _elm_lang$core$Dict$empty};
-	}
-};
-var _concourse$atc$Concourse_Pagination$addParams = F2(
-	function (url, page) {
-		var _p8 = _concourse$atc$Concourse_Pagination$extractQuery(url);
-		var baseURL = _p8._0;
-		var query = _p8._1;
-		return A2(
-			_concourse$atc$Concourse_Pagination$setQuery,
-			baseURL,
-			A2(
-				_elm_lang$core$Dict$union,
-				query,
-				_concourse$atc$Concourse_Pagination$toQuery(page)));
-	});
-var _concourse$atc$Concourse_Pagination$fstToLower = function (_p9) {
-	var _p10 = _p9;
-	return {
-		ctor: '_Tuple2',
-		_0: _elm_lang$core$String$toLower(_p10._0),
-		_1: _p10._1
-	};
-};
-var _concourse$atc$Concourse_Pagination$keysToLower = function (_p11) {
-	return _elm_lang$core$Dict$fromList(
-		A2(
-			_elm_lang$core$List$map,
-			_concourse$atc$Concourse_Pagination$fstToLower,
-			_elm_lang$core$Dict$toList(_p11)));
-};
-var _concourse$atc$Concourse_Pagination$equal = F2(
-	function (one, two) {
-		var _p12 = one.direction;
-		switch (_p12.ctor) {
-			case 'Since':
-				var _p13 = two.direction;
-				if (_p13.ctor === 'Since') {
-					return _elm_lang$core$Native_Utils.eq(_p12._0, _p13._0);
-				} else {
-					return false;
-				}
-			case 'Until':
-				var _p14 = two.direction;
-				if (_p14.ctor === 'Until') {
-					return _elm_lang$core$Native_Utils.eq(_p12._0, _p14._0);
-				} else {
-					return false;
-				}
-			case 'From':
-				var _p15 = two.direction;
-				if (_p15.ctor === 'From') {
-					return _elm_lang$core$Native_Utils.eq(_p12._0, _p15._0);
-				} else {
-					return false;
-				}
-			default:
-				var _p16 = two.direction;
-				if (_p16.ctor === 'To') {
-					return _elm_lang$core$Native_Utils.eq(_p12._0, _p16._0);
-				} else {
-					return false;
-				}
-		}
-	});
-var _concourse$atc$Concourse_Pagination$nextRel = 'next';
-var _concourse$atc$Concourse_Pagination$previousRel = 'previous';
-var _concourse$atc$Concourse_Pagination$linkHeaderRegex = _elm_lang$core$Regex$regex(
-	A2(
-		_elm_lang$core$Basics_ops['++'],
-		'<([^>]+)>; rel=\"(',
-		A2(
-			_elm_lang$core$Basics_ops['++'],
-			_concourse$atc$Concourse_Pagination$previousRel,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'|',
-				A2(_elm_lang$core$Basics_ops['++'], _concourse$atc$Concourse_Pagination$nextRel, ')\"')))));
-var _concourse$atc$Concourse_Pagination$parseLinkTuple = function (header) {
-	var _p17 = A3(
-		_elm_lang$core$Regex$find,
-		_elm_lang$core$Regex$AtMost(1),
-		_concourse$atc$Concourse_Pagination$linkHeaderRegex,
-		header);
-	if (_p17.ctor === '[]') {
-		return _elm_lang$core$Maybe$Nothing;
-	} else {
-		var _p18 = _p17._0.submatches;
-		if ((((_p18.ctor === '::') && (_p18._0.ctor === 'Just')) && (_p18._1.ctor === '::')) && (_p18._1._0.ctor === 'Just')) {
-			return _elm_lang$core$Maybe$Just(
-				{ctor: '_Tuple2', _0: _p18._1._0._0, _1: _p18._0._0});
-		} else {
-			return _elm_lang$core$Maybe$Nothing;
-		}
-	}
-};
-var _concourse$atc$Concourse_Pagination$Paginated = F2(
-	function (a, b) {
-		return {content: a, pagination: b};
-	});
-var _concourse$atc$Concourse_Pagination$Pagination = F2(
-	function (a, b) {
-		return {previousPage: a, nextPage: b};
-	});
-var _concourse$atc$Concourse_Pagination$Page = F2(
-	function (a, b) {
-		return {direction: a, limit: b};
-	});
-var _concourse$atc$Concourse_Pagination$To = function (a) {
-	return {ctor: 'To', _0: a};
-};
-var _concourse$atc$Concourse_Pagination$From = function (a) {
-	return {ctor: 'From', _0: a};
-};
-var _concourse$atc$Concourse_Pagination$Until = function (a) {
-	return {ctor: 'Until', _0: a};
-};
-var _concourse$atc$Concourse_Pagination$Since = function (a) {
-	return {ctor: 'Since', _0: a};
-};
-var _concourse$atc$Concourse_Pagination$fromQuery = function (query) {
-	var to = A2(
-		_elm_lang$core$Maybe$map,
-		_concourse$atc$Concourse_Pagination$Since,
-		A2(
-			_elm_lang$core$Maybe$andThen,
-			_concourse$atc$Concourse_Pagination$parseNum,
-			A2(_elm_lang$core$Dict$get, 'to', query)));
-	var from = A2(
-		_elm_lang$core$Maybe$map,
-		_concourse$atc$Concourse_Pagination$Since,
-		A2(
-			_elm_lang$core$Maybe$andThen,
-			_concourse$atc$Concourse_Pagination$parseNum,
-			A2(_elm_lang$core$Dict$get, 'from', query)));
-	var since = A2(
-		_elm_lang$core$Maybe$map,
-		_concourse$atc$Concourse_Pagination$Since,
-		A2(
-			_elm_lang$core$Maybe$andThen,
-			_concourse$atc$Concourse_Pagination$parseNum,
-			A2(_elm_lang$core$Dict$get, 'since', query)));
-	var until = A2(
-		_elm_lang$core$Maybe$map,
-		_concourse$atc$Concourse_Pagination$Until,
-		A2(
-			_elm_lang$core$Maybe$andThen,
-			_concourse$atc$Concourse_Pagination$parseNum,
-			A2(_elm_lang$core$Dict$get, 'until', query)));
-	var limit = A2(
-		_elm_lang$core$Maybe$withDefault,
-		0,
-		A2(
-			_elm_lang$core$Maybe$andThen,
-			_concourse$atc$Concourse_Pagination$parseNum,
-			A2(_elm_lang$core$Dict$get, 'limit', query)));
-	return A2(
-		_elm_lang$core$Maybe$map,
-		function (direction) {
-			return {direction: direction, limit: limit};
-		},
-		A2(
-			_elm_community$maybe_extra$Maybe_Extra$or,
-			until,
-			A2(
-				_elm_community$maybe_extra$Maybe_Extra$or,
-				since,
-				A2(_elm_community$maybe_extra$Maybe_Extra$or, from, to))));
-};
-var _concourse$atc$Concourse_Pagination$parseParams = function (_p19) {
-	return _concourse$atc$Concourse_Pagination$fromQuery(
-		_elm_lang$core$Tuple$second(
-			_concourse$atc$Concourse_Pagination$extractQuery(_p19)));
-};
-var _concourse$atc$Concourse_Pagination$parseLinks = function (response) {
-	var _p20 = A2(
-		_elm_lang$core$Dict$get,
-		'link',
-		_concourse$atc$Concourse_Pagination$keysToLower(response.headers));
-	if (_p20.ctor === 'Nothing') {
-		return A2(_concourse$atc$Concourse_Pagination$Pagination, _elm_lang$core$Maybe$Nothing, _elm_lang$core$Maybe$Nothing);
-	} else {
-		var headers = A2(_elm_lang$core$String$split, ', ', _p20._0);
-		var parsed = _elm_lang$core$Dict$fromList(
-			A2(_elm_lang$core$List$filterMap, _concourse$atc$Concourse_Pagination$parseLinkTuple, headers));
-		return A2(
-			_concourse$atc$Concourse_Pagination$Pagination,
-			A2(
-				_elm_lang$core$Maybe$andThen,
-				_concourse$atc$Concourse_Pagination$parseParams,
-				A2(_elm_lang$core$Dict$get, _concourse$atc$Concourse_Pagination$previousRel, parsed)),
-			A2(
-				_elm_lang$core$Maybe$andThen,
-				_concourse$atc$Concourse_Pagination$parseParams,
-				A2(_elm_lang$core$Dict$get, _concourse$atc$Concourse_Pagination$nextRel, parsed)));
-	}
-};
-var _concourse$atc$Concourse_Pagination$parsePagination = F2(
-	function (decode, response) {
-		var decoded = A2(
-			_elm_lang$core$Json_Decode$decodeString,
-			_elm_lang$core$Json_Decode$list(decode),
-			response.body);
-		var pagination = _concourse$atc$Concourse_Pagination$parseLinks(response);
-		var _p21 = decoded;
-		if (_p21.ctor === 'Err') {
-			return _elm_lang$core$Result$Err(_p21._0);
-		} else {
-			return _elm_lang$core$Result$Ok(
-				{content: _p21._0, pagination: pagination});
-		}
-	});
-var _concourse$atc$Concourse_Pagination$fetch = F3(
-	function (decode, url, page) {
-		return _elm_lang$http$Http$toTask(
-			_elm_lang$http$Http$request(
-				{
-					method: 'GET',
-					headers: {ctor: '[]'},
-					url: A2(_concourse$atc$Concourse_Pagination$addParams, url, page),
-					body: _elm_lang$http$Http$emptyBody,
-					expect: _elm_lang$http$Http$expectStringResponse(
-						_concourse$atc$Concourse_Pagination$parsePagination(decode)),
-					timeout: _elm_lang$core$Maybe$Nothing,
-					withCredentials: false
-				}));
-	});
-
-var _concourse$atc$Concourse_Build$url = function (build) {
-	var _p0 = build.job;
-	if (_p0.ctor === 'Nothing') {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			'/builds/',
-			_elm_lang$core$Basics$toString(build.id));
-	} else {
-		return A2(
-			_elm_lang$core$Basics_ops['++'],
-			'/teams/',
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				_p0._0.teamName,
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					'/pipelines/',
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						_p0._0.pipelineName,
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							'/jobs/',
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								_p0._0.jobName,
-								A2(_elm_lang$core$Basics_ops['++'], '/builds/', build.name)))))));
-	}
-};
-var _concourse$atc$Concourse_Build$fetchJobBuilds = F2(
-	function (job, page) {
-		var url = A2(
-			_elm_lang$core$Basics_ops['++'],
-			'/api/v1/teams/',
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				job.teamName,
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					'/pipelines/',
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						job.pipelineName,
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							'/jobs/',
-							A2(_elm_lang$core$Basics_ops['++'], job.jobName, '/builds'))))));
-		return A3(_concourse$atc$Concourse_Pagination$fetch, _concourse$atc$Concourse$decodeBuild, url, page);
-	});
-var _concourse$atc$Concourse_Build$abort = F2(
-	function (buildId, csrfToken) {
-		return _elm_lang$http$Http$toTask(
-			_elm_lang$http$Http$request(
-				{
-					method: 'PUT',
-					url: A2(
-						_elm_lang$core$Basics_ops['++'],
-						'/api/v1/builds/',
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							_elm_lang$core$Basics$toString(buildId),
-							'/abort')),
-					headers: {
-						ctor: '::',
-						_0: A2(_elm_lang$http$Http$header, _concourse$atc$Concourse$csrfTokenHeaderName, csrfToken),
-						_1: {ctor: '[]'}
-					},
-					body: _elm_lang$http$Http$emptyBody,
-					expect: _elm_lang$http$Http$expectStringResponse(
-						_elm_lang$core$Basics$always(
-							_elm_lang$core$Result$Ok(
-								{ctor: '_Tuple0'}))),
-					timeout: _elm_lang$core$Maybe$Nothing,
-					withCredentials: false
-				}));
-	});
-var _concourse$atc$Concourse_Build$fetchJobBuild = function (jbi) {
-	var url = A2(
-		_elm_lang$core$Basics_ops['++'],
-		'/api/v1/teams/',
-		A2(
-			_elm_lang$core$Basics_ops['++'],
-			jbi.teamName,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'/pipelines/',
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					jbi.pipelineName,
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						'/jobs/',
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							jbi.jobName,
-							A2(_elm_lang$core$Basics_ops['++'], '/builds/', jbi.buildName)))))));
-	return _elm_lang$http$Http$toTask(
-		A2(_elm_lang$http$Http$get, url, _concourse$atc$Concourse$decodeBuild));
-};
-var _concourse$atc$Concourse_Build$fetch = function (buildId) {
-	return _elm_lang$http$Http$toTask(
-		A2(
-			_elm_lang$http$Http$get,
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				'/api/v1/builds/',
-				_elm_lang$core$Basics$toString(buildId)),
-			_concourse$atc$Concourse$decodeBuild));
-};
-
 var _concourse$atc$Concourse_BuildPlan$fetch = function (buildId) {
 	return function (_p0) {
 		return _elm_lang$http$Http$toTask(
@@ -16469,6 +15843,1321 @@ var _concourse$atc$Concourse_BuildResources$empty = {
 	outputs: {ctor: '[]'}
 };
 
+var _elm_lang$navigation$Native_Navigation = function() {
+
+
+// FAKE NAVIGATION
+
+function go(n)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		if (n !== 0)
+		{
+			history.go(n);
+		}
+		callback(_elm_lang$core$Native_Scheduler.succeed(_elm_lang$core$Native_Utils.Tuple0));
+	});
+}
+
+function pushState(url)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		history.pushState({}, '', url);
+		callback(_elm_lang$core$Native_Scheduler.succeed(getLocation()));
+	});
+}
+
+function replaceState(url)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		history.replaceState({}, '', url);
+		callback(_elm_lang$core$Native_Scheduler.succeed(getLocation()));
+	});
+}
+
+
+// REAL NAVIGATION
+
+function reloadPage(skipCache)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		document.location.reload(skipCache);
+		callback(_elm_lang$core$Native_Scheduler.succeed(_elm_lang$core$Native_Utils.Tuple0));
+	});
+}
+
+function setLocation(url)
+{
+	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
+	{
+		try
+		{
+			window.location = url;
+		}
+		catch(err)
+		{
+			// Only Firefox can throw a NS_ERROR_MALFORMED_URI exception here.
+			// Other browsers reload the page, so let's be consistent about that.
+			document.location.reload(false);
+		}
+		callback(_elm_lang$core$Native_Scheduler.succeed(_elm_lang$core$Native_Utils.Tuple0));
+	});
+}
+
+
+// GET LOCATION
+
+function getLocation()
+{
+	var location = document.location;
+
+	return {
+		href: location.href,
+		host: location.host,
+		hostname: location.hostname,
+		protocol: location.protocol,
+		origin: location.origin,
+		port_: location.port,
+		pathname: location.pathname,
+		search: location.search,
+		hash: location.hash,
+		username: location.username,
+		password: location.password
+	};
+}
+
+
+// DETECT IE11 PROBLEMS
+
+function isInternetExplorer11()
+{
+	return window.navigator.userAgent.indexOf('Trident') !== -1;
+}
+
+
+return {
+	go: go,
+	setLocation: setLocation,
+	reloadPage: reloadPage,
+	pushState: pushState,
+	replaceState: replaceState,
+	getLocation: getLocation,
+	isInternetExplorer11: isInternetExplorer11
+};
+
+}();
+
+var _elm_lang$navigation$Navigation$replaceState = _elm_lang$navigation$Native_Navigation.replaceState;
+var _elm_lang$navigation$Navigation$pushState = _elm_lang$navigation$Native_Navigation.pushState;
+var _elm_lang$navigation$Navigation$go = _elm_lang$navigation$Native_Navigation.go;
+var _elm_lang$navigation$Navigation$reloadPage = _elm_lang$navigation$Native_Navigation.reloadPage;
+var _elm_lang$navigation$Navigation$setLocation = _elm_lang$navigation$Native_Navigation.setLocation;
+var _elm_lang$navigation$Navigation_ops = _elm_lang$navigation$Navigation_ops || {};
+_elm_lang$navigation$Navigation_ops['&>'] = F2(
+	function (task1, task2) {
+		return A2(
+			_elm_lang$core$Task$andThen,
+			function (_p0) {
+				return task2;
+			},
+			task1);
+	});
+var _elm_lang$navigation$Navigation$notify = F3(
+	function (router, subs, location) {
+		var send = function (_p1) {
+			var _p2 = _p1;
+			return A2(
+				_elm_lang$core$Platform$sendToApp,
+				router,
+				_p2._0(location));
+		};
+		return A2(
+			_elm_lang$navigation$Navigation_ops['&>'],
+			_elm_lang$core$Task$sequence(
+				A2(_elm_lang$core$List$map, send, subs)),
+			_elm_lang$core$Task$succeed(
+				{ctor: '_Tuple0'}));
+	});
+var _elm_lang$navigation$Navigation$cmdHelp = F3(
+	function (router, subs, cmd) {
+		var _p3 = cmd;
+		switch (_p3.ctor) {
+			case 'Jump':
+				return _elm_lang$navigation$Navigation$go(_p3._0);
+			case 'New':
+				return A2(
+					_elm_lang$core$Task$andThen,
+					A2(_elm_lang$navigation$Navigation$notify, router, subs),
+					_elm_lang$navigation$Navigation$pushState(_p3._0));
+			case 'Modify':
+				return A2(
+					_elm_lang$core$Task$andThen,
+					A2(_elm_lang$navigation$Navigation$notify, router, subs),
+					_elm_lang$navigation$Navigation$replaceState(_p3._0));
+			case 'Visit':
+				return _elm_lang$navigation$Navigation$setLocation(_p3._0);
+			default:
+				return _elm_lang$navigation$Navigation$reloadPage(_p3._0);
+		}
+	});
+var _elm_lang$navigation$Navigation$killPopWatcher = function (popWatcher) {
+	var _p4 = popWatcher;
+	if (_p4.ctor === 'Normal') {
+		return _elm_lang$core$Process$kill(_p4._0);
+	} else {
+		return A2(
+			_elm_lang$navigation$Navigation_ops['&>'],
+			_elm_lang$core$Process$kill(_p4._0),
+			_elm_lang$core$Process$kill(_p4._1));
+	}
+};
+var _elm_lang$navigation$Navigation$onSelfMsg = F3(
+	function (router, location, state) {
+		return A2(
+			_elm_lang$navigation$Navigation_ops['&>'],
+			A3(_elm_lang$navigation$Navigation$notify, router, state.subs, location),
+			_elm_lang$core$Task$succeed(state));
+	});
+var _elm_lang$navigation$Navigation$subscription = _elm_lang$core$Native_Platform.leaf('Navigation');
+var _elm_lang$navigation$Navigation$command = _elm_lang$core$Native_Platform.leaf('Navigation');
+var _elm_lang$navigation$Navigation$Location = function (a) {
+	return function (b) {
+		return function (c) {
+			return function (d) {
+				return function (e) {
+					return function (f) {
+						return function (g) {
+							return function (h) {
+								return function (i) {
+									return function (j) {
+										return function (k) {
+											return {href: a, host: b, hostname: c, protocol: d, origin: e, port_: f, pathname: g, search: h, hash: i, username: j, password: k};
+										};
+									};
+								};
+							};
+						};
+					};
+				};
+			};
+		};
+	};
+};
+var _elm_lang$navigation$Navigation$State = F2(
+	function (a, b) {
+		return {subs: a, popWatcher: b};
+	});
+var _elm_lang$navigation$Navigation$init = _elm_lang$core$Task$succeed(
+	A2(
+		_elm_lang$navigation$Navigation$State,
+		{ctor: '[]'},
+		_elm_lang$core$Maybe$Nothing));
+var _elm_lang$navigation$Navigation$Reload = function (a) {
+	return {ctor: 'Reload', _0: a};
+};
+var _elm_lang$navigation$Navigation$reload = _elm_lang$navigation$Navigation$command(
+	_elm_lang$navigation$Navigation$Reload(false));
+var _elm_lang$navigation$Navigation$reloadAndSkipCache = _elm_lang$navigation$Navigation$command(
+	_elm_lang$navigation$Navigation$Reload(true));
+var _elm_lang$navigation$Navigation$Visit = function (a) {
+	return {ctor: 'Visit', _0: a};
+};
+var _elm_lang$navigation$Navigation$load = function (url) {
+	return _elm_lang$navigation$Navigation$command(
+		_elm_lang$navigation$Navigation$Visit(url));
+};
+var _elm_lang$navigation$Navigation$Modify = function (a) {
+	return {ctor: 'Modify', _0: a};
+};
+var _elm_lang$navigation$Navigation$modifyUrl = function (url) {
+	return _elm_lang$navigation$Navigation$command(
+		_elm_lang$navigation$Navigation$Modify(url));
+};
+var _elm_lang$navigation$Navigation$New = function (a) {
+	return {ctor: 'New', _0: a};
+};
+var _elm_lang$navigation$Navigation$newUrl = function (url) {
+	return _elm_lang$navigation$Navigation$command(
+		_elm_lang$navigation$Navigation$New(url));
+};
+var _elm_lang$navigation$Navigation$Jump = function (a) {
+	return {ctor: 'Jump', _0: a};
+};
+var _elm_lang$navigation$Navigation$back = function (n) {
+	return _elm_lang$navigation$Navigation$command(
+		_elm_lang$navigation$Navigation$Jump(0 - n));
+};
+var _elm_lang$navigation$Navigation$forward = function (n) {
+	return _elm_lang$navigation$Navigation$command(
+		_elm_lang$navigation$Navigation$Jump(n));
+};
+var _elm_lang$navigation$Navigation$cmdMap = F2(
+	function (_p5, myCmd) {
+		var _p6 = myCmd;
+		switch (_p6.ctor) {
+			case 'Jump':
+				return _elm_lang$navigation$Navigation$Jump(_p6._0);
+			case 'New':
+				return _elm_lang$navigation$Navigation$New(_p6._0);
+			case 'Modify':
+				return _elm_lang$navigation$Navigation$Modify(_p6._0);
+			case 'Visit':
+				return _elm_lang$navigation$Navigation$Visit(_p6._0);
+			default:
+				return _elm_lang$navigation$Navigation$Reload(_p6._0);
+		}
+	});
+var _elm_lang$navigation$Navigation$Monitor = function (a) {
+	return {ctor: 'Monitor', _0: a};
+};
+var _elm_lang$navigation$Navigation$program = F2(
+	function (locationToMessage, stuff) {
+		var init = stuff.init(
+			_elm_lang$navigation$Native_Navigation.getLocation(
+				{ctor: '_Tuple0'}));
+		var subs = function (model) {
+			return _elm_lang$core$Platform_Sub$batch(
+				{
+					ctor: '::',
+					_0: _elm_lang$navigation$Navigation$subscription(
+						_elm_lang$navigation$Navigation$Monitor(locationToMessage)),
+					_1: {
+						ctor: '::',
+						_0: stuff.subscriptions(model),
+						_1: {ctor: '[]'}
+					}
+				});
+		};
+		return _elm_lang$html$Html$program(
+			{init: init, view: stuff.view, update: stuff.update, subscriptions: subs});
+	});
+var _elm_lang$navigation$Navigation$programWithFlags = F2(
+	function (locationToMessage, stuff) {
+		var init = function (flags) {
+			return A2(
+				stuff.init,
+				flags,
+				_elm_lang$navigation$Native_Navigation.getLocation(
+					{ctor: '_Tuple0'}));
+		};
+		var subs = function (model) {
+			return _elm_lang$core$Platform_Sub$batch(
+				{
+					ctor: '::',
+					_0: _elm_lang$navigation$Navigation$subscription(
+						_elm_lang$navigation$Navigation$Monitor(locationToMessage)),
+					_1: {
+						ctor: '::',
+						_0: stuff.subscriptions(model),
+						_1: {ctor: '[]'}
+					}
+				});
+		};
+		return _elm_lang$html$Html$programWithFlags(
+			{init: init, view: stuff.view, update: stuff.update, subscriptions: subs});
+	});
+var _elm_lang$navigation$Navigation$subMap = F2(
+	function (func, _p7) {
+		var _p8 = _p7;
+		return _elm_lang$navigation$Navigation$Monitor(
+			function (_p9) {
+				return func(
+					_p8._0(_p9));
+			});
+	});
+var _elm_lang$navigation$Navigation$InternetExplorer = F2(
+	function (a, b) {
+		return {ctor: 'InternetExplorer', _0: a, _1: b};
+	});
+var _elm_lang$navigation$Navigation$Normal = function (a) {
+	return {ctor: 'Normal', _0: a};
+};
+var _elm_lang$navigation$Navigation$spawnPopWatcher = function (router) {
+	var reportLocation = function (_p10) {
+		return A2(
+			_elm_lang$core$Platform$sendToSelf,
+			router,
+			_elm_lang$navigation$Native_Navigation.getLocation(
+				{ctor: '_Tuple0'}));
+	};
+	return _elm_lang$navigation$Native_Navigation.isInternetExplorer11(
+		{ctor: '_Tuple0'}) ? A3(
+		_elm_lang$core$Task$map2,
+		_elm_lang$navigation$Navigation$InternetExplorer,
+		_elm_lang$core$Process$spawn(
+			A3(_elm_lang$dom$Dom_LowLevel$onWindow, 'popstate', _elm_lang$core$Json_Decode$value, reportLocation)),
+		_elm_lang$core$Process$spawn(
+			A3(_elm_lang$dom$Dom_LowLevel$onWindow, 'hashchange', _elm_lang$core$Json_Decode$value, reportLocation))) : A2(
+		_elm_lang$core$Task$map,
+		_elm_lang$navigation$Navigation$Normal,
+		_elm_lang$core$Process$spawn(
+			A3(_elm_lang$dom$Dom_LowLevel$onWindow, 'popstate', _elm_lang$core$Json_Decode$value, reportLocation)));
+};
+var _elm_lang$navigation$Navigation$onEffects = F4(
+	function (router, cmds, subs, _p11) {
+		var _p12 = _p11;
+		var _p15 = _p12.popWatcher;
+		var stepState = function () {
+			var _p13 = {ctor: '_Tuple2', _0: subs, _1: _p15};
+			_v6_2:
+			do {
+				if (_p13._0.ctor === '[]') {
+					if (_p13._1.ctor === 'Just') {
+						return A2(
+							_elm_lang$navigation$Navigation_ops['&>'],
+							_elm_lang$navigation$Navigation$killPopWatcher(_p13._1._0),
+							_elm_lang$core$Task$succeed(
+								A2(_elm_lang$navigation$Navigation$State, subs, _elm_lang$core$Maybe$Nothing)));
+					} else {
+						break _v6_2;
+					}
+				} else {
+					if (_p13._1.ctor === 'Nothing') {
+						return A2(
+							_elm_lang$core$Task$map,
+							function (_p14) {
+								return A2(
+									_elm_lang$navigation$Navigation$State,
+									subs,
+									_elm_lang$core$Maybe$Just(_p14));
+							},
+							_elm_lang$navigation$Navigation$spawnPopWatcher(router));
+					} else {
+						break _v6_2;
+					}
+				}
+			} while(false);
+			return _elm_lang$core$Task$succeed(
+				A2(_elm_lang$navigation$Navigation$State, subs, _p15));
+		}();
+		return A2(
+			_elm_lang$navigation$Navigation_ops['&>'],
+			_elm_lang$core$Task$sequence(
+				A2(
+					_elm_lang$core$List$map,
+					A2(_elm_lang$navigation$Navigation$cmdHelp, router, subs),
+					cmds)),
+			stepState);
+	});
+_elm_lang$core$Native_Platform.effectManagers['Navigation'] = {pkg: 'elm-lang/navigation', init: _elm_lang$navigation$Navigation$init, onEffects: _elm_lang$navigation$Navigation$onEffects, onSelfMsg: _elm_lang$navigation$Navigation$onSelfMsg, tag: 'fx', cmdMap: _elm_lang$navigation$Navigation$cmdMap, subMap: _elm_lang$navigation$Navigation$subMap};
+
+var _elm_community$maybe_extra$Maybe_Extra$foldrValues = F2(
+	function (item, list) {
+		var _p0 = item;
+		if (_p0.ctor === 'Nothing') {
+			return list;
+		} else {
+			return {ctor: '::', _0: _p0._0, _1: list};
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$values = A2(
+	_elm_lang$core$List$foldr,
+	_elm_community$maybe_extra$Maybe_Extra$foldrValues,
+	{ctor: '[]'});
+var _elm_community$maybe_extra$Maybe_Extra$filter = F2(
+	function (f, m) {
+		var _p1 = A2(_elm_lang$core$Maybe$map, f, m);
+		if ((_p1.ctor === 'Just') && (_p1._0 === true)) {
+			return m;
+		} else {
+			return _elm_lang$core$Maybe$Nothing;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$traverseArray = function (f) {
+	var step = F2(
+		function (e, acc) {
+			var _p2 = f(e);
+			if (_p2.ctor === 'Nothing') {
+				return _elm_lang$core$Maybe$Nothing;
+			} else {
+				return A2(
+					_elm_lang$core$Maybe$map,
+					_elm_lang$core$Array$push(_p2._0),
+					acc);
+			}
+		});
+	return A2(
+		_elm_lang$core$Array$foldl,
+		step,
+		_elm_lang$core$Maybe$Just(_elm_lang$core$Array$empty));
+};
+var _elm_community$maybe_extra$Maybe_Extra$combineArray = _elm_community$maybe_extra$Maybe_Extra$traverseArray(_elm_lang$core$Basics$identity);
+var _elm_community$maybe_extra$Maybe_Extra$traverse = function (f) {
+	var step = F2(
+		function (e, acc) {
+			var _p3 = f(e);
+			if (_p3.ctor === 'Nothing') {
+				return _elm_lang$core$Maybe$Nothing;
+			} else {
+				return A2(
+					_elm_lang$core$Maybe$map,
+					F2(
+						function (x, y) {
+							return {ctor: '::', _0: x, _1: y};
+						})(_p3._0),
+					acc);
+			}
+		});
+	return A2(
+		_elm_lang$core$List$foldr,
+		step,
+		_elm_lang$core$Maybe$Just(
+			{ctor: '[]'}));
+};
+var _elm_community$maybe_extra$Maybe_Extra$combine = _elm_community$maybe_extra$Maybe_Extra$traverse(_elm_lang$core$Basics$identity);
+var _elm_community$maybe_extra$Maybe_Extra$maybeToArray = function (m) {
+	var _p4 = m;
+	if (_p4.ctor === 'Nothing') {
+		return _elm_lang$core$Array$empty;
+	} else {
+		return A2(_elm_lang$core$Array$repeat, 1, _p4._0);
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra$maybeToList = function (m) {
+	var _p5 = m;
+	if (_p5.ctor === 'Nothing') {
+		return {ctor: '[]'};
+	} else {
+		return {
+			ctor: '::',
+			_0: _p5._0,
+			_1: {ctor: '[]'}
+		};
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra$orElse = F2(
+	function (ma, mb) {
+		var _p6 = mb;
+		if (_p6.ctor === 'Nothing') {
+			return ma;
+		} else {
+			return mb;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$orElseLazy = F2(
+	function (fma, mb) {
+		var _p7 = mb;
+		if (_p7.ctor === 'Nothing') {
+			return fma(
+				{ctor: '_Tuple0'});
+		} else {
+			return mb;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$orLazy = F2(
+	function (ma, fmb) {
+		var _p8 = ma;
+		if (_p8.ctor === 'Nothing') {
+			return fmb(
+				{ctor: '_Tuple0'});
+		} else {
+			return ma;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$or = F2(
+	function (ma, mb) {
+		var _p9 = ma;
+		if (_p9.ctor === 'Nothing') {
+			return mb;
+		} else {
+			return ma;
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$prev = _elm_lang$core$Maybe$map2(_elm_lang$core$Basics$always);
+var _elm_community$maybe_extra$Maybe_Extra$next = _elm_lang$core$Maybe$map2(
+	_elm_lang$core$Basics$flip(_elm_lang$core$Basics$always));
+var _elm_community$maybe_extra$Maybe_Extra$andMap = _elm_lang$core$Maybe$map2(
+	F2(
+		function (x, y) {
+			return y(x);
+		}));
+var _elm_community$maybe_extra$Maybe_Extra$unpack = F3(
+	function (d, f, m) {
+		var _p10 = m;
+		if (_p10.ctor === 'Nothing') {
+			return d(
+				{ctor: '_Tuple0'});
+		} else {
+			return f(_p10._0);
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$unwrap = F3(
+	function (d, f, m) {
+		var _p11 = m;
+		if (_p11.ctor === 'Nothing') {
+			return d;
+		} else {
+			return f(_p11._0);
+		}
+	});
+var _elm_community$maybe_extra$Maybe_Extra$isJust = function (m) {
+	var _p12 = m;
+	if (_p12.ctor === 'Nothing') {
+		return false;
+	} else {
+		return true;
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra$isNothing = function (m) {
+	var _p13 = m;
+	if (_p13.ctor === 'Nothing') {
+		return true;
+	} else {
+		return false;
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra$join = function (mx) {
+	var _p14 = mx;
+	if (_p14.ctor === 'Just') {
+		return _p14._0;
+	} else {
+		return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _elm_community$maybe_extra$Maybe_Extra_ops = _elm_community$maybe_extra$Maybe_Extra_ops || {};
+_elm_community$maybe_extra$Maybe_Extra_ops['?'] = F2(
+	function (mx, x) {
+		return A2(_elm_lang$core$Maybe$withDefault, x, mx);
+	});
+
+var _concourse$atc$Concourse_Pagination$parseNum = function (_p0) {
+	return _elm_lang$core$Result$toMaybe(
+		_elm_lang$core$String$toInt(_p0));
+};
+var _concourse$atc$Concourse_Pagination$toQuery = function (page) {
+	var _p1 = page;
+	if (_p1.ctor === 'Nothing') {
+		return _elm_lang$core$Dict$empty;
+	} else {
+		var _p3 = _p1._0;
+		var limitParam = {
+			ctor: '_Tuple2',
+			_0: 'limit',
+			_1: _elm_lang$core$Basics$toString(_p3.limit)
+		};
+		var directionParam = function () {
+			var _p2 = _p3.direction;
+			switch (_p2.ctor) {
+				case 'Since':
+					return {
+						ctor: '_Tuple2',
+						_0: 'since',
+						_1: _elm_lang$core$Basics$toString(_p2._0)
+					};
+				case 'Until':
+					return {
+						ctor: '_Tuple2',
+						_0: 'until',
+						_1: _elm_lang$core$Basics$toString(_p2._0)
+					};
+				case 'From':
+					return {
+						ctor: '_Tuple2',
+						_0: 'from',
+						_1: _elm_lang$core$Basics$toString(_p2._0)
+					};
+				default:
+					return {
+						ctor: '_Tuple2',
+						_0: 'to',
+						_1: _elm_lang$core$Basics$toString(_p2._0)
+					};
+			}
+		}();
+		return _elm_lang$core$Dict$fromList(
+			{
+				ctor: '::',
+				_0: directionParam,
+				_1: {
+					ctor: '::',
+					_0: limitParam,
+					_1: {ctor: '[]'}
+				}
+			});
+	}
+};
+var _concourse$atc$Concourse_Pagination$parseQuery = function (query) {
+	var parseParam = function (p) {
+		var _p4 = A2(_elm_lang$core$String$split, '=', p);
+		if (_p4.ctor === '::') {
+			return {
+				ctor: '_Tuple2',
+				_0: _p4._0,
+				_1: A2(_elm_lang$core$String$join, '=', _p4._1)
+			};
+		} else {
+			return {ctor: '_Tuple2', _0: '', _1: ''};
+		}
+	};
+	return _elm_lang$core$Dict$fromList(
+		A2(
+			_elm_lang$core$List$map,
+			parseParam,
+			A2(_elm_lang$core$String$split, '&', query)));
+};
+var _concourse$atc$Concourse_Pagination$setQuery = F2(
+	function (baseURL, query) {
+		var params = A2(
+			_elm_lang$core$String$join,
+			'&',
+			A2(
+				_elm_lang$core$List$map,
+				function (_p5) {
+					var _p6 = _p5;
+					return A2(
+						_elm_lang$core$Basics_ops['++'],
+						_p6._0,
+						A2(_elm_lang$core$Basics_ops['++'], '=', _p6._1));
+				},
+				_elm_lang$core$Dict$toList(query)));
+		return _elm_lang$core$Native_Utils.eq(params, '') ? baseURL : A2(
+			_elm_lang$core$Basics_ops['++'],
+			baseURL,
+			A2(_elm_lang$core$Basics_ops['++'], '?', params));
+	});
+var _concourse$atc$Concourse_Pagination$extractQuery = function (url) {
+	var _p7 = A2(_elm_lang$core$String$split, '?', url);
+	if ((_p7.ctor === '::') && (_p7._1.ctor === '::')) {
+		return {
+			ctor: '_Tuple2',
+			_0: _p7._0,
+			_1: _concourse$atc$Concourse_Pagination$parseQuery(_p7._1._0)
+		};
+	} else {
+		return {ctor: '_Tuple2', _0: url, _1: _elm_lang$core$Dict$empty};
+	}
+};
+var _concourse$atc$Concourse_Pagination$addParams = F2(
+	function (url, page) {
+		var _p8 = _concourse$atc$Concourse_Pagination$extractQuery(url);
+		var baseURL = _p8._0;
+		var query = _p8._1;
+		return A2(
+			_concourse$atc$Concourse_Pagination$setQuery,
+			baseURL,
+			A2(
+				_elm_lang$core$Dict$union,
+				query,
+				_concourse$atc$Concourse_Pagination$toQuery(page)));
+	});
+var _concourse$atc$Concourse_Pagination$fstToLower = function (_p9) {
+	var _p10 = _p9;
+	return {
+		ctor: '_Tuple2',
+		_0: _elm_lang$core$String$toLower(_p10._0),
+		_1: _p10._1
+	};
+};
+var _concourse$atc$Concourse_Pagination$keysToLower = function (_p11) {
+	return _elm_lang$core$Dict$fromList(
+		A2(
+			_elm_lang$core$List$map,
+			_concourse$atc$Concourse_Pagination$fstToLower,
+			_elm_lang$core$Dict$toList(_p11)));
+};
+var _concourse$atc$Concourse_Pagination$equal = F2(
+	function (one, two) {
+		var _p12 = one.direction;
+		switch (_p12.ctor) {
+			case 'Since':
+				var _p13 = two.direction;
+				if (_p13.ctor === 'Since') {
+					return _elm_lang$core$Native_Utils.eq(_p12._0, _p13._0);
+				} else {
+					return false;
+				}
+			case 'Until':
+				var _p14 = two.direction;
+				if (_p14.ctor === 'Until') {
+					return _elm_lang$core$Native_Utils.eq(_p12._0, _p14._0);
+				} else {
+					return false;
+				}
+			case 'From':
+				var _p15 = two.direction;
+				if (_p15.ctor === 'From') {
+					return _elm_lang$core$Native_Utils.eq(_p12._0, _p15._0);
+				} else {
+					return false;
+				}
+			default:
+				var _p16 = two.direction;
+				if (_p16.ctor === 'To') {
+					return _elm_lang$core$Native_Utils.eq(_p12._0, _p16._0);
+				} else {
+					return false;
+				}
+		}
+	});
+var _concourse$atc$Concourse_Pagination$nextRel = 'next';
+var _concourse$atc$Concourse_Pagination$previousRel = 'previous';
+var _concourse$atc$Concourse_Pagination$linkHeaderRegex = _elm_lang$core$Regex$regex(
+	A2(
+		_elm_lang$core$Basics_ops['++'],
+		'<([^>]+)>; rel=\"(',
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			_concourse$atc$Concourse_Pagination$previousRel,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'|',
+				A2(_elm_lang$core$Basics_ops['++'], _concourse$atc$Concourse_Pagination$nextRel, ')\"')))));
+var _concourse$atc$Concourse_Pagination$parseLinkTuple = function (header) {
+	var _p17 = A3(
+		_elm_lang$core$Regex$find,
+		_elm_lang$core$Regex$AtMost(1),
+		_concourse$atc$Concourse_Pagination$linkHeaderRegex,
+		header);
+	if (_p17.ctor === '[]') {
+		return _elm_lang$core$Maybe$Nothing;
+	} else {
+		var _p18 = _p17._0.submatches;
+		if ((((_p18.ctor === '::') && (_p18._0.ctor === 'Just')) && (_p18._1.ctor === '::')) && (_p18._1._0.ctor === 'Just')) {
+			return _elm_lang$core$Maybe$Just(
+				{ctor: '_Tuple2', _0: _p18._1._0._0, _1: _p18._0._0});
+		} else {
+			return _elm_lang$core$Maybe$Nothing;
+		}
+	}
+};
+var _concourse$atc$Concourse_Pagination$Paginated = F2(
+	function (a, b) {
+		return {content: a, pagination: b};
+	});
+var _concourse$atc$Concourse_Pagination$Pagination = F2(
+	function (a, b) {
+		return {previousPage: a, nextPage: b};
+	});
+var _concourse$atc$Concourse_Pagination$Page = F2(
+	function (a, b) {
+		return {direction: a, limit: b};
+	});
+var _concourse$atc$Concourse_Pagination$To = function (a) {
+	return {ctor: 'To', _0: a};
+};
+var _concourse$atc$Concourse_Pagination$From = function (a) {
+	return {ctor: 'From', _0: a};
+};
+var _concourse$atc$Concourse_Pagination$Until = function (a) {
+	return {ctor: 'Until', _0: a};
+};
+var _concourse$atc$Concourse_Pagination$Since = function (a) {
+	return {ctor: 'Since', _0: a};
+};
+var _concourse$atc$Concourse_Pagination$fromQuery = function (query) {
+	var to = A2(
+		_elm_lang$core$Maybe$map,
+		_concourse$atc$Concourse_Pagination$Since,
+		A2(
+			_elm_lang$core$Maybe$andThen,
+			_concourse$atc$Concourse_Pagination$parseNum,
+			A2(_elm_lang$core$Dict$get, 'to', query)));
+	var from = A2(
+		_elm_lang$core$Maybe$map,
+		_concourse$atc$Concourse_Pagination$Since,
+		A2(
+			_elm_lang$core$Maybe$andThen,
+			_concourse$atc$Concourse_Pagination$parseNum,
+			A2(_elm_lang$core$Dict$get, 'from', query)));
+	var since = A2(
+		_elm_lang$core$Maybe$map,
+		_concourse$atc$Concourse_Pagination$Since,
+		A2(
+			_elm_lang$core$Maybe$andThen,
+			_concourse$atc$Concourse_Pagination$parseNum,
+			A2(_elm_lang$core$Dict$get, 'since', query)));
+	var until = A2(
+		_elm_lang$core$Maybe$map,
+		_concourse$atc$Concourse_Pagination$Until,
+		A2(
+			_elm_lang$core$Maybe$andThen,
+			_concourse$atc$Concourse_Pagination$parseNum,
+			A2(_elm_lang$core$Dict$get, 'until', query)));
+	var limit = A2(
+		_elm_lang$core$Maybe$withDefault,
+		0,
+		A2(
+			_elm_lang$core$Maybe$andThen,
+			_concourse$atc$Concourse_Pagination$parseNum,
+			A2(_elm_lang$core$Dict$get, 'limit', query)));
+	return A2(
+		_elm_lang$core$Maybe$map,
+		function (direction) {
+			return {direction: direction, limit: limit};
+		},
+		A2(
+			_elm_community$maybe_extra$Maybe_Extra$or,
+			until,
+			A2(
+				_elm_community$maybe_extra$Maybe_Extra$or,
+				since,
+				A2(_elm_community$maybe_extra$Maybe_Extra$or, from, to))));
+};
+var _concourse$atc$Concourse_Pagination$parseParams = function (_p19) {
+	return _concourse$atc$Concourse_Pagination$fromQuery(
+		_elm_lang$core$Tuple$second(
+			_concourse$atc$Concourse_Pagination$extractQuery(_p19)));
+};
+var _concourse$atc$Concourse_Pagination$parseLinks = function (response) {
+	var _p20 = A2(
+		_elm_lang$core$Dict$get,
+		'link',
+		_concourse$atc$Concourse_Pagination$keysToLower(response.headers));
+	if (_p20.ctor === 'Nothing') {
+		return A2(_concourse$atc$Concourse_Pagination$Pagination, _elm_lang$core$Maybe$Nothing, _elm_lang$core$Maybe$Nothing);
+	} else {
+		var headers = A2(_elm_lang$core$String$split, ', ', _p20._0);
+		var parsed = _elm_lang$core$Dict$fromList(
+			A2(_elm_lang$core$List$filterMap, _concourse$atc$Concourse_Pagination$parseLinkTuple, headers));
+		return A2(
+			_concourse$atc$Concourse_Pagination$Pagination,
+			A2(
+				_elm_lang$core$Maybe$andThen,
+				_concourse$atc$Concourse_Pagination$parseParams,
+				A2(_elm_lang$core$Dict$get, _concourse$atc$Concourse_Pagination$previousRel, parsed)),
+			A2(
+				_elm_lang$core$Maybe$andThen,
+				_concourse$atc$Concourse_Pagination$parseParams,
+				A2(_elm_lang$core$Dict$get, _concourse$atc$Concourse_Pagination$nextRel, parsed)));
+	}
+};
+var _concourse$atc$Concourse_Pagination$parsePagination = F2(
+	function (decode, response) {
+		var decoded = A2(
+			_elm_lang$core$Json_Decode$decodeString,
+			_elm_lang$core$Json_Decode$list(decode),
+			response.body);
+		var pagination = _concourse$atc$Concourse_Pagination$parseLinks(response);
+		var _p21 = decoded;
+		if (_p21.ctor === 'Err') {
+			return _elm_lang$core$Result$Err(_p21._0);
+		} else {
+			return _elm_lang$core$Result$Ok(
+				{content: _p21._0, pagination: pagination});
+		}
+	});
+var _concourse$atc$Concourse_Pagination$fetch = F3(
+	function (decode, url, page) {
+		return _elm_lang$http$Http$toTask(
+			_elm_lang$http$Http$request(
+				{
+					method: 'GET',
+					headers: {ctor: '[]'},
+					url: A2(_concourse$atc$Concourse_Pagination$addParams, url, page),
+					body: _elm_lang$http$Http$emptyBody,
+					expect: _elm_lang$http$Http$expectStringResponse(
+						_concourse$atc$Concourse_Pagination$parsePagination(decode)),
+					timeout: _elm_lang$core$Maybe$Nothing,
+					withCredentials: false
+				}));
+	});
+
+var _concourse$atc$BetaRoutes$createPageFromSearch = function (search) {
+	var q = _Bogdanp$elm_querystring$QueryString$parse(search);
+	var until = A3(_Bogdanp$elm_querystring$QueryString$one, _Bogdanp$elm_querystring$QueryString$int, 'until', q);
+	var since = A3(_Bogdanp$elm_querystring$QueryString$one, _Bogdanp$elm_querystring$QueryString$int, 'since', q);
+	var limit = A2(
+		_elm_lang$core$Maybe$withDefault,
+		100,
+		A3(_Bogdanp$elm_querystring$QueryString$one, _Bogdanp$elm_querystring$QueryString$int, 'limit', q));
+	var _p0 = {ctor: '_Tuple2', _0: since, _1: until};
+	_v0_2:
+	do {
+		if (_p0.ctor === '_Tuple2') {
+			if (_p0._0.ctor === 'Nothing') {
+				if (_p0._1.ctor === 'Just') {
+					return _elm_lang$core$Maybe$Just(
+						{
+							direction: _concourse$atc$Concourse_Pagination$Until(_p0._1._0),
+							limit: limit
+						});
+				} else {
+					break _v0_2;
+				}
+			} else {
+				if (_p0._1.ctor === 'Nothing') {
+					return _elm_lang$core$Maybe$Just(
+						{
+							direction: _concourse$atc$Concourse_Pagination$Since(_p0._0._0),
+							limit: limit
+						});
+				} else {
+					break _v0_2;
+				}
+			}
+		} else {
+			break _v0_2;
+		}
+	} while(false);
+	return _elm_lang$core$Maybe$Nothing;
+};
+var _concourse$atc$BetaRoutes$baseRoute = '/beta';
+var _concourse$atc$BetaRoutes$loginRoute = A2(_elm_lang$core$Basics_ops['++'], _concourse$atc$BetaRoutes$baseRoute, '/login');
+var _concourse$atc$BetaRoutes$loginWithRedirectRoute = function (r) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		_concourse$atc$BetaRoutes$baseRoute,
+		A2(_elm_lang$core$Basics_ops['++'], '/login?redirect=', r));
+};
+var _concourse$atc$BetaRoutes$ConcourseRoute = F4(
+	function (a, b, c, d) {
+		return {logical: a, queries: b, page: c, hash: d};
+	});
+var _concourse$atc$BetaRoutes$BetaTeamLogin = function (a) {
+	return {ctor: 'BetaTeamLogin', _0: a};
+};
+var _concourse$atc$BetaRoutes$betaTeamLogin = A2(
+	_Bogdanp$elm_route$Route_ops[':='],
+	_concourse$atc$BetaRoutes$BetaTeamLogin,
+	A2(
+		_Bogdanp$elm_route$Route_ops['</>'],
+		A2(
+			_Bogdanp$elm_route$Route_ops['</>'],
+			A2(
+				_Bogdanp$elm_route$Route_ops['</>'],
+				_Bogdanp$elm_route$Route$static('beta'),
+				_Bogdanp$elm_route$Route$static('teams')),
+			_Bogdanp$elm_route$Route$string),
+		_Bogdanp$elm_route$Route$static('login')));
+var _concourse$atc$BetaRoutes$BetaSelectTeam = {ctor: 'BetaSelectTeam'};
+var _concourse$atc$BetaRoutes$betaLogin = A2(
+	_Bogdanp$elm_route$Route_ops[':='],
+	_concourse$atc$BetaRoutes$BetaSelectTeam,
+	A2(
+		_Bogdanp$elm_route$Route_ops['</>'],
+		_Bogdanp$elm_route$Route$static('beta'),
+		_Bogdanp$elm_route$Route$static('login')));
+var _concourse$atc$BetaRoutes$BetaJob = F3(
+	function (a, b, c) {
+		return {ctor: 'BetaJob', _0: a, _1: b, _2: c};
+	});
+var _concourse$atc$BetaRoutes$betaJob = A2(
+	_Bogdanp$elm_route$Route_ops[':='],
+	_concourse$atc$BetaRoutes$BetaJob,
+	A2(
+		_Bogdanp$elm_route$Route_ops['</>'],
+		A2(
+			_Bogdanp$elm_route$Route_ops['</>'],
+			A2(
+				_Bogdanp$elm_route$Route_ops['</>'],
+				A2(
+					_Bogdanp$elm_route$Route_ops['</>'],
+					A2(
+						_Bogdanp$elm_route$Route_ops['</>'],
+						A2(
+							_Bogdanp$elm_route$Route_ops['</>'],
+							_Bogdanp$elm_route$Route$static('beta'),
+							_Bogdanp$elm_route$Route$static('teams')),
+						_Bogdanp$elm_route$Route$string),
+					_Bogdanp$elm_route$Route$static('pipelines')),
+				_Bogdanp$elm_route$Route$string),
+			_Bogdanp$elm_route$Route$static('jobs')),
+		_Bogdanp$elm_route$Route$string));
+var _concourse$atc$BetaRoutes$BetaResource = F3(
+	function (a, b, c) {
+		return {ctor: 'BetaResource', _0: a, _1: b, _2: c};
+	});
+var _concourse$atc$BetaRoutes$betaResource = A2(
+	_Bogdanp$elm_route$Route_ops[':='],
+	_concourse$atc$BetaRoutes$BetaResource,
+	A2(
+		_Bogdanp$elm_route$Route_ops['</>'],
+		A2(
+			_Bogdanp$elm_route$Route_ops['</>'],
+			A2(
+				_Bogdanp$elm_route$Route_ops['</>'],
+				A2(
+					_Bogdanp$elm_route$Route_ops['</>'],
+					A2(
+						_Bogdanp$elm_route$Route_ops['</>'],
+						A2(
+							_Bogdanp$elm_route$Route_ops['</>'],
+							_Bogdanp$elm_route$Route$static('beta'),
+							_Bogdanp$elm_route$Route$static('teams')),
+						_Bogdanp$elm_route$Route$string),
+					_Bogdanp$elm_route$Route$static('pipelines')),
+				_Bogdanp$elm_route$Route$string),
+			_Bogdanp$elm_route$Route$static('resources')),
+		_Bogdanp$elm_route$Route$string));
+var _concourse$atc$BetaRoutes$BetaOneOffBuild = function (a) {
+	return {ctor: 'BetaOneOffBuild', _0: a};
+};
+var _concourse$atc$BetaRoutes$betaOneOffBuild = A2(
+	_Bogdanp$elm_route$Route_ops[':='],
+	_concourse$atc$BetaRoutes$BetaOneOffBuild,
+	A2(
+		_Bogdanp$elm_route$Route_ops['</>'],
+		A2(
+			_Bogdanp$elm_route$Route_ops['</>'],
+			_Bogdanp$elm_route$Route$static('beta'),
+			_Bogdanp$elm_route$Route$static('builds')),
+		_Bogdanp$elm_route$Route$string));
+var _concourse$atc$BetaRoutes$BetaBuild = F4(
+	function (a, b, c, d) {
+		return {ctor: 'BetaBuild', _0: a, _1: b, _2: c, _3: d};
+	});
+var _concourse$atc$BetaRoutes$betaBuild = A2(
+	_Bogdanp$elm_route$Route_ops[':='],
+	_concourse$atc$BetaRoutes$BetaBuild,
+	A2(
+		_Bogdanp$elm_route$Route_ops['</>'],
+		A2(
+			_Bogdanp$elm_route$Route_ops['</>'],
+			A2(
+				_Bogdanp$elm_route$Route_ops['</>'],
+				A2(
+					_Bogdanp$elm_route$Route_ops['</>'],
+					A2(
+						_Bogdanp$elm_route$Route_ops['</>'],
+						A2(
+							_Bogdanp$elm_route$Route_ops['</>'],
+							A2(
+								_Bogdanp$elm_route$Route_ops['</>'],
+								A2(
+									_Bogdanp$elm_route$Route_ops['</>'],
+									_Bogdanp$elm_route$Route$static('beta'),
+									_Bogdanp$elm_route$Route$static('teams')),
+								_Bogdanp$elm_route$Route$string),
+							_Bogdanp$elm_route$Route$static('pipelines')),
+						_Bogdanp$elm_route$Route$string),
+					_Bogdanp$elm_route$Route$static('jobs')),
+				_Bogdanp$elm_route$Route$string),
+			_Bogdanp$elm_route$Route$static('builds')),
+		_Bogdanp$elm_route$Route$string));
+var _concourse$atc$BetaRoutes$BetaPipeline = F2(
+	function (a, b) {
+		return {ctor: 'BetaPipeline', _0: a, _1: b};
+	});
+var _concourse$atc$BetaRoutes$betaPipeline = A2(
+	_Bogdanp$elm_route$Route_ops[':='],
+	_concourse$atc$BetaRoutes$BetaPipeline,
+	A2(
+		_Bogdanp$elm_route$Route_ops['</>'],
+		A2(
+			_Bogdanp$elm_route$Route_ops['</>'],
+			A2(
+				_Bogdanp$elm_route$Route_ops['</>'],
+				A2(
+					_Bogdanp$elm_route$Route_ops['</>'],
+					_Bogdanp$elm_route$Route$static('beta'),
+					_Bogdanp$elm_route$Route$static('teams')),
+				_Bogdanp$elm_route$Route$string),
+			_Bogdanp$elm_route$Route$static('pipelines')),
+		_Bogdanp$elm_route$Route$string));
+var _concourse$atc$BetaRoutes$Dashboard = {ctor: 'Dashboard'};
+var _concourse$atc$BetaRoutes$dashboard = A2(
+	_Bogdanp$elm_route$Route_ops[':='],
+	_concourse$atc$BetaRoutes$Dashboard,
+	A2(
+		_Bogdanp$elm_route$Route_ops['</>'],
+		_Bogdanp$elm_route$Route$static('beta'),
+		_Bogdanp$elm_route$Route$static('dashboard')));
+var _concourse$atc$BetaRoutes$toString = function (route) {
+	var _p1 = route;
+	switch (_p1.ctor) {
+		case 'Dashboard':
+			return A2(
+				_Bogdanp$elm_route$Route$reverse,
+				_concourse$atc$BetaRoutes$dashboard,
+				{ctor: '[]'});
+		case 'BetaPipeline':
+			return A2(
+				_Bogdanp$elm_route$Route$reverse,
+				_concourse$atc$BetaRoutes$betaPipeline,
+				{
+					ctor: '::',
+					_0: _p1._0,
+					_1: {
+						ctor: '::',
+						_0: _p1._1,
+						_1: {ctor: '[]'}
+					}
+				});
+		case 'BetaBuild':
+			return A2(
+				_Bogdanp$elm_route$Route$reverse,
+				_concourse$atc$BetaRoutes$betaBuild,
+				{
+					ctor: '::',
+					_0: _p1._0,
+					_1: {
+						ctor: '::',
+						_0: _p1._1,
+						_1: {
+							ctor: '::',
+							_0: _p1._2,
+							_1: {
+								ctor: '::',
+								_0: _p1._3,
+								_1: {ctor: '[]'}
+							}
+						}
+					}
+				});
+		case 'BetaOneOffBuild':
+			return A2(
+				_Bogdanp$elm_route$Route$reverse,
+				_concourse$atc$BetaRoutes$betaOneOffBuild,
+				{
+					ctor: '::',
+					_0: _p1._0,
+					_1: {ctor: '[]'}
+				});
+		case 'BetaResource':
+			return A2(
+				_Bogdanp$elm_route$Route$reverse,
+				_concourse$atc$BetaRoutes$betaJob,
+				{
+					ctor: '::',
+					_0: _p1._0,
+					_1: {
+						ctor: '::',
+						_0: _p1._1,
+						_1: {
+							ctor: '::',
+							_0: _p1._2,
+							_1: {ctor: '[]'}
+						}
+					}
+				});
+		case 'BetaJob':
+			return A2(
+				_Bogdanp$elm_route$Route$reverse,
+				_concourse$atc$BetaRoutes$betaJob,
+				{
+					ctor: '::',
+					_0: _p1._0,
+					_1: {
+						ctor: '::',
+						_0: _p1._1,
+						_1: {
+							ctor: '::',
+							_0: _p1._2,
+							_1: {ctor: '[]'}
+						}
+					}
+				});
+		case 'BetaSelectTeam':
+			return A2(
+				_Bogdanp$elm_route$Route$reverse,
+				_concourse$atc$BetaRoutes$betaLogin,
+				{ctor: '[]'});
+		case 'BetaTeamLogin':
+			return A2(
+				_Bogdanp$elm_route$Route$reverse,
+				_concourse$atc$BetaRoutes$betaTeamLogin,
+				{
+					ctor: '::',
+					_0: _p1._0,
+					_1: {ctor: '[]'}
+				});
+		default:
+			return '/beta';
+	}
+};
+var _concourse$atc$BetaRoutes$teamNameLoginRoute = function (teamName) {
+	return _concourse$atc$BetaRoutes$toString(
+		_concourse$atc$BetaRoutes$BetaTeamLogin(teamName));
+};
+var _concourse$atc$BetaRoutes$buildRoute = function (build) {
+	var _p2 = build.job;
+	if (_p2.ctor === 'Just') {
+		var _p3 = _p2._0;
+		return _concourse$atc$BetaRoutes$toString(
+			A4(_concourse$atc$BetaRoutes$BetaBuild, _p3.teamName, _p3.pipelineName, _p3.jobName, build.name));
+	} else {
+		return _concourse$atc$BetaRoutes$toString(
+			_concourse$atc$BetaRoutes$BetaOneOffBuild(
+				_elm_lang$core$Basics$toString(build.id)));
+	}
+};
+var _concourse$atc$BetaRoutes$jobRoute = function (j) {
+	return _concourse$atc$BetaRoutes$toString(
+		A3(_concourse$atc$BetaRoutes$BetaJob, j.teamName, j.pipelineName, j.name));
+};
+var _concourse$atc$BetaRoutes$jobIdentifierRoute = function (j) {
+	return _concourse$atc$BetaRoutes$toString(
+		A3(_concourse$atc$BetaRoutes$BetaJob, j.teamName, j.pipelineName, j.jobName));
+};
+var _concourse$atc$BetaRoutes$pipelineRoute = function (p) {
+	return _concourse$atc$BetaRoutes$toString(
+		A2(_concourse$atc$BetaRoutes$BetaPipeline, p.teamName, p.name));
+};
+var _concourse$atc$BetaRoutes$customToString = function (route) {
+	return A2(
+		_elm_lang$core$Basics_ops['++'],
+		_concourse$atc$BetaRoutes$toString(route.logical),
+		_Bogdanp$elm_querystring$QueryString$render(route.queries));
+};
+var _concourse$atc$BetaRoutes$navigateTo = function (_p4) {
+	return _elm_lang$navigation$Navigation$newUrl(
+		_concourse$atc$BetaRoutes$toString(_p4));
+};
+var _concourse$atc$BetaRoutes$BetaHome = {ctor: 'BetaHome'};
+var _concourse$atc$BetaRoutes$betaHome = A2(
+	_Bogdanp$elm_route$Route_ops[':='],
+	_concourse$atc$BetaRoutes$BetaHome,
+	_Bogdanp$elm_route$Route$static('beta'));
+var _concourse$atc$BetaRoutes$sitemap = _Bogdanp$elm_route$Route$router(
+	{
+		ctor: '::',
+		_0: _concourse$atc$BetaRoutes$dashboard,
+		_1: {
+			ctor: '::',
+			_0: _concourse$atc$BetaRoutes$betaPipeline,
+			_1: {
+				ctor: '::',
+				_0: _concourse$atc$BetaRoutes$betaBuild,
+				_1: {
+					ctor: '::',
+					_0: _concourse$atc$BetaRoutes$betaOneOffBuild,
+					_1: {
+						ctor: '::',
+						_0: _concourse$atc$BetaRoutes$betaResource,
+						_1: {
+							ctor: '::',
+							_0: _concourse$atc$BetaRoutes$betaJob,
+							_1: {
+								ctor: '::',
+								_0: _concourse$atc$BetaRoutes$betaLogin,
+								_1: {
+									ctor: '::',
+									_0: _concourse$atc$BetaRoutes$betaTeamLogin,
+									_1: {
+										ctor: '::',
+										_0: _concourse$atc$BetaRoutes$betaHome,
+										_1: {ctor: '[]'}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	});
+var _concourse$atc$BetaRoutes$match = function (_p5) {
+	return A2(
+		_elm_lang$core$Maybe$withDefault,
+		_concourse$atc$BetaRoutes$BetaHome,
+		A2(_Bogdanp$elm_route$Route$match, _concourse$atc$BetaRoutes$sitemap, _p5));
+};
+var _concourse$atc$BetaRoutes$parsePath = function (location) {
+	return {
+		logical: _concourse$atc$BetaRoutes$match(location.pathname),
+		queries: A2(
+			_Bogdanp$elm_querystring$QueryString$remove,
+			'csrf_token',
+			_Bogdanp$elm_querystring$QueryString$parse(location.search)),
+		page: _concourse$atc$BetaRoutes$createPageFromSearch(location.search),
+		hash: location.hash
+	};
+};
+
 var _concourse$atc$LoadingIndicator$view = A2(
 	_elm_lang$html$Html$div,
 	{
@@ -16933,408 +17622,6 @@ var _concourse$atc$StrictEvents$onScroll = function (cons) {
 		'scroll',
 		A2(_elm_lang$core$Json_Decode$map, cons, _concourse$atc$StrictEvents$decodeScrollEvent));
 };
-
-var _elm_lang$navigation$Native_Navigation = function() {
-
-
-// FAKE NAVIGATION
-
-function go(n)
-{
-	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
-	{
-		if (n !== 0)
-		{
-			history.go(n);
-		}
-		callback(_elm_lang$core$Native_Scheduler.succeed(_elm_lang$core$Native_Utils.Tuple0));
-	});
-}
-
-function pushState(url)
-{
-	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
-	{
-		history.pushState({}, '', url);
-		callback(_elm_lang$core$Native_Scheduler.succeed(getLocation()));
-	});
-}
-
-function replaceState(url)
-{
-	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
-	{
-		history.replaceState({}, '', url);
-		callback(_elm_lang$core$Native_Scheduler.succeed(getLocation()));
-	});
-}
-
-
-// REAL NAVIGATION
-
-function reloadPage(skipCache)
-{
-	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
-	{
-		document.location.reload(skipCache);
-		callback(_elm_lang$core$Native_Scheduler.succeed(_elm_lang$core$Native_Utils.Tuple0));
-	});
-}
-
-function setLocation(url)
-{
-	return _elm_lang$core$Native_Scheduler.nativeBinding(function(callback)
-	{
-		try
-		{
-			window.location = url;
-		}
-		catch(err)
-		{
-			// Only Firefox can throw a NS_ERROR_MALFORMED_URI exception here.
-			// Other browsers reload the page, so let's be consistent about that.
-			document.location.reload(false);
-		}
-		callback(_elm_lang$core$Native_Scheduler.succeed(_elm_lang$core$Native_Utils.Tuple0));
-	});
-}
-
-
-// GET LOCATION
-
-function getLocation()
-{
-	var location = document.location;
-
-	return {
-		href: location.href,
-		host: location.host,
-		hostname: location.hostname,
-		protocol: location.protocol,
-		origin: location.origin,
-		port_: location.port,
-		pathname: location.pathname,
-		search: location.search,
-		hash: location.hash,
-		username: location.username,
-		password: location.password
-	};
-}
-
-
-// DETECT IE11 PROBLEMS
-
-function isInternetExplorer11()
-{
-	return window.navigator.userAgent.indexOf('Trident') !== -1;
-}
-
-
-return {
-	go: go,
-	setLocation: setLocation,
-	reloadPage: reloadPage,
-	pushState: pushState,
-	replaceState: replaceState,
-	getLocation: getLocation,
-	isInternetExplorer11: isInternetExplorer11
-};
-
-}();
-
-var _elm_lang$navigation$Navigation$replaceState = _elm_lang$navigation$Native_Navigation.replaceState;
-var _elm_lang$navigation$Navigation$pushState = _elm_lang$navigation$Native_Navigation.pushState;
-var _elm_lang$navigation$Navigation$go = _elm_lang$navigation$Native_Navigation.go;
-var _elm_lang$navigation$Navigation$reloadPage = _elm_lang$navigation$Native_Navigation.reloadPage;
-var _elm_lang$navigation$Navigation$setLocation = _elm_lang$navigation$Native_Navigation.setLocation;
-var _elm_lang$navigation$Navigation_ops = _elm_lang$navigation$Navigation_ops || {};
-_elm_lang$navigation$Navigation_ops['&>'] = F2(
-	function (task1, task2) {
-		return A2(
-			_elm_lang$core$Task$andThen,
-			function (_p0) {
-				return task2;
-			},
-			task1);
-	});
-var _elm_lang$navigation$Navigation$notify = F3(
-	function (router, subs, location) {
-		var send = function (_p1) {
-			var _p2 = _p1;
-			return A2(
-				_elm_lang$core$Platform$sendToApp,
-				router,
-				_p2._0(location));
-		};
-		return A2(
-			_elm_lang$navigation$Navigation_ops['&>'],
-			_elm_lang$core$Task$sequence(
-				A2(_elm_lang$core$List$map, send, subs)),
-			_elm_lang$core$Task$succeed(
-				{ctor: '_Tuple0'}));
-	});
-var _elm_lang$navigation$Navigation$cmdHelp = F3(
-	function (router, subs, cmd) {
-		var _p3 = cmd;
-		switch (_p3.ctor) {
-			case 'Jump':
-				return _elm_lang$navigation$Navigation$go(_p3._0);
-			case 'New':
-				return A2(
-					_elm_lang$core$Task$andThen,
-					A2(_elm_lang$navigation$Navigation$notify, router, subs),
-					_elm_lang$navigation$Navigation$pushState(_p3._0));
-			case 'Modify':
-				return A2(
-					_elm_lang$core$Task$andThen,
-					A2(_elm_lang$navigation$Navigation$notify, router, subs),
-					_elm_lang$navigation$Navigation$replaceState(_p3._0));
-			case 'Visit':
-				return _elm_lang$navigation$Navigation$setLocation(_p3._0);
-			default:
-				return _elm_lang$navigation$Navigation$reloadPage(_p3._0);
-		}
-	});
-var _elm_lang$navigation$Navigation$killPopWatcher = function (popWatcher) {
-	var _p4 = popWatcher;
-	if (_p4.ctor === 'Normal') {
-		return _elm_lang$core$Process$kill(_p4._0);
-	} else {
-		return A2(
-			_elm_lang$navigation$Navigation_ops['&>'],
-			_elm_lang$core$Process$kill(_p4._0),
-			_elm_lang$core$Process$kill(_p4._1));
-	}
-};
-var _elm_lang$navigation$Navigation$onSelfMsg = F3(
-	function (router, location, state) {
-		return A2(
-			_elm_lang$navigation$Navigation_ops['&>'],
-			A3(_elm_lang$navigation$Navigation$notify, router, state.subs, location),
-			_elm_lang$core$Task$succeed(state));
-	});
-var _elm_lang$navigation$Navigation$subscription = _elm_lang$core$Native_Platform.leaf('Navigation');
-var _elm_lang$navigation$Navigation$command = _elm_lang$core$Native_Platform.leaf('Navigation');
-var _elm_lang$navigation$Navigation$Location = function (a) {
-	return function (b) {
-		return function (c) {
-			return function (d) {
-				return function (e) {
-					return function (f) {
-						return function (g) {
-							return function (h) {
-								return function (i) {
-									return function (j) {
-										return function (k) {
-											return {href: a, host: b, hostname: c, protocol: d, origin: e, port_: f, pathname: g, search: h, hash: i, username: j, password: k};
-										};
-									};
-								};
-							};
-						};
-					};
-				};
-			};
-		};
-	};
-};
-var _elm_lang$navigation$Navigation$State = F2(
-	function (a, b) {
-		return {subs: a, popWatcher: b};
-	});
-var _elm_lang$navigation$Navigation$init = _elm_lang$core$Task$succeed(
-	A2(
-		_elm_lang$navigation$Navigation$State,
-		{ctor: '[]'},
-		_elm_lang$core$Maybe$Nothing));
-var _elm_lang$navigation$Navigation$Reload = function (a) {
-	return {ctor: 'Reload', _0: a};
-};
-var _elm_lang$navigation$Navigation$reload = _elm_lang$navigation$Navigation$command(
-	_elm_lang$navigation$Navigation$Reload(false));
-var _elm_lang$navigation$Navigation$reloadAndSkipCache = _elm_lang$navigation$Navigation$command(
-	_elm_lang$navigation$Navigation$Reload(true));
-var _elm_lang$navigation$Navigation$Visit = function (a) {
-	return {ctor: 'Visit', _0: a};
-};
-var _elm_lang$navigation$Navigation$load = function (url) {
-	return _elm_lang$navigation$Navigation$command(
-		_elm_lang$navigation$Navigation$Visit(url));
-};
-var _elm_lang$navigation$Navigation$Modify = function (a) {
-	return {ctor: 'Modify', _0: a};
-};
-var _elm_lang$navigation$Navigation$modifyUrl = function (url) {
-	return _elm_lang$navigation$Navigation$command(
-		_elm_lang$navigation$Navigation$Modify(url));
-};
-var _elm_lang$navigation$Navigation$New = function (a) {
-	return {ctor: 'New', _0: a};
-};
-var _elm_lang$navigation$Navigation$newUrl = function (url) {
-	return _elm_lang$navigation$Navigation$command(
-		_elm_lang$navigation$Navigation$New(url));
-};
-var _elm_lang$navigation$Navigation$Jump = function (a) {
-	return {ctor: 'Jump', _0: a};
-};
-var _elm_lang$navigation$Navigation$back = function (n) {
-	return _elm_lang$navigation$Navigation$command(
-		_elm_lang$navigation$Navigation$Jump(0 - n));
-};
-var _elm_lang$navigation$Navigation$forward = function (n) {
-	return _elm_lang$navigation$Navigation$command(
-		_elm_lang$navigation$Navigation$Jump(n));
-};
-var _elm_lang$navigation$Navigation$cmdMap = F2(
-	function (_p5, myCmd) {
-		var _p6 = myCmd;
-		switch (_p6.ctor) {
-			case 'Jump':
-				return _elm_lang$navigation$Navigation$Jump(_p6._0);
-			case 'New':
-				return _elm_lang$navigation$Navigation$New(_p6._0);
-			case 'Modify':
-				return _elm_lang$navigation$Navigation$Modify(_p6._0);
-			case 'Visit':
-				return _elm_lang$navigation$Navigation$Visit(_p6._0);
-			default:
-				return _elm_lang$navigation$Navigation$Reload(_p6._0);
-		}
-	});
-var _elm_lang$navigation$Navigation$Monitor = function (a) {
-	return {ctor: 'Monitor', _0: a};
-};
-var _elm_lang$navigation$Navigation$program = F2(
-	function (locationToMessage, stuff) {
-		var init = stuff.init(
-			_elm_lang$navigation$Native_Navigation.getLocation(
-				{ctor: '_Tuple0'}));
-		var subs = function (model) {
-			return _elm_lang$core$Platform_Sub$batch(
-				{
-					ctor: '::',
-					_0: _elm_lang$navigation$Navigation$subscription(
-						_elm_lang$navigation$Navigation$Monitor(locationToMessage)),
-					_1: {
-						ctor: '::',
-						_0: stuff.subscriptions(model),
-						_1: {ctor: '[]'}
-					}
-				});
-		};
-		return _elm_lang$html$Html$program(
-			{init: init, view: stuff.view, update: stuff.update, subscriptions: subs});
-	});
-var _elm_lang$navigation$Navigation$programWithFlags = F2(
-	function (locationToMessage, stuff) {
-		var init = function (flags) {
-			return A2(
-				stuff.init,
-				flags,
-				_elm_lang$navigation$Native_Navigation.getLocation(
-					{ctor: '_Tuple0'}));
-		};
-		var subs = function (model) {
-			return _elm_lang$core$Platform_Sub$batch(
-				{
-					ctor: '::',
-					_0: _elm_lang$navigation$Navigation$subscription(
-						_elm_lang$navigation$Navigation$Monitor(locationToMessage)),
-					_1: {
-						ctor: '::',
-						_0: stuff.subscriptions(model),
-						_1: {ctor: '[]'}
-					}
-				});
-		};
-		return _elm_lang$html$Html$programWithFlags(
-			{init: init, view: stuff.view, update: stuff.update, subscriptions: subs});
-	});
-var _elm_lang$navigation$Navigation$subMap = F2(
-	function (func, _p7) {
-		var _p8 = _p7;
-		return _elm_lang$navigation$Navigation$Monitor(
-			function (_p9) {
-				return func(
-					_p8._0(_p9));
-			});
-	});
-var _elm_lang$navigation$Navigation$InternetExplorer = F2(
-	function (a, b) {
-		return {ctor: 'InternetExplorer', _0: a, _1: b};
-	});
-var _elm_lang$navigation$Navigation$Normal = function (a) {
-	return {ctor: 'Normal', _0: a};
-};
-var _elm_lang$navigation$Navigation$spawnPopWatcher = function (router) {
-	var reportLocation = function (_p10) {
-		return A2(
-			_elm_lang$core$Platform$sendToSelf,
-			router,
-			_elm_lang$navigation$Native_Navigation.getLocation(
-				{ctor: '_Tuple0'}));
-	};
-	return _elm_lang$navigation$Native_Navigation.isInternetExplorer11(
-		{ctor: '_Tuple0'}) ? A3(
-		_elm_lang$core$Task$map2,
-		_elm_lang$navigation$Navigation$InternetExplorer,
-		_elm_lang$core$Process$spawn(
-			A3(_elm_lang$dom$Dom_LowLevel$onWindow, 'popstate', _elm_lang$core$Json_Decode$value, reportLocation)),
-		_elm_lang$core$Process$spawn(
-			A3(_elm_lang$dom$Dom_LowLevel$onWindow, 'hashchange', _elm_lang$core$Json_Decode$value, reportLocation))) : A2(
-		_elm_lang$core$Task$map,
-		_elm_lang$navigation$Navigation$Normal,
-		_elm_lang$core$Process$spawn(
-			A3(_elm_lang$dom$Dom_LowLevel$onWindow, 'popstate', _elm_lang$core$Json_Decode$value, reportLocation)));
-};
-var _elm_lang$navigation$Navigation$onEffects = F4(
-	function (router, cmds, subs, _p11) {
-		var _p12 = _p11;
-		var _p15 = _p12.popWatcher;
-		var stepState = function () {
-			var _p13 = {ctor: '_Tuple2', _0: subs, _1: _p15};
-			_v6_2:
-			do {
-				if (_p13._0.ctor === '[]') {
-					if (_p13._1.ctor === 'Just') {
-						return A2(
-							_elm_lang$navigation$Navigation_ops['&>'],
-							_elm_lang$navigation$Navigation$killPopWatcher(_p13._1._0),
-							_elm_lang$core$Task$succeed(
-								A2(_elm_lang$navigation$Navigation$State, subs, _elm_lang$core$Maybe$Nothing)));
-					} else {
-						break _v6_2;
-					}
-				} else {
-					if (_p13._1.ctor === 'Nothing') {
-						return A2(
-							_elm_lang$core$Task$map,
-							function (_p14) {
-								return A2(
-									_elm_lang$navigation$Navigation$State,
-									subs,
-									_elm_lang$core$Maybe$Just(_p14));
-							},
-							_elm_lang$navigation$Navigation$spawnPopWatcher(router));
-					} else {
-						break _v6_2;
-					}
-				}
-			} while(false);
-			return _elm_lang$core$Task$succeed(
-				A2(_elm_lang$navigation$Navigation$State, subs, _p15));
-		}();
-		return A2(
-			_elm_lang$navigation$Navigation_ops['&>'],
-			_elm_lang$core$Task$sequence(
-				A2(
-					_elm_lang$core$List$map,
-					A2(_elm_lang$navigation$Navigation$cmdHelp, router, subs),
-					cmds)),
-			stepState);
-	});
-_elm_lang$core$Native_Platform.effectManagers['Navigation'] = {pkg: 'elm-lang/navigation', init: _elm_lang$navigation$Navigation$init, onEffects: _elm_lang$navigation$Navigation$onEffects, onSelfMsg: _elm_lang$navigation$Navigation$onSelfMsg, tag: 'fx', cmdMap: _elm_lang$navigation$Navigation$cmdMap, subMap: _elm_lang$navigation$Navigation$subMap};
 
 var _concourse$atc$StepTree$showHighlight = function (hl) {
 	var _p0 = hl;
@@ -18800,8 +19087,7 @@ var _concourse$atc$BetaBuildOutput$viewLoginButton = function (build) {
 				_0: _elm_lang$html$Html_Attributes$method('get'),
 				_1: {
 					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$action(
-						_concourse$atc$Format$prependBeta('/login')),
+					_0: _elm_lang$html$Html_Attributes$action(_concourse$atc$BetaRoutes$loginRoute),
 					_1: {ctor: '[]'}
 				}
 			}
@@ -18833,8 +19119,7 @@ var _concourse$atc$BetaBuildOutput$viewLoginButton = function (build) {
 							_1: {
 								ctor: '::',
 								_0: _elm_lang$html$Html_Attributes$value(
-									_concourse$atc$Format$prependBeta(
-										_concourse$atc$Concourse_Build$url(build))),
+									_concourse$atc$BetaRoutes$buildRoute(build)),
 								_1: {ctor: '[]'}
 							}
 						}
@@ -19372,6 +19657,87 @@ var _concourse$atc$BetaBuildOutput$update = F2(
 				}
 		}
 	});
+
+var _concourse$atc$Concourse_Build$fetchJobBuilds = F2(
+	function (job, page) {
+		var url = A2(
+			_elm_lang$core$Basics_ops['++'],
+			'/api/v1/teams/',
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				job.teamName,
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					'/pipelines/',
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						job.pipelineName,
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							'/jobs/',
+							A2(_elm_lang$core$Basics_ops['++'], job.jobName, '/builds'))))));
+		return A3(_concourse$atc$Concourse_Pagination$fetch, _concourse$atc$Concourse$decodeBuild, url, page);
+	});
+var _concourse$atc$Concourse_Build$abort = F2(
+	function (buildId, csrfToken) {
+		return _elm_lang$http$Http$toTask(
+			_elm_lang$http$Http$request(
+				{
+					method: 'PUT',
+					url: A2(
+						_elm_lang$core$Basics_ops['++'],
+						'/api/v1/builds/',
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							_elm_lang$core$Basics$toString(buildId),
+							'/abort')),
+					headers: {
+						ctor: '::',
+						_0: A2(_elm_lang$http$Http$header, _concourse$atc$Concourse$csrfTokenHeaderName, csrfToken),
+						_1: {ctor: '[]'}
+					},
+					body: _elm_lang$http$Http$emptyBody,
+					expect: _elm_lang$http$Http$expectStringResponse(
+						_elm_lang$core$Basics$always(
+							_elm_lang$core$Result$Ok(
+								{ctor: '_Tuple0'}))),
+					timeout: _elm_lang$core$Maybe$Nothing,
+					withCredentials: false
+				}));
+	});
+var _concourse$atc$Concourse_Build$fetchJobBuild = function (jbi) {
+	var url = A2(
+		_elm_lang$core$Basics_ops['++'],
+		'/api/v1/teams/',
+		A2(
+			_elm_lang$core$Basics_ops['++'],
+			jbi.teamName,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'/pipelines/',
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					jbi.pipelineName,
+					A2(
+						_elm_lang$core$Basics_ops['++'],
+						'/jobs/',
+						A2(
+							_elm_lang$core$Basics_ops['++'],
+							jbi.jobName,
+							A2(_elm_lang$core$Basics_ops['++'], '/builds/', jbi.buildName)))))));
+	return _elm_lang$http$Http$toTask(
+		A2(_elm_lang$http$Http$get, url, _concourse$atc$Concourse$decodeBuild));
+};
+var _concourse$atc$Concourse_Build$fetch = function (buildId) {
+	return _elm_lang$http$Http$toTask(
+		A2(
+			_elm_lang$http$Http$get,
+			A2(
+				_elm_lang$core$Basics_ops['++'],
+				'/api/v1/builds/',
+				_elm_lang$core$Basics$toString(buildId)),
+			_concourse$atc$Concourse$decodeBuild));
+};
 
 var _concourse$atc$Concourse_BuildPrep$fetch = function (buildId) {
 	return function (_p0) {
@@ -20970,8 +21336,7 @@ var _concourse$atc$BetaBuild$viewHistoryItem = F2(
 						_1: {
 							ctor: '::',
 							_0: _elm_lang$html$Html_Attributes$href(
-								_concourse$atc$Format$prependBeta(
-									_concourse$atc$Concourse_Build$url(build))),
+								_concourse$atc$BetaRoutes$buildRoute(build)),
 							_1: {ctor: '[]'}
 						}
 					},
@@ -21008,21 +21373,8 @@ var _concourse$atc$BetaBuild$viewBuildHeader = F2(
 		var buildTitle = function () {
 			var _p24 = build.job;
 			if (_p24.ctor === 'Just') {
-				var _p25 = _p24._0.jobName;
-				var jobUrl = _concourse$atc$Format$prependBeta(
-					A2(
-						_elm_lang$core$Basics_ops['++'],
-						'/teams/',
-						A2(
-							_elm_lang$core$Basics_ops['++'],
-							_p24._0.teamName,
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								'/pipelines/',
-								A2(
-									_elm_lang$core$Basics_ops['++'],
-									_p24._0.pipelineName,
-									A2(_elm_lang$core$Basics_ops['++'], '/jobs/', _p25))))));
+				var _p25 = _p24._0;
+				var jobUrl = _concourse$atc$BetaRoutes$jobIdentifierRoute(_p25);
 				return A2(
 					_elm_lang$html$Html$a,
 					{
@@ -21040,7 +21392,7 @@ var _concourse$atc$BetaBuild$viewBuildHeader = F2(
 						_0: _elm_lang$html$Html$text(
 							A2(
 								_elm_lang$core$Basics_ops['++'],
-								_p25,
+								_p25.jobName,
 								A2(_elm_lang$core$Basics_ops['++'], ' #', build.name))),
 						_1: {ctor: '[]'}
 					});
@@ -21992,8 +22344,7 @@ var _concourse$atc$BetaBuild$update = F2(
 						ctor: '_Tuple2',
 						_0: model,
 						_1: _elm_lang$navigation$Navigation$newUrl(
-							_concourse$atc$Format$prependBeta(
-								_concourse$atc$Concourse_Build$url(_p46._0)))
+							_concourse$atc$BetaRoutes$buildRoute(_p46._0))
 					};
 				case 'TriggerBuild':
 					var _p47 = _p46._0;
@@ -22797,29 +23148,13 @@ var _concourse$atc$BetaJob$viewPaginationBar = function (model) {
 							_1: {ctor: '[]'}
 						});
 				} else {
-					var jobUrl = _concourse$atc$Format$prependBeta(
+					var jobUrl = A2(
+						_elm_lang$core$Basics_ops['++'],
+						_concourse$atc$BetaRoutes$jobIdentifierRoute(model.jobIdentifier),
 						A2(
 							_elm_lang$core$Basics_ops['++'],
-							'/teams/',
-							A2(
-								_elm_lang$core$Basics_ops['++'],
-								model.jobIdentifier.teamName,
-								A2(
-									_elm_lang$core$Basics_ops['++'],
-									'/pipelines/',
-									A2(
-										_elm_lang$core$Basics_ops['++'],
-										model.jobIdentifier.pipelineName,
-										A2(
-											_elm_lang$core$Basics_ops['++'],
-											'/jobs/',
-											A2(
-												_elm_lang$core$Basics_ops['++'],
-												model.jobIdentifier.jobName,
-												A2(
-													_elm_lang$core$Basics_ops['++'],
-													'?',
-													_concourse$atc$BetaJob$paginationParam(_p8._0)))))))));
+							'?',
+							_concourse$atc$BetaJob$paginationParam(_p8._0)));
 					return A2(
 						_elm_lang$html$Html$div,
 						{
@@ -22901,29 +23236,13 @@ var _concourse$atc$BetaJob$viewPaginationBar = function (model) {
 								_1: {ctor: '[]'}
 							});
 					} else {
-						var jobUrl = _concourse$atc$Format$prependBeta(
+						var jobUrl = A2(
+							_elm_lang$core$Basics_ops['++'],
+							_concourse$atc$BetaRoutes$jobIdentifierRoute(model.jobIdentifier),
 							A2(
 								_elm_lang$core$Basics_ops['++'],
-								'/teams/',
-								A2(
-									_elm_lang$core$Basics_ops['++'],
-									model.jobIdentifier.teamName,
-									A2(
-										_elm_lang$core$Basics_ops['++'],
-										'/pipelines/',
-										A2(
-											_elm_lang$core$Basics_ops['++'],
-											model.jobIdentifier.pipelineName,
-											A2(
-												_elm_lang$core$Basics_ops['++'],
-												'/jobs/',
-												A2(
-													_elm_lang$core$Basics_ops['++'],
-													model.jobIdentifier.jobName,
-													A2(
-														_elm_lang$core$Basics_ops['++'],
-														'?',
-														_concourse$atc$BetaJob$paginationParam(_p9._0)))))))));
+								'?',
+								_concourse$atc$BetaJob$paginationParam(_p9._0)));
 						return A2(
 							_elm_lang$html$Html$div,
 							{
@@ -22985,13 +23304,11 @@ var _concourse$atc$BetaJob$viewBuildHeader = F2(
 					ctor: '::',
 					_0: _concourse$atc$StrictEvents$onLeftClick(
 						_concourse$atc$BetaJob$NavTo(
-							_concourse$atc$Format$prependBeta(
-								_concourse$atc$Concourse_Build$url(b)))),
+							_concourse$atc$BetaRoutes$buildRoute(b))),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$html$Html_Attributes$href(
-							_concourse$atc$Format$prependBeta(
-								_concourse$atc$Concourse_Build$url(b))),
+							_concourse$atc$BetaRoutes$buildRoute(b)),
 						_1: {ctor: '[]'}
 					}
 				}
@@ -23415,44 +23732,24 @@ var _concourse$atc$BetaJob$update = F2(
 				};
 			case 'BuildTriggered':
 				if (_p15._0.ctor === 'Ok') {
-					var _p18 = _p15._0._0;
+					var _p17 = _p15._0._0;
 					return {
 						ctor: '_Tuple2',
 						_0: model,
 						_1: function () {
-							var _p16 = _p18.job;
+							var _p16 = _p17.job;
 							if (_p16.ctor === 'Nothing') {
 								return _elm_lang$core$Platform_Cmd$none;
 							} else {
-								var _p17 = _p16._0;
 								return _elm_lang$navigation$Navigation$newUrl(
-									_concourse$atc$Format$prependBeta(
-										A2(
-											_elm_lang$core$Basics_ops['++'],
-											'/teams/',
-											A2(
-												_elm_lang$core$Basics_ops['++'],
-												_p17.teamName,
-												A2(
-													_elm_lang$core$Basics_ops['++'],
-													'/pipelines/',
-													A2(
-														_elm_lang$core$Basics_ops['++'],
-														_p17.pipelineName,
-														A2(
-															_elm_lang$core$Basics_ops['++'],
-															'/jobs/',
-															A2(
-																_elm_lang$core$Basics_ops['++'],
-																_p17.jobName,
-																A2(_elm_lang$core$Basics_ops['++'], '/builds/', _p18.name)))))))));
+									_concourse$atc$BetaRoutes$buildRoute(_p17));
 							}
 						}()
 					};
 				} else {
-					var _p19 = _p15._0._0;
-					if (_p19.ctor === 'BadStatus') {
-						return _elm_lang$core$Native_Utils.eq(_p19._0.status.code, 401) ? {
+					var _p18 = _p15._0._0;
+					if (_p18.ctor === 'BadStatus') {
+						return _elm_lang$core$Native_Utils.eq(_p18._0.status.code, 401) ? {
 							ctor: '_Tuple2',
 							_0: model,
 							_1: _concourse$atc$LoginRedirect$requestLoginRedirect('')
@@ -23465,9 +23762,9 @@ var _concourse$atc$BetaJob$update = F2(
 				if (_p15._0.ctor === 'Ok') {
 					return A2(_concourse$atc$BetaJob$handleJobBuildsFetched, _p15._0._0, model);
 				} else {
-					var _p20 = _p15._0._0;
-					if (_p20.ctor === 'BadStatus') {
-						return _elm_lang$core$Native_Utils.eq(_p20._0.status.code, 401) ? {
+					var _p19 = _p15._0._0;
+					if (_p19.ctor === 'BadStatus') {
+						return _elm_lang$core$Native_Utils.eq(_p19._0.status.code, 401) ? {
 							ctor: '_Tuple2',
 							_0: model,
 							_1: _concourse$atc$LoginRedirect$requestLoginRedirect('')
@@ -23478,32 +23775,32 @@ var _concourse$atc$BetaJob$update = F2(
 				}
 			case 'JobFetched':
 				if (_p15._0.ctor === 'Ok') {
-					var _p21 = _p15._0._0;
+					var _p20 = _p15._0._0;
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
 							model,
 							{
-								job: _krisajenkins$remotedata$RemoteData$Success(_p21)
+								job: _krisajenkins$remotedata$RemoteData$Success(_p20)
 							}),
 						_1: model.ports.title(
-							A2(_elm_lang$core$Basics_ops['++'], _p21.name, ' - '))
+							A2(_elm_lang$core$Basics_ops['++'], _p20.name, ' - '))
 					};
 				} else {
-					var _p24 = _p15._0._0;
-					var _p22 = _p24;
-					if (_p22.ctor === 'BadStatus') {
-						var _p23 = _p22._0.status;
-						return _elm_lang$core$Native_Utils.eq(_p23.code, 401) ? {
+					var _p23 = _p15._0._0;
+					var _p21 = _p23;
+					if (_p21.ctor === 'BadStatus') {
+						var _p22 = _p21._0.status;
+						return _elm_lang$core$Native_Utils.eq(_p22.code, 401) ? {
 							ctor: '_Tuple2',
 							_0: model,
 							_1: _concourse$atc$LoginRedirect$requestLoginRedirect('')
-						} : (_elm_lang$core$Native_Utils.eq(_p23.code, 404) ? {
+						} : (_elm_lang$core$Native_Utils.eq(_p22.code, 404) ? {
 							ctor: '_Tuple2',
 							_0: _elm_lang$core$Native_Utils.update(
 								model,
 								{
-									job: _krisajenkins$remotedata$RemoteData$Failure(_p24)
+									job: _krisajenkins$remotedata$RemoteData$Failure(_p23)
 								}),
 							_1: _elm_lang$core$Platform_Cmd$none
 						} : {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none});
@@ -23513,8 +23810,8 @@ var _concourse$atc$BetaJob$update = F2(
 				}
 			case 'BuildResourcesFetched':
 				if (_p15._1.ctor === 'Ok') {
-					var _p25 = model.buildsWithResources.content;
-					if (_p25.ctor === '[]') {
+					var _p24 = model.buildsWithResources.content;
+					if (_p24.ctor === '[]') {
 						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 					} else {
 						var bwrs = model.buildsWithResources;
@@ -23534,7 +23831,7 @@ var _concourse$atc$BetaJob$update = F2(
 									buildsWithResources: _elm_lang$core$Native_Utils.update(
 										bwrs,
 										{
-											content: A2(_elm_lang$core$List$map, transformer, _p25)
+											content: A2(_elm_lang$core$List$map, transformer, _p24)
 										})
 								}),
 							_1: _elm_lang$core$Platform_Cmd$none
@@ -23552,11 +23849,11 @@ var _concourse$atc$BetaJob$update = F2(
 					_1: _elm_lang$core$Platform_Cmd$none
 				};
 			case 'TogglePaused':
-				var _p26 = _krisajenkins$remotedata$RemoteData$toMaybe(model.job);
-				if (_p26.ctor === 'Nothing') {
+				var _p25 = _krisajenkins$remotedata$RemoteData$toMaybe(model.job);
+				if (_p25.ctor === 'Nothing') {
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				} else {
-					var _p27 = _p26._0;
+					var _p26 = _p25._0;
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$core$Native_Utils.update(
@@ -23565,10 +23862,10 @@ var _concourse$atc$BetaJob$update = F2(
 								pausedChanging: true,
 								job: _krisajenkins$remotedata$RemoteData$Success(
 									_elm_lang$core$Native_Utils.update(
-										_p27,
-										{paused: !_p27.paused}))
+										_p26,
+										{paused: !_p26.paused}))
 							}),
-						_1: _p27.paused ? A2(_concourse$atc$BetaJob$unpauseJob, model.jobIdentifier, model.csrfToken) : A2(_concourse$atc$BetaJob$pauseJob, model.jobIdentifier, model.csrfToken)
+						_1: _p26.paused ? A2(_concourse$atc$BetaJob$unpauseJob, model.jobIdentifier, model.csrfToken) : A2(_concourse$atc$BetaJob$pauseJob, model.jobIdentifier, model.csrfToken)
 					};
 				}
 			case 'PausedToggled':
@@ -23581,9 +23878,9 @@ var _concourse$atc$BetaJob$update = F2(
 						_1: _elm_lang$core$Platform_Cmd$none
 					};
 				} else {
-					var _p28 = _p15._0._0;
-					if (_p28.ctor === 'BadStatus') {
-						return _elm_lang$core$Native_Utils.eq(_p28._0.status.code, 401) ? {
+					var _p27 = _p15._0._0;
+					if (_p27.ctor === 'BadStatus') {
+						return _elm_lang$core$Native_Utils.eq(_p27._0.status.code, 401) ? {
 							ctor: '_Tuple2',
 							_0: model,
 							_1: _concourse$atc$LoginRedirect$requestLoginRedirect('')
@@ -23617,11 +23914,11 @@ var _concourse$atc$BetaJob$update = F2(
 	});
 var _concourse$atc$BetaJob$updateWithMessage = F2(
 	function (message, model) {
-		var _p29 = A2(_concourse$atc$BetaJob$update, message, model);
-		var mdl = _p29._0;
-		var msg = _p29._1;
-		var _p30 = mdl.job;
-		if (_p30.ctor === 'Failure') {
+		var _p28 = A2(_concourse$atc$BetaJob$update, message, model);
+		var mdl = _p28._0;
+		var msg = _p28._1;
+		var _p29 = mdl.job;
+		if (_p29.ctor === 'Failure') {
 			return {
 				ctor: '_Tuple3',
 				_0: mdl,
@@ -23633,372 +23930,6 @@ var _concourse$atc$BetaJob$updateWithMessage = F2(
 		}
 	});
 var _concourse$atc$BetaJob$Noop = {ctor: 'Noop'};
-
-var _concourse$atc$BetaRoutes$createPageFromSearch = function (search) {
-	var q = _Bogdanp$elm_querystring$QueryString$parse(search);
-	var until = A3(_Bogdanp$elm_querystring$QueryString$one, _Bogdanp$elm_querystring$QueryString$int, 'until', q);
-	var since = A3(_Bogdanp$elm_querystring$QueryString$one, _Bogdanp$elm_querystring$QueryString$int, 'since', q);
-	var limit = A2(
-		_elm_lang$core$Maybe$withDefault,
-		100,
-		A3(_Bogdanp$elm_querystring$QueryString$one, _Bogdanp$elm_querystring$QueryString$int, 'limit', q));
-	var _p0 = {ctor: '_Tuple2', _0: since, _1: until};
-	_v0_2:
-	do {
-		if (_p0.ctor === '_Tuple2') {
-			if (_p0._0.ctor === 'Nothing') {
-				if (_p0._1.ctor === 'Just') {
-					return _elm_lang$core$Maybe$Just(
-						{
-							direction: _concourse$atc$Concourse_Pagination$Until(_p0._1._0),
-							limit: limit
-						});
-				} else {
-					break _v0_2;
-				}
-			} else {
-				if (_p0._1.ctor === 'Nothing') {
-					return _elm_lang$core$Maybe$Just(
-						{
-							direction: _concourse$atc$Concourse_Pagination$Since(_p0._0._0),
-							limit: limit
-						});
-				} else {
-					break _v0_2;
-				}
-			}
-		} else {
-			break _v0_2;
-		}
-	} while(false);
-	return _elm_lang$core$Maybe$Nothing;
-};
-var _concourse$atc$BetaRoutes$ConcourseRoute = F4(
-	function (a, b, c, d) {
-		return {logical: a, queries: b, page: c, hash: d};
-	});
-var _concourse$atc$BetaRoutes$BetaTeamLogin = function (a) {
-	return {ctor: 'BetaTeamLogin', _0: a};
-};
-var _concourse$atc$BetaRoutes$betaTeamLogin = A2(
-	_Bogdanp$elm_route$Route_ops[':='],
-	_concourse$atc$BetaRoutes$BetaTeamLogin,
-	A2(
-		_Bogdanp$elm_route$Route_ops['</>'],
-		A2(
-			_Bogdanp$elm_route$Route_ops['</>'],
-			A2(
-				_Bogdanp$elm_route$Route_ops['</>'],
-				_Bogdanp$elm_route$Route$static('beta'),
-				_Bogdanp$elm_route$Route$static('teams')),
-			_Bogdanp$elm_route$Route$string),
-		_Bogdanp$elm_route$Route$static('login')));
-var _concourse$atc$BetaRoutes$BetaSelectTeam = {ctor: 'BetaSelectTeam'};
-var _concourse$atc$BetaRoutes$betaLogin = A2(
-	_Bogdanp$elm_route$Route_ops[':='],
-	_concourse$atc$BetaRoutes$BetaSelectTeam,
-	A2(
-		_Bogdanp$elm_route$Route_ops['</>'],
-		_Bogdanp$elm_route$Route$static('beta'),
-		_Bogdanp$elm_route$Route$static('login')));
-var _concourse$atc$BetaRoutes$BetaJob = F3(
-	function (a, b, c) {
-		return {ctor: 'BetaJob', _0: a, _1: b, _2: c};
-	});
-var _concourse$atc$BetaRoutes$betaJob = A2(
-	_Bogdanp$elm_route$Route_ops[':='],
-	_concourse$atc$BetaRoutes$BetaJob,
-	A2(
-		_Bogdanp$elm_route$Route_ops['</>'],
-		A2(
-			_Bogdanp$elm_route$Route_ops['</>'],
-			A2(
-				_Bogdanp$elm_route$Route_ops['</>'],
-				A2(
-					_Bogdanp$elm_route$Route_ops['</>'],
-					A2(
-						_Bogdanp$elm_route$Route_ops['</>'],
-						A2(
-							_Bogdanp$elm_route$Route_ops['</>'],
-							_Bogdanp$elm_route$Route$static('beta'),
-							_Bogdanp$elm_route$Route$static('teams')),
-						_Bogdanp$elm_route$Route$string),
-					_Bogdanp$elm_route$Route$static('pipelines')),
-				_Bogdanp$elm_route$Route$string),
-			_Bogdanp$elm_route$Route$static('jobs')),
-		_Bogdanp$elm_route$Route$string));
-var _concourse$atc$BetaRoutes$BetaResource = F3(
-	function (a, b, c) {
-		return {ctor: 'BetaResource', _0: a, _1: b, _2: c};
-	});
-var _concourse$atc$BetaRoutes$betaResource = A2(
-	_Bogdanp$elm_route$Route_ops[':='],
-	_concourse$atc$BetaRoutes$BetaResource,
-	A2(
-		_Bogdanp$elm_route$Route_ops['</>'],
-		A2(
-			_Bogdanp$elm_route$Route_ops['</>'],
-			A2(
-				_Bogdanp$elm_route$Route_ops['</>'],
-				A2(
-					_Bogdanp$elm_route$Route_ops['</>'],
-					A2(
-						_Bogdanp$elm_route$Route_ops['</>'],
-						A2(
-							_Bogdanp$elm_route$Route_ops['</>'],
-							_Bogdanp$elm_route$Route$static('beta'),
-							_Bogdanp$elm_route$Route$static('teams')),
-						_Bogdanp$elm_route$Route$string),
-					_Bogdanp$elm_route$Route$static('pipelines')),
-				_Bogdanp$elm_route$Route$string),
-			_Bogdanp$elm_route$Route$static('resources')),
-		_Bogdanp$elm_route$Route$string));
-var _concourse$atc$BetaRoutes$BetaOneOffBuild = function (a) {
-	return {ctor: 'BetaOneOffBuild', _0: a};
-};
-var _concourse$atc$BetaRoutes$betaOneOffBuild = A2(
-	_Bogdanp$elm_route$Route_ops[':='],
-	_concourse$atc$BetaRoutes$BetaOneOffBuild,
-	A2(
-		_Bogdanp$elm_route$Route_ops['</>'],
-		A2(
-			_Bogdanp$elm_route$Route_ops['</>'],
-			_Bogdanp$elm_route$Route$static('beta'),
-			_Bogdanp$elm_route$Route$static('builds')),
-		_Bogdanp$elm_route$Route$string));
-var _concourse$atc$BetaRoutes$BetaBuild = F4(
-	function (a, b, c, d) {
-		return {ctor: 'BetaBuild', _0: a, _1: b, _2: c, _3: d};
-	});
-var _concourse$atc$BetaRoutes$betaBuild = A2(
-	_Bogdanp$elm_route$Route_ops[':='],
-	_concourse$atc$BetaRoutes$BetaBuild,
-	A2(
-		_Bogdanp$elm_route$Route_ops['</>'],
-		A2(
-			_Bogdanp$elm_route$Route_ops['</>'],
-			A2(
-				_Bogdanp$elm_route$Route_ops['</>'],
-				A2(
-					_Bogdanp$elm_route$Route_ops['</>'],
-					A2(
-						_Bogdanp$elm_route$Route_ops['</>'],
-						A2(
-							_Bogdanp$elm_route$Route_ops['</>'],
-							A2(
-								_Bogdanp$elm_route$Route_ops['</>'],
-								A2(
-									_Bogdanp$elm_route$Route_ops['</>'],
-									_Bogdanp$elm_route$Route$static('beta'),
-									_Bogdanp$elm_route$Route$static('teams')),
-								_Bogdanp$elm_route$Route$string),
-							_Bogdanp$elm_route$Route$static('pipelines')),
-						_Bogdanp$elm_route$Route$string),
-					_Bogdanp$elm_route$Route$static('jobs')),
-				_Bogdanp$elm_route$Route$string),
-			_Bogdanp$elm_route$Route$static('builds')),
-		_Bogdanp$elm_route$Route$string));
-var _concourse$atc$BetaRoutes$BetaPipeline = F2(
-	function (a, b) {
-		return {ctor: 'BetaPipeline', _0: a, _1: b};
-	});
-var _concourse$atc$BetaRoutes$betaPipeline = A2(
-	_Bogdanp$elm_route$Route_ops[':='],
-	_concourse$atc$BetaRoutes$BetaPipeline,
-	A2(
-		_Bogdanp$elm_route$Route_ops['</>'],
-		A2(
-			_Bogdanp$elm_route$Route_ops['</>'],
-			A2(
-				_Bogdanp$elm_route$Route_ops['</>'],
-				A2(
-					_Bogdanp$elm_route$Route_ops['</>'],
-					_Bogdanp$elm_route$Route$static('beta'),
-					_Bogdanp$elm_route$Route$static('teams')),
-				_Bogdanp$elm_route$Route$string),
-			_Bogdanp$elm_route$Route$static('pipelines')),
-		_Bogdanp$elm_route$Route$string));
-var _concourse$atc$BetaRoutes$Dashboard = {ctor: 'Dashboard'};
-var _concourse$atc$BetaRoutes$dashboard = A2(
-	_Bogdanp$elm_route$Route_ops[':='],
-	_concourse$atc$BetaRoutes$Dashboard,
-	A2(
-		_Bogdanp$elm_route$Route_ops['</>'],
-		_Bogdanp$elm_route$Route$static('beta'),
-		_Bogdanp$elm_route$Route$static('dashboard')));
-var _concourse$atc$BetaRoutes$toString = function (route) {
-	var _p1 = route;
-	switch (_p1.ctor) {
-		case 'Dashboard':
-			return A2(
-				_Bogdanp$elm_route$Route$reverse,
-				_concourse$atc$BetaRoutes$dashboard,
-				{ctor: '[]'});
-		case 'BetaPipeline':
-			return A2(
-				_Bogdanp$elm_route$Route$reverse,
-				_concourse$atc$BetaRoutes$betaPipeline,
-				{
-					ctor: '::',
-					_0: _p1._0,
-					_1: {
-						ctor: '::',
-						_0: _p1._1,
-						_1: {ctor: '[]'}
-					}
-				});
-		case 'BetaBuild':
-			return A2(
-				_Bogdanp$elm_route$Route$reverse,
-				_concourse$atc$BetaRoutes$betaBuild,
-				{
-					ctor: '::',
-					_0: _p1._0,
-					_1: {
-						ctor: '::',
-						_0: _p1._1,
-						_1: {
-							ctor: '::',
-							_0: _p1._2,
-							_1: {
-								ctor: '::',
-								_0: _p1._3,
-								_1: {ctor: '[]'}
-							}
-						}
-					}
-				});
-		case 'BetaOneOffBuild':
-			return A2(
-				_Bogdanp$elm_route$Route$reverse,
-				_concourse$atc$BetaRoutes$betaOneOffBuild,
-				{
-					ctor: '::',
-					_0: _p1._0,
-					_1: {ctor: '[]'}
-				});
-		case 'BetaResource':
-			return A2(
-				_Bogdanp$elm_route$Route$reverse,
-				_concourse$atc$BetaRoutes$betaJob,
-				{
-					ctor: '::',
-					_0: _p1._0,
-					_1: {
-						ctor: '::',
-						_0: _p1._1,
-						_1: {
-							ctor: '::',
-							_0: _p1._2,
-							_1: {ctor: '[]'}
-						}
-					}
-				});
-		case 'BetaJob':
-			return A2(
-				_Bogdanp$elm_route$Route$reverse,
-				_concourse$atc$BetaRoutes$betaJob,
-				{
-					ctor: '::',
-					_0: _p1._0,
-					_1: {
-						ctor: '::',
-						_0: _p1._1,
-						_1: {
-							ctor: '::',
-							_0: _p1._2,
-							_1: {ctor: '[]'}
-						}
-					}
-				});
-		case 'BetaSelectTeam':
-			return A2(
-				_Bogdanp$elm_route$Route$reverse,
-				_concourse$atc$BetaRoutes$betaLogin,
-				{ctor: '[]'});
-		case 'BetaTeamLogin':
-			return A2(
-				_Bogdanp$elm_route$Route$reverse,
-				_concourse$atc$BetaRoutes$betaTeamLogin,
-				{
-					ctor: '::',
-					_0: _p1._0,
-					_1: {ctor: '[]'}
-				});
-		default:
-			return '/beta';
-	}
-};
-var _concourse$atc$BetaRoutes$customToString = function (route) {
-	return A2(
-		_elm_lang$core$Basics_ops['++'],
-		_concourse$atc$BetaRoutes$toString(route.logical),
-		_Bogdanp$elm_querystring$QueryString$render(route.queries));
-};
-var _concourse$atc$BetaRoutes$navigateTo = function (_p2) {
-	return _elm_lang$navigation$Navigation$newUrl(
-		_concourse$atc$BetaRoutes$toString(_p2));
-};
-var _concourse$atc$BetaRoutes$BetaHome = {ctor: 'BetaHome'};
-var _concourse$atc$BetaRoutes$betaHome = A2(
-	_Bogdanp$elm_route$Route_ops[':='],
-	_concourse$atc$BetaRoutes$BetaHome,
-	_Bogdanp$elm_route$Route$static('beta'));
-var _concourse$atc$BetaRoutes$sitemap = _Bogdanp$elm_route$Route$router(
-	{
-		ctor: '::',
-		_0: _concourse$atc$BetaRoutes$dashboard,
-		_1: {
-			ctor: '::',
-			_0: _concourse$atc$BetaRoutes$betaPipeline,
-			_1: {
-				ctor: '::',
-				_0: _concourse$atc$BetaRoutes$betaBuild,
-				_1: {
-					ctor: '::',
-					_0: _concourse$atc$BetaRoutes$betaOneOffBuild,
-					_1: {
-						ctor: '::',
-						_0: _concourse$atc$BetaRoutes$betaResource,
-						_1: {
-							ctor: '::',
-							_0: _concourse$atc$BetaRoutes$betaJob,
-							_1: {
-								ctor: '::',
-								_0: _concourse$atc$BetaRoutes$betaLogin,
-								_1: {
-									ctor: '::',
-									_0: _concourse$atc$BetaRoutes$betaTeamLogin,
-									_1: {
-										ctor: '::',
-										_0: _concourse$atc$BetaRoutes$betaHome,
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	});
-var _concourse$atc$BetaRoutes$match = function (_p3) {
-	return A2(
-		_elm_lang$core$Maybe$withDefault,
-		_concourse$atc$BetaRoutes$BetaHome,
-		A2(_Bogdanp$elm_route$Route$match, _concourse$atc$BetaRoutes$sitemap, _p3));
-};
-var _concourse$atc$BetaRoutes$parsePath = function (location) {
-	return {
-		logical: _concourse$atc$BetaRoutes$match(location.pathname),
-		queries: A2(
-			_Bogdanp$elm_querystring$QueryString$remove,
-			'csrf_token',
-			_Bogdanp$elm_querystring$QueryString$parse(location.search)),
-		page: _concourse$atc$BetaRoutes$createPageFromSearch(location.search),
-		hash: location.hash
-	};
-};
 
 var _concourse$atc$NotFound$view = function (model) {
 	return A2(
@@ -24604,7 +24535,7 @@ var _concourse$atc$DashboardPreview$viewJob = function (job) {
 						{
 							ctor: '::',
 							_0: _elm_lang$html$Html_Attributes$href(
-								_concourse$atc$Format$prependBeta(job.url)),
+								_concourse$atc$BetaRoutes$jobRoute(job)),
 							_1: {ctor: '[]'}
 						},
 						{
@@ -24622,7 +24553,7 @@ var _concourse$atc$DashboardPreview$viewJob = function (job) {
 						{
 							ctor: '::',
 							_0: _elm_lang$html$Html_Attributes$href(
-								_concourse$atc$Format$prependBeta(_p7._0.url)),
+								_concourse$atc$BetaRoutes$buildRoute(_p7._0)),
 							_1: {ctor: '[]'}
 						},
 						{
@@ -25506,7 +25437,7 @@ var _concourse$atc$Dashboard$viewPipeline = F2(
 								{
 									ctor: '::',
 									_0: _elm_lang$html$Html_Attributes$href(
-										_concourse$atc$Format$prependBeta(state.pipeline.url)),
+										_concourse$atc$BetaRoutes$pipelineRoute(state.pipeline)),
 									_1: {ctor: '[]'}
 								},
 								{
@@ -27177,16 +27108,15 @@ var _concourse$atc$BetaLogin$viewOAuthButtons = F2(
 var _concourse$atc$BetaLogin$teamSelectionRoute = function (redirectParam) {
 	var _p4 = redirectParam;
 	if (_p4.ctor === 'Nothing') {
-		return _concourse$atc$Format$prependBeta('/login');
+		return _concourse$atc$BetaRoutes$loginRoute;
 	} else {
-		return _concourse$atc$Format$prependBeta(
-			A2(_elm_lang$core$Basics_ops['++'], '/login?redirect=', _p4._0));
+		return _concourse$atc$BetaRoutes$loginWithRedirectRoute(_p4._0);
 	}
 };
 var _concourse$atc$BetaLogin$redirectUrl = function (redirectParam) {
 	return A2(
 		_elm_lang$core$Maybe$withDefault,
-		_concourse$atc$Format$prependBeta('/'),
+		A2(_elm_lang$core$Basics_ops['++'], _concourse$atc$BetaRoutes$baseRoute, '/'),
 		redirectParam);
 };
 var _concourse$atc$BetaLogin$Ports = function (a) {
@@ -30412,13 +30342,13 @@ var _concourse$atc$BetaPipeline$viewJobNode = function (job) {
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$html$Html_Attributes$class('job paused'),
-					_1: job.url
+					_1: _concourse$atc$BetaRoutes$jobRoute(job)
 				};
 			} else {
 				return {
 					ctor: '_Tuple2',
 					_0: _elm_lang$html$Html_Attributes$class('job paused started'),
-					_1: _p5._2._0.url
+					_1: _concourse$atc$BetaRoutes$buildRoute(_p5._2._0)
 				};
 			}
 		} else {
@@ -30434,7 +30364,7 @@ var _concourse$atc$BetaPipeline$viewJobNode = function (job) {
 									_elm_lang$core$Basics_ops['++'],
 									_concourse$atc$Concourse_BuildStatus$show(_p5._1._0.status),
 									' started'))),
-						_1: _p5._2._0.url
+						_1: _concourse$atc$BetaRoutes$buildRoute(_p5._2._0)
 					};
 				} else {
 					var _p6 = _p5._1._0;
@@ -30445,7 +30375,7 @@ var _concourse$atc$BetaPipeline$viewJobNode = function (job) {
 								_elm_lang$core$Basics_ops['++'],
 								'job ',
 								_concourse$atc$Concourse_BuildStatus$show(_p6.status))),
-						_1: _p6.url
+						_1: _concourse$atc$BetaRoutes$buildRoute(_p6)
 					};
 				}
 			} else {
@@ -30453,13 +30383,13 @@ var _concourse$atc$BetaPipeline$viewJobNode = function (job) {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$html$Html_Attributes$class('job no-builds started'),
-						_1: _p5._2._0.url
+						_1: _concourse$atc$BetaRoutes$buildRoute(_p5._2._0)
 					};
 				} else {
 					return {
 						ctor: '_Tuple2',
 						_0: _elm_lang$html$Html_Attributes$class('job no-builds'),
-						_1: job.url
+						_1: _concourse$atc$BetaRoutes$jobRoute(job)
 					};
 				}
 			}
@@ -30483,8 +30413,7 @@ var _concourse$atc$BetaPipeline$viewJobNode = function (job) {
 					_0: _elm_lang$html$Html_Attributes$class('job-name'),
 					_1: {
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$href(
-							_concourse$atc$Format$prependBeta(linkTarget)),
+						_0: _elm_lang$html$Html_Attributes$href(linkTarget),
 						_1: {ctor: '[]'}
 					}
 				},
@@ -30502,8 +30431,7 @@ var _concourse$atc$BetaPipeline$viewJobNode = function (job) {
 						_0: _elm_lang$html$Html_Attributes$class('job-status'),
 						_1: {
 							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$href(
-								_concourse$atc$Format$prependBeta(linkTarget)),
+							_0: _elm_lang$html$Html_Attributes$href(linkTarget),
 							_1: {ctor: '[]'}
 						}
 					},
@@ -32060,10 +31988,12 @@ var _concourse$atc$BetaResource$viewBuildCausality = function (build) {
 				{
 					ctor: '::',
 					_0: _concourse$atc$StrictEvents$onLeftClick(
-						_concourse$atc$BetaResource$NavTo(build.url)),
+						_concourse$atc$BetaResource$NavTo(
+							_concourse$atc$BetaRoutes$buildRoute(build))),
 					_1: {
 						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$href(build.url),
+						_0: _elm_lang$html$Html_Attributes$href(
+							_concourse$atc$BetaRoutes$buildRoute(build)),
 						_1: {ctor: '[]'}
 					}
 				},
@@ -33473,11 +33403,7 @@ var _concourse$atc$BetaTeamSelection$loginRoute = F2(
 		return A2(
 			_concourse$atc$BetaTeamSelection$routeMaybeRedirect,
 			redirect,
-			_concourse$atc$Format$prependBeta(
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					'/teams/',
-					A2(_elm_lang$core$Basics_ops['++'], teamName, '/login'))));
+			_concourse$atc$BetaRoutes$teamNameLoginRoute(teamName));
 	});
 var _concourse$atc$BetaTeamSelection$update = F2(
 	function (action, model) {
@@ -34540,8 +34466,7 @@ var _concourse$atc$BetaTopBar$viewUserState = F2(
 								_0: _concourse$atc$StrictEvents$onLeftClick(_concourse$atc$BetaTopBar$LogIn),
 								_1: {
 									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$href(
-										_concourse$atc$Format$prependBeta('/login')),
+									_0: _elm_lang$html$Html_Attributes$href(_concourse$atc$BetaRoutes$loginRoute),
 									_1: {
 										ctor: '::',
 										_0: A2(_elm_lang$html$Html_Attributes$attribute, 'aria-label', 'Log In'),
@@ -34753,9 +34678,9 @@ var _concourse$atc$BetaTopBar$view = function (model) {
 								A2(
 									_concourse$atc$BetaTopBar$viewGroup,
 									_concourse$atc$BetaTopBar$getSelectedGroupsForRoute(model),
-									_p16.url),
+									_concourse$atc$BetaRoutes$pipelineRoute(_p16)),
 								_p16.groups),
-							_1: _p16.url
+							_1: _concourse$atc$BetaRoutes$pipelineRoute(_p16)
 						};
 					}
 				}();
@@ -34826,12 +34751,10 @@ var _concourse$atc$BetaTopBar$view = function (model) {
 											{
 												ctor: '::',
 												_0: _concourse$atc$StrictEvents$onLeftClick(
-													_concourse$atc$BetaTopBar$NavTo(
-														_concourse$atc$Format$prependBeta(pipelineUrl))),
+													_concourse$atc$BetaTopBar$NavTo(pipelineUrl)),
 												_1: {
 													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$href(
-														_concourse$atc$Format$prependBeta(pipelineUrl)),
+													_0: _elm_lang$html$Html_Attributes$href(pipelineUrl),
 													_1: {ctor: '[]'}
 												}
 											},
@@ -35033,8 +34956,7 @@ var _concourse$atc$BetaTopBar$update = F2(
 							selectedGroups: {ctor: '[]'},
 							pipeline: _elm_lang$core$Maybe$Nothing
 						}),
-					_1: _elm_lang$navigation$Navigation$newUrl(
-						_concourse$atc$Format$prependBeta('/login'))
+					_1: _elm_lang$navigation$Navigation$newUrl(_concourse$atc$BetaRoutes$loginRoute)
 				};
 			case 'LogOut':
 				return {ctor: '_Tuple2', _0: model, _1: _concourse$atc$BetaTopBar$logOut};
@@ -35055,8 +34977,7 @@ var _concourse$atc$BetaTopBar$update = F2(
 								pipeline: _elm_lang$core$Maybe$Nothing,
 								selectedGroups: {ctor: '[]'}
 							}),
-						_1: _elm_lang$navigation$Navigation$newUrl(
-							_concourse$atc$Format$prependBeta('/'))
+						_1: _elm_lang$navigation$Navigation$newUrl(_concourse$atc$BetaRoutes$baseRoute)
 					};
 				} else {
 					return A3(
@@ -35931,11 +35852,11 @@ var _concourse$atc$BetaSideBar$viewDraggable = F2(
 										ctor: '::',
 										_0: _concourse$atc$StrictEvents$onLeftClick(
 											_concourse$atc$BetaSideBar$NavToPipeline(
-												_concourse$atc$Format$prependBeta(uip.pipeline.url))),
+												_concourse$atc$BetaRoutes$pipelineRoute(uip.pipeline))),
 										_1: {
 											ctor: '::',
 											_0: _elm_lang$html$Html_Attributes$href(
-												_concourse$atc$Format$prependBeta(uip.pipeline.url)),
+												_concourse$atc$BetaRoutes$pipelineRoute(uip.pipeline)),
 											_1: {ctor: '[]'}
 										}
 									}
