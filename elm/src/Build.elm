@@ -78,7 +78,7 @@ type alias Model =
     { page : Page
     , now : Maybe Time.Time
     , job : Maybe Concourse.Job
-    , history : List Concourse.Build
+    , history : Paginated Concourse.Build
     , currentBuild : WebData CurrentBuild
     , browsingIndex : Int
     , autoScroll : Bool
@@ -135,7 +135,7 @@ init ports flags page =
                 { page = page
                 , now = Nothing
                 , job = Nothing
-                , history = []
+                , history = Paginated [] (Concourse.Pagination.Pagination Nothing Nothing)
                 , currentBuild = RemoteData.NotAsked
                 , browsingIndex = 0
                 , autoScroll = True
@@ -239,11 +239,16 @@ update action model =
                     ( model, triggerBuild someJob model.csrfToken )
 
         BuildTriggered (Ok build) ->
-            update
-                (SwitchToBuild build)
-                { model
-                    | history = build :: model.history
-                }
+            let
+                history =
+                    model.history
+            in
+                -- TODO : this might change if a build is triggered from past the first page.
+                update
+                    (SwitchToBuild build)
+                    { model
+                        | history = { history | content = build :: history.content }
+                    }
 
         BuildTriggered (Err err) ->
             case err of
@@ -392,7 +397,7 @@ handleKeyPressed key model =
     in
         case key of
             'h' ->
-                case Maybe.andThen (nextBuild model.history) currentBuild of
+                case Maybe.andThen (nextBuild model.history.content) currentBuild of
                     Just build ->
                         update (SwitchToBuild build) newModel
 
@@ -400,7 +405,7 @@ handleKeyPressed key model =
                         ( newModel, Cmd.none )
 
             'l' ->
-                case Maybe.andThen (prevBuild model.history) currentBuild of
+                case Maybe.andThen (prevBuild model.history.content) currentBuild of
                     Just build ->
                         update (SwitchToBuild build) newModel
 
@@ -422,7 +427,7 @@ handleKeyPressed key model =
                     ( newModel, Cmd.none )
 
             'A' ->
-                if currentBuild == List.head model.history then
+                if currentBuild == List.head model.history.content then
                     case currentBuild of
                         Just build ->
                             update (AbortBuild build.id) newModel
@@ -573,7 +578,7 @@ handleBuildJobFetched job model =
 
 handleHistoryFetched : Paginated Concourse.Build -> Model -> ( Model, Cmd Msg )
 handleHistoryFetched history model =
-    ( { model | history = List.append model.history history.content }, Cmd.none )
+    ( { model | history = history }, Cmd.none )
 
 
 handleBuildPrepFetched : Int -> Concourse.BuildPrep -> Model -> ( Model, Cmd Msg )
@@ -870,15 +875,54 @@ viewBuildHeader build { now, job, history } =
             ]
 
 
-lazyViewHistory : Concourse.Build -> List Concourse.Build -> Html Msg
+lazyViewHistory : Concourse.Build -> Paginated Concourse.Build -> Html Msg
 lazyViewHistory currentBuild builds =
     Html.Lazy.lazy2 viewHistory currentBuild builds
 
 
-viewHistory : Concourse.Build -> List Concourse.Build -> Html Msg
+viewHistory : Concourse.Build -> Paginated Concourse.Build -> Html Msg
 viewHistory currentBuild builds =
-    Html.ul [ id "builds" ]
-        (List.map (viewHistoryItem currentBuild) builds)
+    Html.div [ class "history" ]
+        [ Html.ul [ id "builds" ]
+            ((List.map (viewHistoryItem currentBuild) builds.content)
+                ++ viewMoreNextPage builds currentBuild
+            )
+        ]
+
+
+viewMoreNextPage : Paginated Concourse.Build -> Concourse.Build -> List (Html Msg)
+viewMoreNextPage builds currentBuild =
+    case currentBuild.job of
+        Just { jobName, teamName, pipelineName } ->
+            let
+                lastBuildId =
+                    case (List.head <| List.reverse builds.content) of
+                        Nothing ->
+                            ""
+
+                        Just b ->
+                            Basics.toString b.id
+
+                jobUrl =
+                    "/teams/" ++ teamName ++ "/pipelines/" ++ pipelineName ++ "/jobs/" ++ jobName ++ "?since=" ++ lastBuildId
+            in
+                case builds.pagination.nextPage of
+                    Just p ->
+                        [ Html.li []
+                            [ Html.a
+                                [ StrictEvents.onLeftClick <| NavTo jobUrl
+                                , href jobUrl
+                                , class "pagination"
+                                ]
+                                [ Html.text "..." ]
+                            ]
+                        ]
+
+                    Nothing ->
+                        []
+
+        Nothing ->
+            []
 
 
 viewHistoryItem : Concourse.Build -> Concourse.Build -> Html Msg
@@ -1027,8 +1071,13 @@ setFavicon status =
         Favicon.set ("/public/images/favicon-" ++ Concourse.BuildStatus.show status ++ ".png")
 
 
-updateHistory : Concourse.Build -> List Concourse.Build -> List Concourse.Build
-updateHistory newBuild =
+updateHistory : Concourse.Build -> Paginated Concourse.Build -> Paginated Concourse.Build
+updateHistory newBuild history =
+    { history | content = updateHistoryContent newBuild history.content }
+
+
+updateHistoryContent : Concourse.Build -> List Concourse.Build -> List Concourse.Build
+updateHistoryContent newBuild =
     List.map <|
         \build ->
             if build.id == newBuild.id then

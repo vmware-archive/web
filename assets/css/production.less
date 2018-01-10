@@ -121,6 +121,7 @@ button.build-action[disabled] i {
   padding: 0;
   overflow: hidden;
   white-space: nowrap;
+  height: 2.5em;
 }
 
 .builds-list li {
@@ -143,6 +144,7 @@ button.build-action[disabled] i {
 #builds li {
   opacity: .8;
   display: inline-block;
+  height: 2.5em;
 }
 
 #builds li.current {
@@ -159,6 +161,16 @@ button.build-action[disabled] i {
   display: block;
   font-weight: bold;
   text-decoration: none;
+}
+
+#builds li a.pagination,
+.builds-list li a.pagination {
+  display: block;
+  position: relative;
+  top: -0.3em;
+  letter-spacing: -0.2em;
+  padding: 0 10px;
+  color: white;
 }
 
 #build-requires-auth {
