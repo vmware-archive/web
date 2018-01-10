@@ -573,22 +573,7 @@ handleBuildJobFetched job model =
 
 handleHistoryFetched : Paginated Concourse.Build -> Model -> ( Model, Cmd Msg )
 handleHistoryFetched history model =
-    let
-        withBuilds =
-            { model | history = List.append model.history history.content }
-
-        currentBuild =
-            model.currentBuild |> RemoteData.toMaybe
-    in
-        case ( history.pagination.nextPage, currentBuild |> Maybe.andThen (.job << .build) ) of
-            ( Nothing, _ ) ->
-                ( withBuilds, Cmd.none )
-
-            ( Just page, Just job ) ->
-                ( withBuilds, Cmd.batch [ fetchBuildHistory job (Just page) ] )
-
-            ( Just url, Nothing ) ->
-                Debug.crash "impossible"
+    ( { model | history = List.append model.history history.content }, Cmd.none )
 
 
 handleBuildPrepFetched : Int -> Concourse.BuildPrep -> Model -> ( Model, Cmd Msg )
@@ -868,7 +853,11 @@ viewBuildHeader build { now, job, history } =
                     Html.text ("build #" ++ toString build.id)
     in
         Html.div [ class "fixed-header" ]
-            [ Html.div [ class ("build-header " ++ Concourse.BuildStatus.show build.status) ]
+            [ Html.div
+                [ onMouseWheel ScrollBuilds
+                ]
+                [ lazyViewHistory build history ]
+            , Html.div [ class ("build-header " ++ Concourse.BuildStatus.show build.status) ]
                 [ Html.div [ class "build-actions fr" ] [ triggerButton, abortButton ]
                 , Html.h1 [] [ buildTitle ]
                 , case now of
@@ -878,10 +867,6 @@ viewBuildHeader build { now, job, history } =
                     Nothing ->
                         Html.text ""
                 ]
-            , Html.div
-                [ onMouseWheel ScrollBuilds
-                ]
-                [ lazyViewHistory build history ]
             ]
 
 
