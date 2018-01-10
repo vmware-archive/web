@@ -16460,10 +16460,16 @@ var _concourse$atc$Concourse_Pagination$toQuery = function (page) {
 						_0: 'from',
 						_1: _elm_lang$core$Basics$toString(_p2._0)
 					};
-				default:
+				case 'To':
 					return {
 						ctor: '_Tuple2',
 						_0: 'to',
+						_1: _elm_lang$core$Basics$toString(_p2._0)
+					};
+				default:
+					return {
+						ctor: '_Tuple2',
+						_0: 'around',
 						_1: _elm_lang$core$Basics$toString(_p2._0)
 					};
 			}
@@ -16584,10 +16590,17 @@ var _concourse$atc$Concourse_Pagination$equal = F2(
 				} else {
 					return false;
 				}
-			default:
+			case 'To':
 				var _p16 = two.direction;
 				if (_p16.ctor === 'To') {
 					return _elm_lang$core$Native_Utils.eq(_p12._0, _p16._0);
+				} else {
+					return false;
+				}
+			default:
+				var _p17 = two.direction;
+				if (_p17.ctor === 'To') {
+					return _elm_lang$core$Native_Utils.eq(_p12._0, _p17._0);
 				} else {
 					return false;
 				}
@@ -16607,18 +16620,18 @@ var _concourse$atc$Concourse_Pagination$linkHeaderRegex = _elm_lang$core$Regex$r
 				'|',
 				A2(_elm_lang$core$Basics_ops['++'], _concourse$atc$Concourse_Pagination$nextRel, ')\"')))));
 var _concourse$atc$Concourse_Pagination$parseLinkTuple = function (header) {
-	var _p17 = A3(
+	var _p18 = A3(
 		_elm_lang$core$Regex$find,
 		_elm_lang$core$Regex$AtMost(1),
 		_concourse$atc$Concourse_Pagination$linkHeaderRegex,
 		header);
-	if (_p17.ctor === '[]') {
+	if (_p18.ctor === '[]') {
 		return _elm_lang$core$Maybe$Nothing;
 	} else {
-		var _p18 = _p17._0.submatches;
-		if ((((_p18.ctor === '::') && (_p18._0.ctor === 'Just')) && (_p18._1.ctor === '::')) && (_p18._1._0.ctor === 'Just')) {
+		var _p19 = _p18._0.submatches;
+		if ((((_p19.ctor === '::') && (_p19._0.ctor === 'Just')) && (_p19._1.ctor === '::')) && (_p19._1._0.ctor === 'Just')) {
 			return _elm_lang$core$Maybe$Just(
-				{ctor: '_Tuple2', _0: _p18._1._0._0, _1: _p18._0._0});
+				{ctor: '_Tuple2', _0: _p19._1._0._0, _1: _p19._0._0});
 		} else {
 			return _elm_lang$core$Maybe$Nothing;
 		}
@@ -16636,6 +16649,9 @@ var _concourse$atc$Concourse_Pagination$Page = F2(
 	function (a, b) {
 		return {direction: a, limit: b};
 	});
+var _concourse$atc$Concourse_Pagination$Around = function (a) {
+	return {ctor: 'Around', _0: a};
+};
 var _concourse$atc$Concourse_Pagination$To = function (a) {
 	return {ctor: 'To', _0: a};
 };
@@ -16649,6 +16665,13 @@ var _concourse$atc$Concourse_Pagination$Since = function (a) {
 	return {ctor: 'Since', _0: a};
 };
 var _concourse$atc$Concourse_Pagination$fromQuery = function (query) {
+	var around = A2(
+		_elm_lang$core$Maybe$map,
+		_concourse$atc$Concourse_Pagination$Around,
+		A2(
+			_elm_lang$core$Maybe$andThen,
+			_concourse$atc$Concourse_Pagination$parseNum,
+			A2(_elm_lang$core$Dict$get, 'around', query)));
 	var to = A2(
 		_elm_lang$core$Maybe$map,
 		_concourse$atc$Concourse_Pagination$Since,
@@ -16695,22 +16718,25 @@ var _concourse$atc$Concourse_Pagination$fromQuery = function (query) {
 			A2(
 				_elm_community$maybe_extra$Maybe_Extra$or,
 				since,
-				A2(_elm_community$maybe_extra$Maybe_Extra$or, from, to))));
+				A2(
+					_elm_community$maybe_extra$Maybe_Extra$or,
+					around,
+					A2(_elm_community$maybe_extra$Maybe_Extra$or, from, to)))));
 };
-var _concourse$atc$Concourse_Pagination$parseParams = function (_p19) {
+var _concourse$atc$Concourse_Pagination$parseParams = function (_p20) {
 	return _concourse$atc$Concourse_Pagination$fromQuery(
 		_elm_lang$core$Tuple$second(
-			_concourse$atc$Concourse_Pagination$extractQuery(_p19)));
+			_concourse$atc$Concourse_Pagination$extractQuery(_p20)));
 };
 var _concourse$atc$Concourse_Pagination$parseLinks = function (response) {
-	var _p20 = A2(
+	var _p21 = A2(
 		_elm_lang$core$Dict$get,
 		'link',
 		_concourse$atc$Concourse_Pagination$keysToLower(response.headers));
-	if (_p20.ctor === 'Nothing') {
+	if (_p21.ctor === 'Nothing') {
 		return A2(_concourse$atc$Concourse_Pagination$Pagination, _elm_lang$core$Maybe$Nothing, _elm_lang$core$Maybe$Nothing);
 	} else {
-		var headers = A2(_elm_lang$core$String$split, ', ', _p20._0);
+		var headers = A2(_elm_lang$core$String$split, ', ', _p21._0);
 		var parsed = _elm_lang$core$Dict$fromList(
 			A2(_elm_lang$core$List$filterMap, _concourse$atc$Concourse_Pagination$parseLinkTuple, headers));
 		return A2(
@@ -16732,12 +16758,12 @@ var _concourse$atc$Concourse_Pagination$parsePagination = F2(
 			_elm_lang$core$Json_Decode$list(decode),
 			response.body);
 		var pagination = _concourse$atc$Concourse_Pagination$parseLinks(response);
-		var _p21 = decoded;
-		if (_p21.ctor === 'Err') {
-			return _elm_lang$core$Result$Err(_p21._0);
+		var _p22 = decoded;
+		if (_p22.ctor === 'Err') {
+			return _elm_lang$core$Result$Err(_p22._0);
 		} else {
 			return _elm_lang$core$Result$Ok(
-				{content: _p21._0, pagination: pagination});
+				{content: _p22._0, pagination: pagination});
 		}
 	});
 var _concourse$atc$Concourse_Pagination$fetch = F3(
@@ -22746,10 +22772,15 @@ var _concourse$atc$BetaJob$paginationParam = function (page) {
 				_elm_lang$core$Basics_ops['++'],
 				'from=',
 				_elm_lang$core$Basics$toString(_p0._0));
-		default:
+		case 'To':
 			return A2(
 				_elm_lang$core$Basics_ops['++'],
 				'to=',
+				_elm_lang$core$Basics$toString(_p0._0));
+		default:
+			return A2(
+				_elm_lang$core$Basics_ops['++'],
+				'around=',
 				_elm_lang$core$Basics$toString(_p0._0));
 	}
 };
@@ -31618,8 +31649,8 @@ var _concourse$atc$BetaResource$listToMap = function (builds) {
 						_elm_lang$core$Native_Utils.crash(
 							'BetaResource',
 							{
-								start: {line: 883, column: 33},
-								end: {line: 883, column: 44}
+								start: {line: 886, column: 33},
+								end: {line: 886, column: 44}
 							}),
 						'Jobless builds shouldn\'t appear on this page!',
 						'');
@@ -31876,10 +31907,16 @@ var _concourse$atc$BetaResource$paginationRoute = F2(
 						_0: 'from',
 						_1: _elm_lang$core$Basics$toString(_p13._0)
 					};
-				default:
+				case 'To':
 					return {
 						ctor: '_Tuple2',
 						_0: 'to',
+						_1: _elm_lang$core$Basics$toString(_p13._0)
+					};
+				default:
+					return {
+						ctor: '_Tuple2',
+						_0: 'around',
 						_1: _elm_lang$core$Basics$toString(_p13._0)
 					};
 			}
