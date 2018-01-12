@@ -505,7 +505,12 @@ handleBuildFetched browsingIndex build model =
                     ( Nothing, Just buildJob ) ->
                         Cmd.batch
                             [ fetchBuildJobDetails buildJob
-                            , fetchBuildHistory buildJob Nothing
+                            , fetchBuildHistory buildJob (Just (Concourse.Pagination.Page (Concourse.Pagination.From build.id) 100))
+                            ]
+
+                    ( Just job, Just buildJob ) ->
+                        Cmd.batch
+                            [ fetchBuildHistory buildJob (Just (Concourse.Pagination.Page (Concourse.Pagination.From build.id) 100))
                             ]
 
                     _ ->
@@ -798,6 +803,14 @@ viewBuildPrepStatus status =
 viewBuildHeader : Concourse.Build -> Model -> Html Msg
 viewBuildHeader build { now, job, history } =
     let
+        mostRecentBuild =
+            case job of
+                Just j ->
+                    j.finishedBuild
+
+                Nothing ->
+                    Nothing
+
         triggerButton =
             case job of
                 Just { name, pipeline } ->
@@ -861,7 +874,7 @@ viewBuildHeader build { now, job, history } =
             [ Html.div
                 [ onMouseWheel ScrollBuilds
                 ]
-                [ lazyViewHistory build history ]
+                [ lazyViewHistory build mostRecentBuild history ]
             , Html.div [ class ("build-header " ++ Concourse.BuildStatus.show build.status) ]
                 [ Html.div [ class "build-actions fr" ] [ triggerButton, abortButton ]
                 , Html.h1 [] [ buildTitle ]
@@ -875,19 +888,18 @@ viewBuildHeader build { now, job, history } =
             ]
 
 
-lazyViewHistory : Concourse.Build -> Paginated Concourse.Build -> Html Msg
-lazyViewHistory currentBuild builds =
-    Html.Lazy.lazy2 viewHistory currentBuild builds
+lazyViewHistory : Concourse.Build -> Maybe Concourse.Build -> Paginated Concourse.Build -> Html Msg
+lazyViewHistory currentBuild mostRecentBuild builds =
+    Html.Lazy.lazy3 viewHistory currentBuild mostRecentBuild builds
 
 
-viewHistory : Concourse.Build -> Paginated Concourse.Build -> Html Msg
-viewHistory currentBuild builds =
-    Html.div [ class "history" ]
-        [ Html.ul [ id "builds" ]
-            ((List.map (viewHistoryItem currentBuild) builds.content)
-                ++ viewMoreNextPage builds currentBuild
-            )
-        ]
+viewHistory : Concourse.Build -> Maybe Concourse.Build -> Paginated Concourse.Build -> Html Msg
+viewHistory currentBuild mostRecentBuild builds =
+    Html.ul [ id "builds" ]
+        (viewMorePreviousPage builds currentBuild mostRecentBuild
+            ++ (List.map (viewHistoryItem currentBuild) builds.content)
+            ++ viewMoreNextPage builds currentBuild
+        )
 
 
 viewMoreNextPage : Paginated Concourse.Build -> Concourse.Build -> List (Html Msg)
@@ -912,9 +924,60 @@ viewMoreNextPage builds currentBuild =
                             [ Html.a
                                 [ StrictEvents.onLeftClick <| NavTo jobUrl
                                 , href jobUrl
-                                , class "pagination"
+                                , class "pagination ellipsis-icon"
                                 ]
-                                [ Html.text "..." ]
+                                []
+                            ]
+                        ]
+
+                    Nothing ->
+                        []
+
+        Nothing ->
+            []
+
+
+viewMorePreviousPage : Paginated Concourse.Build -> Concourse.Build -> Maybe Concourse.Build -> List (Html Msg)
+viewMorePreviousPage builds currentBuild mostRecentBuild =
+    case currentBuild.job of
+        Just { jobName, teamName, pipelineName } ->
+            let
+                firstBuildId =
+                    case (List.head builds.content) of
+                        Nothing ->
+                            ""
+
+                        Just b ->
+                            Basics.toString b.id
+
+                jobUrl =
+                    "/teams/" ++ teamName ++ "/pipelines/" ++ pipelineName ++ "/jobs/" ++ jobName ++ "?until=" ++ firstBuildId
+
+                mostRecentBuildUrl =
+                    case mostRecentBuild of
+                        Nothing ->
+                            ""
+
+                        Just b ->
+                            "/teams/" ++ teamName ++ "/pipelines/" ++ pipelineName ++ "/jobs/" ++ jobName ++ "/builds/" ++ b.name
+            in
+                case builds.pagination.previousPage of
+                    Just p ->
+                        [ Html.li []
+                            [ Html.a
+                                [ StrictEvents.onLeftClick <| NavTo mostRecentBuildUrl
+                                , href mostRecentBuildUrl
+                                , class "pagination latest-build-icon"
+                                ]
+                                []
+                            ]
+                        , Html.li []
+                            [ Html.a
+                                [ StrictEvents.onLeftClick <| NavTo jobUrl
+                                , href jobUrl
+                                , class "pagination ellipsis-icon"
+                                ]
+                                []
                             ]
                         ]
 
