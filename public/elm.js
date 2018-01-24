@@ -14460,13 +14460,16 @@ var _concourse$atc$Concourse$decodeCause = A2(
 var _concourse$atc$Concourse$AuthMethodOAuth = function (a) {
 	return {ctor: 'AuthMethodOAuth', _0: a};
 };
+var _concourse$atc$Concourse$AuthMethodNone = {ctor: 'AuthMethodNone'};
 var _concourse$atc$Concourse$AuthMethodBasic = {ctor: 'AuthMethodBasic'};
 var _concourse$atc$Concourse$authMethodFromTuple = function (tuple) {
 	var _p9 = tuple;
-	_v4_3:
+	_v4_4:
 	do {
 		if (_p9.ctor === '_Tuple3') {
 			switch (_p9._0) {
+				case 'none':
+					return _elm_lang$core$Result$Ok(_concourse$atc$Concourse$AuthMethodNone);
 				case 'basic':
 					return _elm_lang$core$Result$Ok(_concourse$atc$Concourse$AuthMethodBasic);
 				case 'oauth':
@@ -14478,10 +14481,10 @@ var _concourse$atc$Concourse$authMethodFromTuple = function (tuple) {
 						return _elm_lang$core$Result$Err('missing fields in oauth auth method');
 					}
 				default:
-					break _v4_3;
+					break _v4_4;
 			}
 		} else {
-			break _v4_3;
+			break _v4_4;
 		}
 	} while(false);
 	return _elm_lang$core$Result$Err('unknown value for auth method type');
@@ -30962,36 +30965,39 @@ var _concourse$atc$Login$routeWithRedirect = F2(
 var _concourse$atc$Login$viewOAuthButton = F2(
 	function (redirect, method) {
 		var _p1 = method;
-		if (_p1.ctor === 'AuthMethodBasic') {
-			return _elm_lang$core$Maybe$Nothing;
-		} else {
-			var _p2 = _p1._0;
-			return _elm_lang$core$Maybe$Just(
-				A2(
-					_elm_lang$html$Html$div,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('auth-method login-button'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$a,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$href(
-									A2(_concourse$atc$Login$routeWithRedirect, redirect, _p2.authUrl)),
-								_1: {ctor: '[]'}
-							},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text(
-									A2(_elm_lang$core$Basics_ops['++'], 'login with ', _p2.displayName)),
-								_1: {ctor: '[]'}
-							}),
-						_1: {ctor: '[]'}
-					}));
+		switch (_p1.ctor) {
+			case 'AuthMethodBasic':
+				return _elm_lang$core$Maybe$Nothing;
+			case 'AuthMethodNone':
+				return _elm_lang$core$Maybe$Nothing;
+			default:
+				var _p2 = _p1._0;
+				return _elm_lang$core$Maybe$Just(
+					A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('auth-method login-button'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$a,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$href(
+										A2(_concourse$atc$Login$routeWithRedirect, redirect, _p2.authUrl)),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html$text(
+										A2(_elm_lang$core$Basics_ops['++'], 'login with ', _p2.displayName)),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}));
 		}
 	});
 var _concourse$atc$Login$viewOAuthButtons = F2(
