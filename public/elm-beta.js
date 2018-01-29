@@ -26221,26 +26221,52 @@ var _concourse$atc$Dashboard$showNoResultsView = function (query) {
 				_elm_lang$html$Html$div,
 				{
 					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('dashboard-content no-results'),
+					_0: _elm_lang$html$Html_Attributes$class('dashboard-content '),
 					_1: {ctor: '[]'}
 				},
 				{
 					ctor: '::',
 					_0: A2(
-						_elm_lang$html$Html$span,
-						{ctor: '[]'},
+						_elm_lang$html$Html$div,
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html$text('No results for '),
-							_1: {
-								ctor: '::',
-								_0: boldedQuery,
-								_1: {
+							_0: _elm_lang$html$Html_Attributes$class('dashboard-team-group'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{
 									ctor: '::',
-									_0: _elm_lang$html$Html$text(' matched your search.'),
+									_0: _elm_lang$html$Html_Attributes$class('pin-wrapper'),
 									_1: {ctor: '[]'}
-								}
-							}
+								},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$div,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('dashboard-team-name no-results'),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('No results for '),
+											_1: {
+												ctor: '::',
+												_0: boldedQuery,
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html$text(' matched your search.'),
+													_1: {ctor: '[]'}
+												}
+											}
+										}),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
 						}),
 					_1: {ctor: '[]'}
 				}),
