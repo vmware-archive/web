@@ -26093,7 +26093,7 @@ var _concourse$atc$Dashboard$helpView = function (model) {
 							}),
 						_1: {
 							ctor: '::',
-							_0: _elm_lang$html$Html$text('focus search input'),
+							_0: _elm_lang$html$Html$text('search'),
 							_1: {ctor: '[]'}
 						}
 					}),
