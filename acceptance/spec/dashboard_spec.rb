@@ -17,17 +17,27 @@ describe 'dashboard', type: :feature do
 
   describe 'view toggle' do
     context 'when the view is the default view' do
+
+      Capybara.current_session.current_window.resize_to(2000,2000)
+
       it 'switches to compact view' do
         dash_login team_name
         visit dash_route('/beta/dashboard')
 
-        click_on 'high-density'
-        expect(page.url).to include '/beta/dashboard/hd'
+        expect(page).to have_content('HIGH-DENSITY')
+        find(".toggle-high-density").click
+        expect(page).to have_current_path "/beta/dashboard/hd"
       end
     end
 
     context 'when the view is the compact view' do
       it 'switches to default view' do
+        dash_login team_name
+        visit dash_route('/beta/dashboard/hd')
+
+        expect(page).to have_content('HIGH-DENSITY')
+        click_on 'high-density'
+        expect(page).to have_current_path "/beta/dashboard"
       end
     end
   end

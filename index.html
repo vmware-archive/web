@@ -48,6 +48,15 @@
             });
           });
         });
+
+        app.ports.pinTeamNamesHd.subscribe(function() {
+          $(document).on('scroll', function() {
+            $(".dashboard-team-name").pin({
+              containerSelector: ".dashboard-team-group",
+              padding: { top: 64 }
+            });
+          });
+        });
       }
       else {
         app = Elm.Main.embed(node, {

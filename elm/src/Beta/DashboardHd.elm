@@ -1,4 +1,4 @@
-port module Dashboard exposing (Model, Msg, init, update, subscriptions, view, filterBy, searchTermList, pipelineStatus, lastPipelineStatus, StatusPipeline)
+port module DashboardHd exposing (Model, Msg, init, update, subscriptions, view, filterBy, searchTermList, pipelineStatus, lastPipelineStatus, StatusPipeline)
 
 import BuildDuration
 import Concourse
@@ -26,7 +26,7 @@ import Simple.Fuzzy exposing (match, root, filter)
 import BetaRoutes
 
 
-port pinTeamNames : () -> Cmd msg
+port pinTeamNamesHd : () -> Cmd msg
 
 
 type alias Model =
@@ -97,7 +97,7 @@ init turbulencePath =
             , fetchVersion
             , getCurrentTime
             , Cmd.map TopBarMsg topBarMsg
-            , pinTeamNames ()
+            , pinTeamNamesHd ()
             ]
         )
 
@@ -294,8 +294,8 @@ showFooterView model =
                 [ Html.div [ class "dashboard-pipeline-icon" ] [], Html.text "succeeded" ]
             , Html.div [] [ Html.text "|" ]
             , Html.div [ class "dashboard-high-density" ]
-                [ Html.a [ class "toggle-high-density", href "/beta/dashboard/hd", ariaLabel "Toggle high-density view" ]
-                    [ Html.div [ class "dashboard-pipeline-icon hd-off" ] [], Html.text "high-density" ]
+                [ Html.a [ class "toggle-high-density", href "/beta/dashboard", ariaLabel "Toggle high-density view" ]
+                    [ Html.div [ class "dashboard-pipeline-icon hd-on" ] [], Html.text "high-density" ]
                 ]
             ]
         , Html.div [ class "concourse-version" ]
