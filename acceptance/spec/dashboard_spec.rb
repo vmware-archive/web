@@ -17,16 +17,13 @@ describe 'dashboard', type: :feature do
 
   describe 'view toggle' do
     context 'when the view is the default view' do
-
-      Capybara.current_session.current_window.resize_to(2000,2000)
-
       it 'switches to compact view' do
         dash_login team_name
         visit dash_route('/beta/dashboard')
-
         expect(page).to have_content('HIGH-DENSITY')
-        find(".toggle-high-density").click
-        expect(page).to have_current_path "/beta/dashboard/hd"
+
+        click_on 'high-density'
+        expect(page).to have_current_path '/beta/dashboard/hd'
       end
     end
 
@@ -34,10 +31,10 @@ describe 'dashboard', type: :feature do
       it 'switches to default view' do
         dash_login team_name
         visit dash_route('/beta/dashboard/hd')
-
         expect(page).to have_content('HIGH-DENSITY')
+
         click_on 'high-density'
-        expect(page).to have_current_path "/beta/dashboard"
+        expect(page).to have_current_path '/beta/dashboard'
       end
     end
   end
@@ -241,7 +238,7 @@ describe 'dashboard', type: :feature do
     end
 
     context 'when a pipeline has multiple failed jobs' do
-      let(:current_time) { DateTime.parse('2017-07-05 05:05:05 EDT') }
+      let(:current_time) { Time.parse('2017-07-05 05:05:05 EDT') }
 
       before do
         fly('set-pipeline -n -p some-pipeline -c fixtures/states-pipeline.yml -v path="false"')
@@ -298,3 +295,4 @@ describe 'dashboard', type: :feature do
     visit dash_route('/beta/dashboard')
   end
 end
+Capybara.current_session.current_window.resize_to(2000, 2000)

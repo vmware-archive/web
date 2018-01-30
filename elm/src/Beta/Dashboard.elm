@@ -79,7 +79,7 @@ init : String -> ( Model, Cmd Msg )
 init turbulencePath =
     let
         ( topBar, topBarMsg ) =
-            NewTopBar.init
+            NewTopBar.init True
     in
         ( { topBar = topBar
           , pipelines = RemoteData.NotAsked

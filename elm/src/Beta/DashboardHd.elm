@@ -1,4 +1,4 @@
-port module DashboardHd exposing (Model, Msg, init, update, subscriptions, view, filterBy, searchTermList, pipelineStatus, lastPipelineStatus, StatusPipeline)
+port module DashboardHd exposing (Model, Msg, init, update, subscriptions, view, pipelineStatus, lastPipelineStatus, StatusPipeline)
 
 import BuildDuration
 import Concourse
@@ -14,15 +14,11 @@ import Html exposing (Html)
 import Html.Attributes exposing (class, classList, id, href, src, attribute)
 import Html.Attributes.Aria exposing (ariaLabel)
 import Http
-import Keyboard
 import Mouse
-import Dom
-import Char
 import NewTopBar
 import RemoteData
 import Task exposing (Task)
 import Time exposing (Time)
-import Simple.Fuzzy exposing (match, root, filter)
 import BetaRoutes
 
 
@@ -39,7 +35,6 @@ type alias Model =
     , showHelp : Bool
     , hideFooter : Bool
     , hideFooterCounter : Time
-    , fetchedPipelines : List Concourse.Pipeline
     }
 
 
@@ -51,7 +46,6 @@ type Msg
     | VersionFetched (Result Http.Error String)
     | AutoRefresh Time
     | ShowFooter
-    | KeyPressed Keyboard.KeyCode
     | TopBarMsg NewTopBar.Msg
 
 
@@ -79,7 +73,7 @@ init : String -> ( Model, Cmd Msg )
 init turbulencePath =
     let
         ( topBar, topBarMsg ) =
-            NewTopBar.init
+            NewTopBar.init False
     in
         ( { topBar = topBar
           , pipelines = RemoteData.NotAsked
@@ -90,7 +84,6 @@ init turbulencePath =
           , showHelp = False
           , hideFooter = False
           , hideFooterCounter = 0
-          , fetchedPipelines = []
           }
         , Cmd.batch
             [ fetchPipelines
@@ -137,9 +130,6 @@ update msg model =
         AutoRefresh _ ->
             ( model, Cmd.batch [ fetchPipelines, fetchVersion, Cmd.map TopBarMsg NewTopBar.fetchUser ] )
 
-        KeyPressed keycode ->
-            handleKeyPressed (Char.fromCode keycode) model
-
         ShowFooter ->
             ( { model | hideFooter = False, hideFooterCounter = 0 }, Cmd.none )
 
@@ -147,19 +137,8 @@ update msg model =
             let
                 ( newTopBar, newTopBarMsg ) =
                     NewTopBar.update msg model.topBar
-
-                newModel =
-                    case msg of
-                        NewTopBar.FilterMsg query ->
-                            { model
-                                | topBar = newTopBar
-                                , fetchedPipelines = filterModelPipelines query model
-                            }
-
-                        NewTopBar.UserFetched _ ->
-                            { model | topBar = newTopBar }
             in
-                ( newModel, Cmd.map TopBarMsg newTopBarMsg )
+                ( { model | topBar = newTopBar }, Cmd.map TopBarMsg newTopBarMsg )
 
 
 subscriptions : Model -> Sub Msg
@@ -169,7 +148,6 @@ subscriptions model =
         , Time.every (5 * Time.second) AutoRefresh
         , Mouse.moves (\_ -> ShowFooter)
         , Mouse.clicks (\_ -> ShowFooter)
-        , Keyboard.presses KeyPressed
         ]
 
 
@@ -183,50 +161,15 @@ view model =
 
 viewDashboard : Model -> Html Msg
 viewDashboard model =
-    let
-        listFetchedPipelinesLength =
-            List.length model.fetchedPipelines
+    case model.pipelines of
+        RemoteData.Success pipelines ->
+            showPipelinesView model pipelines
 
-        isQueryEmpty =
-            String.isEmpty model.topBar.query
-    in
-        case model.pipelines of
-            RemoteData.Success pipelines ->
-                if listFetchedPipelinesLength > 0 then
-                    showPipelinesView model model.fetchedPipelines
-                else if not isQueryEmpty then
-                    showNoResultsView (toString model.topBar.query)
-                else
-                    showPipelinesView model pipelines
+        RemoteData.Failure _ ->
+            showTurbulenceView model
 
-            RemoteData.Failure _ ->
-                showTurbulenceView model
-
-            _ ->
-                Html.text ""
-
-
-showNoResultsView : String -> Html Msg
-showNoResultsView query =
-    let
-        boldedQuery =
-            Html.span [ class "monospace-bold" ] [ Html.text query ]
-    in
-        Html.div
-            [ class "dashboard" ]
-            [ Html.div [ class "dashboard-content " ]
-                [ Html.div
-                    [ class "dashboard-team-group" ]
-                    [ Html.div [ class "pin-wrapper" ]
-                        [ Html.div [ class "dashboard-team-name no-results" ]
-                            [ Html.text "No results for "
-                            , boldedQuery
-                            , Html.text " matched your search."
-                            ]
-                        ]
-                    ]
-                ]
-            ]
+        _ ->
+            Html.text ""
 
 
 showPipelinesView : Model -> List Concourse.Pipeline -> Html Msg
@@ -251,22 +194,7 @@ showPipelinesView model pipelines =
         <|
             [ Html.div [ class "dashboard-content" ] <| listPipelinesByTeam
             , showFooterView model
-            , helpView model
             ]
-
-
-helpView : Model -> Html Msg
-helpView model =
-    Html.div
-        [ classList
-            [ ( "keyboard-help", True )
-            , ( "hidden", not model.showHelp )
-            ]
-        ]
-        [ Html.div [ class "help-title" ] [ Html.text "keyboard shortcuts" ]
-        , Html.div [ class "help-line" ] [ Html.div [ class "keys" ] [ Html.span [ class "key" ] [ Html.text "/" ] ], Html.text "search" ]
-        , Html.div [ class "help-line" ] [ Html.div [ class "keys" ] [ Html.span [ class "key" ] [ Html.text "?" ] ], Html.text "hide/show help" ]
-        ]
 
 
 showFooterView : Model -> Html Msg
@@ -322,19 +250,6 @@ showTurbulenceView model =
             , Html.p [ class "explanation" ] []
             ]
         ]
-
-
-handleKeyPressed : Char -> Model -> ( Model, Cmd Msg )
-handleKeyPressed key model =
-    case key of
-        '/' ->
-            ( model, Task.attempt (always Noop) (Dom.focus "search-input-field") )
-
-        '?' ->
-            ( { model | showHelp = not model.showHelp }, Cmd.none )
-
-        _ ->
-            update ShowFooter model
 
 
 addPipelineState : List ( String, List PipelineWithJobs ) -> ( String, PipelineWithJobs ) -> List ( String, List PipelineWithJobs )
@@ -635,34 +550,6 @@ getCurrentTime =
     Task.perform ClockTick Time.now
 
 
-filterModelPipelines : String -> Model -> List Concourse.Pipeline
-filterModelPipelines query model =
-    let
-        querySplit =
-            String.split " " query
-    in
-        case model.pipelines of
-            RemoteData.Success pipelines ->
-                searchTermList model querySplit pipelines
-
-            _ ->
-                []
-
-
-searchTermList : Model -> List String -> List Concourse.Pipeline -> List Concourse.Pipeline
-searchTermList model queryList pipelines =
-    case queryList of
-        [] ->
-            pipelines
-
-        x :: xs ->
-            let
-                plist =
-                    extendedPipelineList model pipelines
-            in
-                searchTermList model xs (filterBy x plist)
-
-
 extendedPipelineList : Model -> List Concourse.Pipeline -> List StatusPipeline
 extendedPipelineList model pipelines =
     let
@@ -679,41 +566,6 @@ extendedPipelineList model pipelines =
                 }
             )
             pipelineStates
-
-
-filterBy : String -> List StatusPipeline -> List Concourse.Pipeline
-filterBy term pipelines =
-    let
-        searchTeams =
-            String.startsWith "team:" term
-
-        searchStatus =
-            String.startsWith "status:" term
-
-        teamSearchTerm =
-            if searchTeams then
-                String.dropLeft 5 term
-            else
-                term
-
-        statusSearchTerm =
-            if searchStatus then
-                String.dropLeft 7 term
-            else
-                term
-
-        plist =
-            List.map (\p -> p.pipeline) pipelines
-
-        filterByStatus =
-            Simple.Fuzzy.filter .status statusSearchTerm pipelines
-    in
-        if searchTeams == True then
-            Simple.Fuzzy.filter .teamName teamSearchTerm plist
-        else if searchStatus == True then
-            List.map (\p -> p.pipeline) filterByStatus
-        else
-            Simple.Fuzzy.filter .name term plist
 
 
 getPipelineStates : Model -> List Concourse.Pipeline -> List PipelineWithJobs
