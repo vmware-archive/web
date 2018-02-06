@@ -79,7 +79,7 @@ init : String -> ( Model, Cmd Msg )
 init turbulencePath =
     let
         ( topBar, topBarMsg ) =
-            NewTopBar.init
+            NewTopBar.init True
     in
         ( { topBar = topBar
           , pipelines = RemoteData.NotAsked
@@ -292,6 +292,11 @@ showFooterView model =
                 [ Html.div [ class "dashboard-pipeline-icon" ] [], Html.text "aborted" ]
             , Html.div [ class "dashboard-status-succeeded" ]
                 [ Html.div [ class "dashboard-pipeline-icon" ] [], Html.text "succeeded" ]
+            , Html.div [] [ Html.text "|" ]
+            , Html.div [ class "dashboard-high-density" ]
+                [ Html.a [ class "toggle-high-density", href "/beta/dashboard/hd", ariaLabel "Toggle high-density view" ]
+                    [ Html.div [ class "dashboard-pipeline-icon hd-off" ] [], Html.text "high-density" ]
+                ]
             ]
         , Html.div [ class "concourse-version" ]
             [ Html.text "version: v", Html.text model.concourseVersion ]
