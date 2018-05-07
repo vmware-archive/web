@@ -18,6 +18,14 @@ fetchJob job =
             ("/api/v1/teams/" ++ job.teamName ++ "/pipelines/" ++ job.pipelineName ++ "/jobs/" ++ job.jobName)
 
 
+fetchSpaceJobs : Concourse.PipelineIdentifier -> Task Http.Error (List Concourse.SpaceJob)
+fetchSpaceJobs pi =
+    Http.toTask <|
+        flip Http.get
+            (Json.Decode.list (Concourse.decodeSpaceJob pi))
+            ("/api/v1/space/teams/" ++ pi.teamName ++ "/pipelines/" ++ pi.pipelineName ++ "/jobs")
+
+
 fetchJobs : Concourse.PipelineIdentifier -> Task Http.Error (List Concourse.Job)
 fetchJobs pi =
     Http.toTask <|

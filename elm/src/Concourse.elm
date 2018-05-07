@@ -7,56 +7,63 @@ module Concourse
         , csrfTokenHeaderName
         , AuthSession
         , Build
-        , BuildId
-        , JobBuildIdentifier
-        , BuildName
         , BuildDuration
-        , decodeBuild
+        , BuildId
+        , BuildName
+        , BuildPlan
         , BuildPrep
         , BuildPrepStatus(..)
-        , decodeBuildPrep
         , BuildResources
         , BuildResourcesInput
         , BuildResourcesOutput
-        , decodeBuildResources
         , BuildStatus(..)
-        , decodeBuildStatus
-        , BuildPlan
         , BuildStep(..)
+        , Cause
         , HookedPlan
-        , decodeBuildPlan
         , Info
-        , decodeInfo
         , Job
-        , JobName
+        , JobBuildIdentifier
+        , JobCombinationID
         , JobIdentifier
         , JobInput
+        , JobName
         , JobOutput
-        , decodeJob
-        , Pipeline
-        , PipelineName
-        , PipelineIdentifier
-        , PipelineGroup
-        , PipelineStatus(..)
-        , decodePipeline
         , Metadata
         , MetadataField
-        , decodeMetadata
+        , Pipeline
+        , PipelineGroup
+        , PipelineIdentifier
+        , PipelineName
+        , PipelineStatus(..)
         , Resource
         , ResourceIdentifier
-        , VersionedResource
-        , VersionedResourceIdentifier
-        , decodeResource
-        , decodeVersionedResource
+        , SpaceJob
+        , SpaceJobBuildIdentifier
+        , SpaceJobCombination
+        , SpaceResource
         , Team
         , TeamName
-        , decodeTeam
         , User
-        , decodeUser
         , Version
-        , decodeVersion
-        , Cause
+        , VersionedResource
+        , VersionedResourceIdentifier
+        , decodeBuild
+        , decodeBuildPlan
+        , decodeBuildPrep
+        , decodeBuildResources
+        , decodeBuildStatus
         , decodeCause
+        , decodeInfo
+        , decodeJob
+        , decodeMetadata
+        , decodePipeline
+        , decodeResource
+        , decodeSpaceJob
+        , decodeSpaceResource
+        , decodeTeam
+        , decodeUser
+        , decodeVersion
+        , decodeVersionedResource
         )
 
 import Array exposing (Array)
@@ -139,6 +146,10 @@ type alias BuildName =
     String
 
 
+type alias JobCombinationID =
+    Int
+
+
 type alias JobBuildIdentifier =
     { teamName : TeamName
     , pipelineName : PipelineName
@@ -147,10 +158,20 @@ type alias JobBuildIdentifier =
     }
 
 
+type alias SpaceJobBuildIdentifier =
+    { teamName : TeamName
+    , pipelineName : PipelineName
+    , jobName : JobName
+    , jobCombinationID : JobCombinationID
+    , buildName : BuildName
+    }
+
+
 type alias Build =
     { id : BuildId
     , name : BuildName
     , job : Maybe JobIdentifier
+    , jobCombinationID : JobCombinationID
     , status : BuildStatus
     , duration : BuildDuration
     , reapTime : Maybe Date
@@ -184,6 +205,7 @@ decodeBuild =
                     |: (Json.Decode.field "job_name" Json.Decode.string)
                 )
            )
+        |: (Json.Decode.field "job_combination_id" Json.Decode.int)
         |: (Json.Decode.field "status" decodeBuildStatus)
         |: (Json.Decode.succeed BuildDuration
                 |: (Json.Decode.maybe (Json.Decode.field "start_time" (Json.Decode.map dateFromSeconds Json.Decode.float)))
@@ -486,6 +508,32 @@ decodeInfo =
 
 
 
+-- SpaceJob
+
+
+type alias SpaceJob =
+    { pipeline : PipelineIdentifier
+    , name : JobName
+    , pipelineName : PipelineName
+    , teamName : TeamName
+    , paused : Bool
+    , disableManualTrigger : Bool
+    , inputs : List JobInput
+    , outputs : List JobOutput
+    , groups : List String
+    , combintations : List SpaceJobCombination
+    }
+
+
+type alias SpaceJobCombination =
+    { combination : Dict String String
+    , nextBuild : Maybe Build
+    , finishedBuild : Maybe Build
+    , transitionBuild : Maybe Build
+    }
+
+
+
 -- Job
 
 
@@ -528,6 +576,29 @@ type alias JobOutput =
     { name : String
     , resource : String
     }
+
+
+decodeSpaceJob : PipelineIdentifier -> Json.Decode.Decoder SpaceJob
+decodeSpaceJob pi =
+    Json.Decode.succeed (SpaceJob pi)
+        |: (Json.Decode.field "name" Json.Decode.string)
+        |: (Json.Decode.field "pipeline_name" Json.Decode.string)
+        |: (Json.Decode.field "team_name" Json.Decode.string)
+        |: (defaultTo False <| Json.Decode.field "paused" Json.Decode.bool)
+        |: (defaultTo False <| Json.Decode.field "disable_manual_trigger" Json.Decode.bool)
+        |: (defaultTo [] <| Json.Decode.field "inputs" <| Json.Decode.list decodeJobInput)
+        |: (defaultTo [] <| Json.Decode.field "outputs" <| Json.Decode.list decodeJobOutput)
+        |: (defaultTo [] <| Json.Decode.field "groups" <| Json.Decode.list Json.Decode.string)
+        |: (defaultTo [] <| Json.Decode.field "combinations" <| Json.Decode.list decodeSpaceJobCombination)
+
+
+decodeSpaceJobCombination : Json.Decode.Decoder SpaceJobCombination
+decodeSpaceJobCombination =
+    Json.Decode.succeed SpaceJobCombination
+        |: (defaultTo Dict.empty <| Json.Decode.field "combination" <| Json.Decode.dict Json.Decode.string)
+        |: (Json.Decode.maybe (Json.Decode.field "next_build" decodeBuild))
+        |: (Json.Decode.maybe (Json.Decode.field "finished_build" decodeBuild))
+        |: (Json.Decode.maybe (Json.Decode.field "transition_build" decodeBuild))
 
 
 decodeJob : PipelineIdentifier -> Json.Decode.Decoder Job
@@ -637,6 +708,16 @@ type alias Resource =
     }
 
 
+type alias SpaceResource =
+    { name : String
+    , paused : Bool
+    , failingToCheck : Bool
+    , checkError : String
+    , lastChecked : Maybe Date
+    , spaces : List String
+    }
+
+
 type alias ResourceIdentifier =
     { teamName : String
     , pipelineName : String
@@ -672,6 +753,17 @@ decodeResource =
         |: (defaultTo False <| Json.Decode.field "failing_to_check" Json.Decode.bool)
         |: (defaultTo "" <| Json.Decode.field "check_error" Json.Decode.string)
         |: (Json.Decode.maybe (Json.Decode.field "last_checked" (Json.Decode.map dateFromSeconds Json.Decode.float)))
+
+
+decodeSpaceResource : Json.Decode.Decoder SpaceResource
+decodeSpaceResource =
+    Json.Decode.succeed SpaceResource
+        |: (Json.Decode.field "name" Json.Decode.string)
+        |: (defaultTo False <| Json.Decode.field "paused" Json.Decode.bool)
+        |: (defaultTo False <| Json.Decode.field "failing_to_check" Json.Decode.bool)
+        |: (defaultTo "" <| Json.Decode.field "check_error" Json.Decode.string)
+        |: (Json.Decode.maybe (Json.Decode.field "last_checked" (Json.Decode.map dateFromSeconds Json.Decode.float)))
+        |: (defaultTo [] <| Json.Decode.field "spaces" <| Json.Decode.list Json.Decode.string)
 
 
 decodeVersionedResource : Json.Decode.Decoder VersionedResource

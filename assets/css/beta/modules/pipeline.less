@@ -1,7 +1,10 @@
+.pipeline-content {
+  display: flex;
+}
+
 .pipeline-grid {
-  padding: 20px;
-  padding-bottom: 10px; // account for node margins
-  float: left;
+  padding-left: 20px;
+  margin-top: 2px;
 
   > * {
     align-items: flex-start;
@@ -13,17 +16,11 @@
 
   .node {
     display: flex; /* this does interesting but maybe good things? */
-    flex-grow: 1;
 
     a {
-      flex-grow: 1;
       white-space: nowrap;
-      // width: 150px;
       overflow: hidden;
       text-overflow: ellipsis;
-      // padding: 0 5px;
-      // font-size: 14px;
-      // vertical-align: top;
       display: inline-block;
     }
   }
@@ -58,16 +55,18 @@
     align-items: flex-start;
   }
 
+  .space-parallel-grid {
+    display: flex;
+    flex-direction: column;
+  }
+
   .serial-grid {
     display: flex;
     flex-direction: row;
-    flex-grow: 1;
-    // border: 1px solid green;
-    justify-content: flex-start;
   }
 
   .job, .input, .output {
-    margin-bottom: 10px;
+    margin: 10px 20px;
   }
 
   .input, .output {
@@ -88,17 +87,93 @@
   }
 
   .output {
-    flex-grow: 0;
+    flex-grow: 1;
+  }
+
+  .combination-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    height: 100%;
+  }
+
+  .job-combination {
+    flex-grow: 1;
+    flex-basis: 40%;
+    margin: 6px;
+
+    .job-combination-name {
+      flex-grow: 1;
+      display: block;
+      line-height: 30px;
+      padding: 0 10px;
+      color: @white;
+      background: @base04;
+      font-weight: normal;
+    }
+
+    .job-combination-status {
+      flex-grow: 1;
+      display: block;
+      height: 100%;
+      margin: auto;
+
+      &.inactive {
+        opacity: 0.1;
+      }
+
+      &.no-builds {
+        background: lightgray;
+      }
+
+      &.failed {
+        .striped-background(@red-secondary, @red-primary);
+        border: 2px solid @red-primary;
+      }
+
+      &.no-builds.started {
+        .running-animation(@base02, @base01);
+        border: 2px solid @base03;
+      }
+
+      &.succeeded.started {
+        .running-animation(@green-primary, @green-secondary);
+        border: 2px solid @green-primary;
+      }
+
+      &.failed.started {
+        .running-animation(@red-primary, @red-secondary);
+        border: 2px solid @red-primary;
+      }
+
+      &.aborted.started {
+        .running-animation(@brown-primary, @brown-secondary);
+        border: 2px solid @brown-primary;
+      }
+
+      &.errored.started {
+        .running-animation(@amber-primary, @amber-secondary);
+        border: 2px solid @amber-primary;
+      }
+
+      &.paused.started {
+        .running-animation(@blue-primary, @blue-secondary);
+        border: 2px solid @blue-primary;
+      }
+    }
   }
 
   .job {
-    flex-grow: 0;
-    width: 140px;
-    min-height: 80px;
-    // margin-bottom: 10px;
+    flex-grow: 1;
+    min-width: 140px;
+    min-height: 140px;
+    border-width: 1px;
+    border-color: gray;
+    border-style: solid;
 
     display: flex;
     flex-direction: column;
+    margin-right: 40%;
 
     .job-name {
       flex-grow: 0;
@@ -114,6 +189,8 @@
       flex-grow: 1;
       display: block;
     }
+
+
 
     &.failed .job-status {
       .striped-background(@red-secondary, @red-primary);
@@ -174,6 +251,32 @@
     a {
       padding-left: 10px;
       color: @base04;
+    }
+  }
+}
+
+.resources {
+  background: @base00;
+  color: @white;
+  line-height: 30px;
+  margin-top: 2px;
+  overflow-y: auto;
+  height: 100vh;
+
+  .resource {
+    padding: 5px 20px;
+
+    .resource-name {
+      font-weight: bold;
+    }
+
+    .resource-spaces {
+      padding-left: 20px;
+
+      .resource-space:hover {
+        background: @base01;
+      }
+
     }
   }
 }

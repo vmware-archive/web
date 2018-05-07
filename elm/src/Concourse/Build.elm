@@ -20,6 +20,15 @@ fetchJobBuild jbi =
         Http.toTask <| Http.get url Concourse.decodeBuild
 
 
+fetchSpaceJobBuild : Concourse.SpaceJobBuildIdentifier -> Task Http.Error Concourse.Build
+fetchSpaceJobBuild jbi =
+    let
+        url =
+            "/api/v1/teams/" ++ jbi.teamName ++ "/pipelines/" ++ jbi.pipelineName ++ "/jobs/" ++ jbi.jobName ++ "/" ++ (toString jbi.jobCombinationID) ++ "/builds/" ++ jbi.buildName
+    in
+        Http.toTask <| Http.get url Concourse.decodeBuild
+
+
 abort : Concourse.BuildId -> Concourse.CSRFToken -> Task Http.Error ()
 abort buildId csrfToken =
     Http.toTask <|
@@ -39,5 +48,14 @@ fetchJobBuilds job page =
     let
         url =
             "/api/v1/teams/" ++ job.teamName ++ "/pipelines/" ++ job.pipelineName ++ "/jobs/" ++ job.jobName ++ "/builds"
+    in
+        Concourse.Pagination.fetch Concourse.decodeBuild url page
+
+
+fetchSpaceJobBuilds : Concourse.JobIdentifier -> Concourse.JobCombinationID -> Maybe Page -> Task Http.Error (Paginated Concourse.Build)
+fetchSpaceJobBuilds job jobCombinationID page =
+    let
+        url =
+            "/api/v1/teams/" ++ job.teamName ++ "/pipelines/" ++ job.pipelineName ++ "/jobs/" ++ job.jobName ++ "/" ++ (toString jobCombinationID) ++ "/builds"
     in
         Concourse.Pagination.fetch Concourse.decodeBuild url page

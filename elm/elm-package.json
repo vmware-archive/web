@@ -5,7 +5,8 @@
     "license": "Apache-2.0",
     "source-directories": [
         "src",
-        "src/Beta"
+        "src/Beta",
+        "src/Space"
     ],
     "exposed-modules": [],
     "native-modules": true,

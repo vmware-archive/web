@@ -3,6 +3,7 @@ module Concourse.Resource
         ( fetchAllResources
         , fetchResource
         , fetchResourcesRaw
+        , fetchSpaceResources
         , pause
         , unpause
         , fetchVersionedResources
@@ -48,6 +49,15 @@ fetchResourcesRaw pi =
         flip Http.get
             Json.Decode.value
             ("/api/v1/teams/" ++ pi.teamName ++ "/pipelines/" ++ pi.pipelineName ++ "/resources")
+
+
+fetchSpaceResources : Concourse.PipelineIdentifier -> Task Http.Error (List Concourse.SpaceResource)
+fetchSpaceResources pi =
+    Http.toTask <|
+        flip Http.get
+            (Json.Decode.list Concourse.decodeSpaceResource)
+        <|
+            ("/api/v1/space/teams/" ++ pi.teamName ++ "/pipelines/" ++ pi.pipelineName ++ "/resources")
 
 
 pause : Concourse.ResourceIdentifier -> Concourse.CSRFToken -> Task Http.Error ()

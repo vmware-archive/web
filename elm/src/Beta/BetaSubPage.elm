@@ -1,6 +1,5 @@
 port module BetaSubPage exposing (Model(..), Msg(..), init, urlUpdate, update, view, subscriptions)
 
-import Json.Encode
 import Html exposing (Html)
 import Http
 import NotFound
@@ -20,9 +19,6 @@ import UpdateMsg exposing (UpdateMsg)
 
 
 -- TODO: move ports somewhere else
-
-
-port renderPipeline : ( Json.Encode.Value, Json.Encode.Value ) -> Cmd msg
 
 
 port setTitle : String -> Cmd msg
