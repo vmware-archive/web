@@ -46,7 +46,6 @@ type Node
         , dependentJob : Concourse.SpaceJob
         , upstreamJob : Maybe Concourse.SpaceJob
         }
-    | CombinationNode Concourse.SpaceJobCombination
 
 
 type alias Ports =
@@ -229,8 +228,14 @@ viewNode { id, label } resourceSpace =
                         ]
                     ]
 
-            _ ->
-                Html.text ""
+            InputNode { resourceName } ->
+                Html.div [ class "node input", idAttr ] [ Html.text "" ]
+
+            ConstrainedInputNode { resourceName } ->
+                Html.div [ class "node input constrained", idAttr ] [ Html.text "" ]
+
+            OutputNode { resourceName } ->
+                Html.div [ class "node output", idAttr ] [ Html.text "" ]
 
 
 viewJobCombination : Concourse.SpaceJobCombination -> ( String, String ) -> Concourse.SpaceJob -> Html Msg
@@ -366,9 +371,6 @@ nodeEdges allNodes { id, label } =
 
         OutputNode { upstreamJob } ->
             [ Graph.Edge (jobId allNodes upstreamJob) id () ]
-
-        CombinationNode _ ->
-            []
 
 
 jobId : List (Graph.Node Node) -> Concourse.SpaceJob -> Int

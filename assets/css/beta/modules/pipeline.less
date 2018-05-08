@@ -58,6 +58,20 @@
   .space-parallel-grid {
     display: flex;
     flex-direction: column;
+
+    & > .input, .output {
+      display: none;
+    }
+
+    & > .input:first-of-type, .output:first-of-type {
+      display: inherit;
+      border-bottom: 1px solid @grey-secondary;
+      color: @base05;
+      margin-top: 10px;
+      max-height: 30px;
+      padding: 15px 10px 5px;
+      line-height: 10px;
+    }
   }
 
   .serial-grid {
@@ -66,24 +80,23 @@
   }
 
   .job, .input, .output {
-    margin: 10px 20px;
+    margin: 10px 0;
   }
 
   .input, .output {
-    a {
-      margin-top: 10px;
-      // margin-bottom: 10px;
-      max-height: 30px;
-      border-bottom: 1px solid @grey-secondary;
-      color: @base05;
-      font-size: 10px;
-      padding: 15px 10px 5px;
-      line-height: 10px;
-    }
+    display: inherit;
+    border-bottom: 1px solid @grey-secondary;
+    color: @base05;
+    margin-top: 10px;
+    max-height: 30px;
+    padding: 15px 10px 5px;
+    line-height: 10px;
   }
 
   .job a {
-    font-size: 12px;
+    font-size: 16px;
+    font-family: iosevka;
+    letter-spacing: 0.2em;
   }
 
   .output {
@@ -101,11 +114,11 @@
     flex-grow: 1;
     flex-basis: 40%;
     margin: 6px;
+    min-height: 20px;
 
     .job-combination-name {
       flex-grow: 1;
       display: block;
-      line-height: 30px;
       padding: 0 10px;
       color: @white;
       background: @base04;
@@ -165,8 +178,8 @@
 
   .job {
     flex-grow: 1;
-    min-width: 140px;
-    min-height: 140px;
+    min-width: 160px;
+    min-height: 40px;
     border-width: 1px;
     border-color: gray;
     border-style: solid;
@@ -178,8 +191,8 @@
     .job-name {
       flex-grow: 0;
       display: block;
-      line-height: 30px;
-      padding: 0 10px;
+      line-height: 20px;
+      padding: 10px;
       color: @white;
       background: @base01;
       font-weight: normal;
@@ -239,14 +252,14 @@
   .input {
     text-align: right;
     margin-left: 10px;
-    min-width: 130px;
+    min-width: 70px;
   }
 
   .input.constrained {
     align-self: stretch;
     text-align: left;
     margin-left: 0px;
-    min-width: 140px;
+    min-width: 70px;
 
     a {
       padding-left: 10px;
