@@ -339,7 +339,7 @@ inputNodes jobs job { resource, passed } =
 
 outputNodes : Concourse.SpaceJob -> Concourse.JobOutput -> List Node
 outputNodes job { resource } =
-    []
+    [ OutputNode { resourceName = resource, upstreamJob = job } ]
 
 
 constrainedInputNode : ByName Concourse.SpaceJob -> String -> Concourse.SpaceJob -> String -> Node

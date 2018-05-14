@@ -4,7 +4,7 @@
 
 .pipeline-grid {
   padding-left: 20px;
-  margin-top: 2px;
+  margin: auto;
 
   > * {
     align-items: flex-start;
@@ -58,20 +58,6 @@
   .space-parallel-grid {
     display: flex;
     flex-direction: column;
-
-    & > .input, .output {
-      display: none;
-    }
-
-    & > .input:first-of-type, .output:first-of-type {
-      display: inherit;
-      border-bottom: 1px solid @grey-secondary;
-      color: @base05;
-      margin-top: 10px;
-      max-height: 30px;
-      padding: 15px 10px 5px;
-      line-height: 10px;
-    }
   }
 
   .serial-grid {
@@ -81,16 +67,6 @@
 
   .job, .input, .output {
     margin: 10px 0;
-  }
-
-  .input, .output {
-    display: inherit;
-    border-bottom: 1px solid @grey-secondary;
-    color: @base05;
-    margin-top: 10px;
-    max-height: 30px;
-    padding: 15px 10px 5px;
-    line-height: 10px;
   }
 
   .job a {
@@ -179,6 +155,7 @@
   .job {
     flex-grow: 1;
     min-width: 160px;
+    width: 160px;
     min-height: 40px;
     border-width: 1px;
     border-color: gray;
@@ -251,15 +228,13 @@
 
   .input {
     text-align: right;
-    margin-left: 10px;
-    min-width: 70px;
+    min-width: 30px;
   }
 
   .input.constrained {
     align-self: stretch;
     text-align: left;
-    margin-left: 0px;
-    min-width: 70px;
+    min-width: 30px;
 
     a {
       padding-left: 10px;
