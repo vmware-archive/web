@@ -3,12 +3,10 @@
 }
 
 .pipeline-grid {
-  padding-left: 20px;
   margin: auto;
-
-  > * {
-    align-items: flex-start;
-  }
+  display: flex;
+  height: ~"calc(100vh - 103px)";
+  justify-content: space-evenly;
 
   * {
     box-sizing: border-box;
@@ -16,12 +14,17 @@
 
   .node {
     display: flex; /* this does interesting but maybe good things? */
+    flex-grow: 1;
+    margin: 5px 20px;
+    font-size: 10px;
+    min-height: 60px;
 
     a {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       display: inline-block;
+      padding: 0;
     }
   }
 
@@ -65,14 +68,10 @@
     flex-direction: row;
   }
 
-  .job, .input, .output {
-    margin: 10px 0;
-  }
-
   .job a {
-    font-size: 16px;
+    font-size: 12px;
     font-family: iosevka;
-    letter-spacing: 0.2em;
+    letter-spacing: 0.1em;
   }
 
   .output {
@@ -88,18 +87,8 @@
 
   .job-combination {
     flex-grow: 1;
-    flex-basis: 40%;
-    margin: 6px;
+    margin: 4px;
     min-height: 20px;
-
-    .job-combination-name {
-      flex-grow: 1;
-      display: block;
-      padding: 0 10px;
-      color: @white;
-      background: @base04;
-      font-weight: normal;
-    }
 
     .job-combination-status {
       flex-grow: 1;
@@ -155,20 +144,17 @@
   .job {
     flex-grow: 1;
     min-width: 160px;
-    width: 160px;
-    min-height: 40px;
     border-width: 1px;
     border-color: gray;
     border-style: solid;
 
     display: flex;
     flex-direction: column;
-    margin-right: 40%;
 
     .job-name {
       flex-grow: 0;
       display: block;
-      line-height: 20px;
+      line-height: 14px;
       padding: 10px;
       color: @white;
       background: @base01;
@@ -179,8 +165,6 @@
       flex-grow: 1;
       display: block;
     }
-
-
 
     &.failed .job-status {
       .striped-background(@red-secondary, @red-primary);
@@ -249,7 +233,7 @@
   line-height: 30px;
   margin-top: 2px;
   overflow-y: auto;
-  height: 100vh;
+  height: ~"calc(100vh - 42px)";
 
   .resource {
     padding: 5px 20px;
@@ -258,13 +242,13 @@
       font-weight: bold;
     }
 
-    .resource-spaces {
+    .resource-space {
       padding-left: 20px;
+    }
 
-      .resource-space:hover {
-        background: @base01;
-      }
-
+    .space-mouseover:hover {
+      background: lightgray;
+      color: black;
     }
   }
 }

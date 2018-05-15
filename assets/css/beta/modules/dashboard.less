@@ -23,45 +23,6 @@
   .errored.running   { .running-animation(@amber-primary, @amber-secondary); }
   .aborted.running   { .running-animation(@brown-primary, @brown-secondary); }
 
-  .pipeline-grid {
-    float: none;
-    display: flex;
-    padding: 20px 36px 10px;
-    width: 200px;
-    height: 120px;
-  }
-
-  .pipeline-grid-tall {
-    height: 364px;
-  }
-
-  .pipeline-grid-wide {
-    width: 502px;
-  }
-
-  .pipeline-grid-super-tall {
-    height: 608px;
-  }
-
-  .pipeline-grid-super-wide {
-    width: 804px;
-  }
-
-  .pipeline-grid >* {
-    align-items: initial !important;
-  }
-
-  .node {
-    flex-grow: 1;
-    margin: (4px * @scale);
-    font-size: 0;
-
-    a {
-      padding: 0;
-      margin: 0;
-    }
-  }
-
   .build-duration {
     display: inline-block;
     vertical-align: middle;
