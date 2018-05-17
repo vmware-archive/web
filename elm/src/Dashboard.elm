@@ -22,6 +22,7 @@ import Keyboard
 import Mouse
 import NewTopBar
 import RemoteData
+import SpaceRoutes
 import Routes
 import Simple.Fuzzy exposing (match, root, filter)
 import Task exposing (Task)
@@ -383,7 +384,7 @@ pipelineView now ({ pipeline, jobs, resourceError } as pipelineWithJobs) =
         [ Html.div [ class "dashboard-pipeline-banner" ] []
         , Html.div
             [ class "dashboard-pipeline-content" ]
-            [ Html.a [ href <| Routes.pipelineRoute pipeline ]
+            [ Html.a [ href <| SpaceRoutes.pipelineRoute pipeline ]
                 [ Html.div
                     [ class "dashboard-pipeline-header" ]
                     [ Html.div [ class "dashboard-pipeline-name" ]

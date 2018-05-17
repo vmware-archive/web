@@ -77,7 +77,10 @@ update msg model =
 
         AutoupdateTimerTicked timestamp ->
             ( model
-            , fetchJobs model.pipelineLocator
+            , Cmd.batch
+                [ fetchJobs model.pipelineLocator
+                , fetchResources model.pipelineLocator
+                ]
             )
 
         JobsFetched (Ok jobs) ->
