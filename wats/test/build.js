@@ -25,6 +25,7 @@ test('shows abort hooks', async t => {
   await t.context.fly.run('trigger-job -j some-pipeline/on_abort');
 
   await t.context.page.goto(t.context.web.route(`/teams/${t.context.teamName}/pipelines/some-pipeline/jobs/on_abort/builds/1`));
+  await t.context.page.setViewport({width: 1200, height: 900});
   await t.context.web.waitForText(t.context.page, "say-bye-from-step");
   await t.context.web.waitForText(t.context.page, "say-bye-from-job");
   await t.context.web.waitForText(t.context.page, "looping");
