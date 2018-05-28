@@ -66,7 +66,7 @@ viewJobCombination jobCombination ( resource, space ) job =
             [ Html.a
                 [ classList
                     [ ( "job-combination-status", True )
-                    , ( buildStatus, True ) -- FIXME: check for next build
+                    , ( buildStatus, True )
                     , ( "inactive", not active )
                     ]
                 , href <| viewJobCombinationLink jobCombination

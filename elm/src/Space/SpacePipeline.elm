@@ -154,7 +154,7 @@ viewResource resource =
     else
         Html.div [ class "resource" ]
             [ Html.div
-                [ class "resource-name space-mouseover", onMouseOver (ResourceHoverMsg ( resource.name, "default" )), onMouseLeave (ResourceHoverMsg ( "", "" )) ]
+                [ class "resource-name space-mouseover", onMouseOver (ResourceHoverMsg ( resource.name, Maybe.withDefault "default" <| List.head resource.spaces )), onMouseLeave (ResourceHoverMsg ( "", "" )) ]
                 [ Html.text resource.name ]
             ]
 

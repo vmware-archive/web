@@ -89,7 +89,7 @@
 
     .combination-container {
       display: flex;
-      flex-direction: row;
+      flex-direction: column;
       flex-wrap: wrap;
       height: 100%;
     }
@@ -98,12 +98,14 @@
       flex-grow: 1;
       margin: 4px;
       min-height: 20px;
+      position: relative;
 
       .job-combination-status {
-        flex-grow: 1;
-        display: block;
-        height: 100%;
-        margin: auto;
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
 
         &.inactive {
           opacity: 0.1;
