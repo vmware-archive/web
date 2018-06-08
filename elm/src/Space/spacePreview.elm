@@ -9,23 +9,31 @@ import Html.Attributes exposing (attribute, class, classList, href, tabindex)
 import SpaceRoutes
 
 
-view : List Concourse.SpaceJob -> ( String, String ) -> Html msg
-view jobs resourceSpace =
+view : List Concourse.SpaceJob -> List Concourse.SpaceResource -> ( String, String ) -> Html msg
+view jobs resources resourceSpace =
     let
         groups =
             jobGroups jobs
+
+        resourcesDict =
+            List.foldl
+                (\resource byName ->
+                    Dict.insert resource.name resource byName
+                )
+                Dict.empty
+                resources
     in
         Html.div [ class "pipeline-grid" ] <|
             List.map
                 (\jobs ->
-                    List.map (viewJob resourceSpace) jobs
+                    List.map (viewJob resourceSpace resourcesDict) jobs
                         |> Html.div [ class "space-parallel-grid" ]
                 )
                 (Dict.values groups)
 
 
-viewJob : ( String, String ) -> Concourse.SpaceJob -> Html msg
-viewJob resourceSpace job =
+viewJob : ( String, String ) -> Dict String Concourse.SpaceResource -> Concourse.SpaceJob -> Html msg
+viewJob resourceSpace resources job =
     Html.div [ class "node" ]
         [ Html.div
             [ classList [ ( "job", True ), ( "paused", job.paused ) ] ]
@@ -33,13 +41,13 @@ viewJob resourceSpace job =
                 [ Html.text job.name
                 ]
             , Html.div [ class "combination-container" ] <|
-                List.map (\combination -> viewJobCombination combination resourceSpace job) job.combintations
+                List.map (\combination -> viewJobCombination combination resourceSpace resources job) job.combintations
             ]
         ]
 
 
-viewJobCombination : Concourse.SpaceJobCombination -> ( String, String ) -> Concourse.SpaceJob -> Html msg
-viewJobCombination jobCombination ( resource, space ) job =
+viewJobCombination : Concourse.SpaceJobCombination -> ( String, String ) -> Dict String Concourse.SpaceResource -> Concourse.SpaceJob -> Html msg
+viewJobCombination jobCombination ( resource, space ) resources job =
     let
         buildStatus =
             case ( job.paused, jobCombination.finishedBuild, jobCombination.nextBuild ) of
@@ -71,7 +79,7 @@ viewJobCombination jobCombination ( resource, space ) job =
             ]
             [ Html.div
                 [ class "job-combination-details" ]
-                (jobCombinationPopover job jobCombination)
+                (jobCombinationPopover resources job jobCombination)
             ]
 
 
@@ -81,10 +89,10 @@ viewJobCombinationLink jobCombination =
         link =
             case ( jobCombination.finishedBuild, jobCombination.nextBuild ) of
                 ( _, Just nb ) ->
-                    Html.a [ href <| SpaceRoutes.buildRoute nb ] [ Html.text <| "#" ++ nb.name ]
+                    Html.a [ href <| SpaceRoutes.buildRoute nb ] [ Html.text "builds" ]
 
                 ( Just fb, Nothing ) ->
-                    Html.a [ href <| SpaceRoutes.buildRoute fb ] [ Html.text <| "#" ++ fb.name ]
+                    Html.a [ href <| SpaceRoutes.buildRoute fb ] [ Html.text "builds" ]
 
                 ( Nothing, Nothing ) ->
                     Html.a [] [ Html.text <| "no builds yet" ]
@@ -92,37 +100,95 @@ viewJobCombinationLink jobCombination =
         Html.li [] [ link ]
 
 
-jobCombinationPopover : Concourse.SpaceJob -> Concourse.SpaceJobCombination -> List (Html msg)
-jobCombinationPopover job jobCombination =
+jobCombinationPopover : Dict String Concourse.SpaceResource -> Concourse.SpaceJob -> Concourse.SpaceJobCombination -> List (Html msg)
+jobCombinationPopover resources job jobCombination =
     let
         space =
-            \name combination -> name ++ " [" ++ (Maybe.withDefault "" <| Dict.get name combination) ++ "] \n"
+            \name combination ->
+                let
+                    spaceName =
+                        Dict.get name combination
+                in
+                    case spaceName of
+                        Just "default" ->
+                            name ++ "\n"
+
+                        Just sp ->
+                            name ++ " [" ++ (Maybe.withDefault "" <| Dict.get name combination) ++ "] \n"
+
+                        _ ->
+                            name ++ "\n"
 
         inputs =
             List.map
                 (\input ->
-                    Html.li []
-                        [ Html.text "get "
-                        , Html.i [ class "fa fa-fw fa-arrow-down" ] []
-                        , Html.text <| space input.name jobCombination.combination
-                        ]
+                    let
+                        resourceStatus =
+                            case Dict.get input.resource resources of
+                                Just resource ->
+                                    case ( resource.paused, resource.checkError ) of
+                                        ( True, _ ) ->
+                                            "paused"
+
+                                        ( False, "" ) ->
+                                            ""
+
+                                        _ ->
+                                            "errored"
+
+                                _ ->
+                                    ""
+                    in
+                        Html.li [ class "job-combination-input" ]
+                            [ Html.span [ classList [ ( "trigger", input.trigger ) ] ] []
+                            , Html.span [ class <| "icon " ++ resourceStatus ] []
+                            , Html.span [ class <| "name " ++ resourceStatus ] [ Html.text <| space input.resource jobCombination.combination ]
+                            ]
                 )
                 job.inputs
 
         outputs =
             List.map
                 (\output ->
-                    Html.li []
-                        [ Html.text "put "
-                        , Html.i [ class "fa fa-fw fa-arrow-up" ] []
-                        , Html.text <| space output.name jobCombination.combination
-                        ]
+                    let
+                        resourceStatus =
+                            case Dict.get output.resource resources of
+                                Just resource ->
+                                    case ( resource.paused, resource.checkError ) of
+                                        ( True, _ ) ->
+                                            "paused"
+
+                                        ( False, "" ) ->
+                                            ""
+
+                                        _ ->
+                                            "errored"
+
+                                _ ->
+                                    ""
+                    in
+                        Html.li [ class "job-combination-output" ]
+                            [ Html.span [ class <| "icon " ++ resourceStatus ] []
+                            , Html.span [ class <| "name " ++ resourceStatus ] [ Html.text <| space output.resource jobCombination.combination ]
+                            ]
                 )
                 job.outputs
     in
         [ Html.ul [ class "job-combination-build" ] [ viewJobCombinationLink jobCombination ]
-        , Html.ul [ class "job-combination-inputs" ] inputs
-        , Html.ul [ class "job-combination-outputs" ] outputs
+        , Html.ul [ class "job-combination-inputs" ] <|
+            [ Html.li []
+                [ Html.span [ class "description" ] [ Html.text "get " ]
+                , Html.i [ class "fa fa-fw fa-arrow-down" ] []
+                ]
+            ]
+                ++ inputs
+        , Html.ul [ class "job-combination-outputs" ] <|
+            [ Html.li []
+                [ Html.span [ class "description" ] [ Html.text "put " ]
+                , Html.i [ class "fa fa-fw fa-arrow-up" ] []
+                ]
+            ]
+                ++ outputs
         ]
 
 

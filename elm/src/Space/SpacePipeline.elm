@@ -135,7 +135,7 @@ view : Model -> Html Msg
 view model =
     Html.div [ class "pipeline-content" ]
         [ viewResources model.resources
-        , SpacePreview.view model.jobs model.selectedResourceSpace
+        , SpacePreview.view model.jobs model.resources model.selectedResourceSpace
         ]
 
 

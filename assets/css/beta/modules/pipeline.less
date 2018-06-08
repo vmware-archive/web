@@ -180,7 +180,8 @@
 
       position: absolute;
       left: -10px;
-      top: ~"calc(30% - 5px)";
+      //top: ~"calc(30% - 5px)";
+      top: 0;
     }
 
     .job-combination-build, .job-combination-inputs, .job-combination-outputs {
@@ -193,26 +194,81 @@
         .fa {
           margin-right: 10px;
         }
+
+        .description, .fa {
+          visibility: hidden;
+        }
+      }
+
+      li:first-of-type {
+        .description, .fa {
+          visibility: visible;
+        }
       }
     }
 
     .job-combination-build {
-      background: #AFAFAF;
-
       a {
         width: 100%;
-        color: black;
+        color: white;
+        text-decoration: underline;
+      }
+    }
+
+    .job-combination-input, .job-combination-output {
+      .name {
+        margin-left: 10px;
+      }
+
+      .icon {
+        display: inline-block;
+        margin-left: 25px;
+        vertical-align: middle;
+        width: 10px;
+        height: 10px;
+        background-image: url('images/ic_resource_check.svg');
+        background-size: contain;
+        background-repeat: no-repeat;
+
+        &.errored {
+          background-image: url('images/ic_resource_error.svg');
+          background-color: inherit;
+        }
+
+        &.paused {
+          background-image: url('images/ic_resource_pause.svg');
+          background-color: inherit;
+        }
+      }
+
+      .trigger {
+        position: absolute;
+        left: 15px;
+        display: inline-block;
+        vertical-align: middle;
+        width: 10px;
+        height: 10px;
+        background-image: url('images/ic_resource_trigger.svg');
+        background-color: inherit;
       }
     }
 
     .job-combination-inputs {
       background: black;
       color: white;
+
+      li:nth-of-type(even) {
+        background: #232323;
+      }
     }
 
     .job-combination-outputs {
       background: white;
       color: black;
+
+      li:nth-of-type(even) {
+        background: #F4F4F4;
+      }
     }
 
     .job {
