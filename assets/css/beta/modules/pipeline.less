@@ -99,57 +99,120 @@
       margin: 4px;
       min-height: 20px;
       position: relative;
+      outline: 0;
 
-      .job-combination-status {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        left: 0;
-        right: 0;
+      &.inactive {
+        opacity: 0.1;
+      }
 
-        &.inactive {
-          opacity: 0.1;
-        }
+      &.no-builds {
+        background: lightgray;
+      }
 
-        &.no-builds {
-          background: lightgray;
-        }
+      &.failed {
+        .striped-background(@red-secondary, @red-primary);
+        border: 2px solid @red-primary;
+      }
 
-        &.failed {
-          .striped-background(@red-secondary, @red-primary);
-          border: 2px solid @red-primary;
-        }
+      &.no-builds.started {
+        .running-animation(@base02, @base01);
+        border: 2px solid @base03;
+      }
 
-        &.no-builds.started {
-          .running-animation(@base02, @base01);
-          border: 2px solid @base03;
-        }
+      &.succeeded.started {
+        .running-animation(@green-primary, @green-secondary);
+        border: 2px solid @green-primary;
+      }
 
-        &.succeeded.started {
-          .running-animation(@green-primary, @green-secondary);
-          border: 2px solid @green-primary;
-        }
+      &.failed.started {
+        .running-animation(@red-primary, @red-secondary);
+        border: 2px solid @red-primary;
+      }
 
-        &.failed.started {
-          .running-animation(@red-primary, @red-secondary);
-          border: 2px solid @red-primary;
-        }
+      &.aborted.started {
+        .running-animation(@brown-primary, @brown-secondary);
+        border: 2px solid @brown-primary;
+      }
 
-        &.aborted.started {
-          .running-animation(@brown-primary, @brown-secondary);
-          border: 2px solid @brown-primary;
-        }
+      &.errored.started {
+        .running-animation(@amber-primary, @amber-secondary);
+        border: 2px solid @amber-primary;
+      }
 
-        &.errored.started {
-          .running-animation(@amber-primary, @amber-secondary);
-          border: 2px solid @amber-primary;
-        }
+      &.paused.started {
+        .running-animation(@blue-primary, @blue-secondary);
+        border: 2px solid @blue-primary;
+      }
+    }
 
-        &.paused.started {
-          .running-animation(@blue-primary, @blue-secondary);
-          border: 2px solid @blue-primary;
+    .job-combination:focus {
+      pointer-events: none;
+    }
+
+    .job-combination:focus .job-combination-details {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .job-combination-details {
+      pointer-events: auto;
+      position: absolute;
+      left: 100%;
+      padding: 0 5px;
+      z-index: 1;
+
+      opacity: 0;
+      visibility: hidden;
+      transition: visibility 0.5s;
+
+      background-color: black;
+      width: max-content;
+    }
+
+    .job-combination-details:before {
+      content: "";
+      width: 0;
+      height: 0;
+
+      border-right: 10px solid black;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+
+      position: absolute;
+      left: -10px;
+      top: ~"calc(30% - 5px)";
+    }
+
+    .job-combination-build, .job-combination-inputs, .job-combination-outputs {
+      margin: 0;
+
+      li {
+        list-style: none;
+        margin: 5px;
+
+        .fa {
+          margin-right: 10px;
         }
       }
+    }
+
+    .job-combination-build {
+      background: #AFAFAF;
+
+      a {
+        width: 100%;
+        color: black;
+      }
+    }
+
+    .job-combination-inputs {
+      background: black;
+      color: white;
+    }
+
+    .job-combination-outputs {
+      background: white;
+      color: black;
     }
 
     .job {

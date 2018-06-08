@@ -5,7 +5,7 @@ import Concourse.BuildStatus
 import Debug
 import Dict exposing (Dict)
 import Html exposing (Html)
-import Html.Attributes exposing (attribute, class, classList, href)
+import Html.Attributes exposing (attribute, class, classList, href, tabindex)
 import SpaceRoutes
 
 
@@ -62,45 +62,68 @@ viewJobCombination jobCombination ( resource, space ) job =
             (String.isEmpty space) || Dict.get resource jobCombination.combination == Just space
     in
         Html.div
-            [ class "job-combination", attribute "data-tooltip" (jobCombinationTooltip job jobCombination) ]
-            [ Html.a
-                [ classList
-                    [ ( "job-combination-status", True )
-                    , ( buildStatus, True )
-                    , ( "inactive", not active )
-                    ]
-                , href <| viewJobCombinationLink jobCombination
+            [ classList
+                [ ( "job-combination", True )
+                , ( buildStatus, True )
+                , ( "inactive", not active )
                 ]
-                []
+            , tabindex 0
+            ]
+            [ Html.div
+                [ class "job-combination-details" ]
+                (jobCombinationPopover job jobCombination)
             ]
 
 
-viewJobCombinationLink : Concourse.SpaceJobCombination -> String
+viewJobCombinationLink : Concourse.SpaceJobCombination -> Html msg
 viewJobCombinationLink jobCombination =
-    case ( jobCombination.finishedBuild, jobCombination.nextBuild ) of
-        ( _, Just nb ) ->
-            SpaceRoutes.buildRoute nb
+    let
+        link =
+            case ( jobCombination.finishedBuild, jobCombination.nextBuild ) of
+                ( _, Just nb ) ->
+                    Html.a [ href <| SpaceRoutes.buildRoute nb ] [ Html.text <| "#" ++ nb.name ]
 
-        ( Just fb, Nothing ) ->
-            SpaceRoutes.buildRoute fb
+                ( Just fb, Nothing ) ->
+                    Html.a [ href <| SpaceRoutes.buildRoute fb ] [ Html.text <| "#" ++ fb.name ]
 
-        ( Nothing, Nothing ) ->
-            "/"
+                ( Nothing, Nothing ) ->
+                    Html.a [] [ Html.text <| "no builds yet" ]
+    in
+        Html.li [] [ link ]
 
 
-jobCombinationTooltip : Concourse.SpaceJob -> Concourse.SpaceJobCombination -> String
-jobCombinationTooltip job jobCombination =
+jobCombinationPopover : Concourse.SpaceJob -> Concourse.SpaceJobCombination -> List (Html msg)
+jobCombinationPopover job jobCombination =
     let
         space =
             \name combination -> name ++ " [" ++ (Maybe.withDefault "" <| Dict.get name combination) ++ "] \n"
 
         inputs =
-            List.map (\input -> "⬇ " ++ (space input.name jobCombination.combination)) job.inputs
+            List.map
+                (\input ->
+                    Html.li []
+                        [ Html.text "get "
+                        , Html.i [ class "fa fa-fw fa-arrow-down" ] []
+                        , Html.text <| space input.name jobCombination.combination
+                        ]
+                )
+                job.inputs
 
         outputs =
-            List.map (\output -> "⬆ " ++ (space output.name jobCombination.combination)) job.outputs
+            List.map
+                (\output ->
+                    Html.li []
+                        [ Html.text "put "
+                        , Html.i [ class "fa fa-fw fa-arrow-up" ] []
+                        , Html.text <| space output.name jobCombination.combination
+                        ]
+                )
+                job.outputs
     in
-        String.concat << List.concat <| [ inputs, outputs ]
+        [ Html.ul [ class "job-combination-build" ] [ viewJobCombinationLink jobCombination ]
+        , Html.ul [ class "job-combination-inputs" ] inputs
+        , Html.ul [ class "job-combination-outputs" ] outputs
+        ]
 
 
 jobGroups : List Concourse.SpaceJob -> Dict Int (List Concourse.SpaceJob)
