@@ -67,11 +67,11 @@ type Msg
     | TopBarMsg NewTopBar.Msg
 
 
-init : Ports -> String -> ( Model, Cmd Msg )
-init ports turbulencePath =
+init : Ports -> String -> Maybe String -> ( Model, Cmd Msg )
+init ports turbulencePath search =
     let
         ( topBar, topBarMsg ) =
-            NewTopBar.init True
+            NewTopBar.init True search
     in
         ( { topBar = topBar
           , mPipelines = RemoteData.NotAsked

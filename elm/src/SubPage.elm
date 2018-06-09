@@ -68,6 +68,11 @@ queryGroupsForRoute route =
     QueryString.all "groups" route.queries
 
 
+querySearchForRoute : Routes.ConcourseRoute -> String
+querySearchForRoute route =
+    QueryString.one "search" route.queries
+
+
 init : String -> Routes.ConcourseRoute -> ( Model, Cmd Msg )
 init turbulencePath route =
     case route.logical of
@@ -133,11 +138,11 @@ init turbulencePath route =
 
         Routes.Dashboard ->
             superDupleWrap ( DashboardModel, DashboardMsg ) <|
-                Dashboard.init { title = setTitle } turbulencePath
+                Dashboard.init { title = setTitle } turbulencePath (querySearchForRoute route)
 
         Routes.DashboardHd ->
             superDupleWrap ( DashboardHdModel, DashboardHdMsg ) <|
-                DashboardHd.init { title = setTitle } turbulencePath
+                DashboardHd.init { title = setTitle } turbulencePath (querySearchForRoute route)
 
         Routes.Home ->
             ( WaitingModel route
