@@ -70,7 +70,7 @@ queryGroupsForRoute route =
 
 querySearchForRoute : Routes.ConcourseRoute -> String
 querySearchForRoute route =
-    QueryString.one "search" route.queries
+    QueryString.one QueryString.string "search" route.queries
         |> Maybe.withDefault ""
 
 
