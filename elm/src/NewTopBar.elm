@@ -9,6 +9,8 @@ import Html exposing (Html)
 import Html.Attributes exposing (class, classList, href, id, src, type_, placeholder, value)
 import Html.Events exposing (..)
 import Keyboard
+import Navigation
+import QueryString
 import RemoteData exposing (RemoteData)
 import Task
 
@@ -49,6 +51,17 @@ init showSearch query =
     )
 
 
+queryStringFromSearch : String -> String
+queryStringFromSearch query =
+    case query of
+        "" ->
+            ""
+
+        query ->
+            QueryString.render <|
+                QueryString.add "search" query QueryString.empty
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
@@ -56,7 +69,12 @@ update msg model =
             ( model, Cmd.none )
 
         FilterMsg query ->
-            ( { model | query = query }, Task.attempt (always Noop) (Dom.focus "search-input-field") )
+            ( { model | query = query }
+            , Cmd.batch
+                [ Task.attempt (always Noop) (Dom.focus "search-input-field")
+                , Navigation.modifyUrl (queryStringFromSearch query)
+                ]
+            )
 
         UserFetched response ->
             ( { model | user = response }, Cmd.none )
