@@ -54,7 +54,7 @@ type Msg
     | TopBarMsg NewTopBar.Msg
 
 
-init : Ports -> String -> Maybe String -> ( Model, Cmd Msg )
+init : Ports -> String -> String -> ( Model, Cmd Msg )
 init ports turbulencePath search =
     let
         ( topBar, topBarMsg ) =

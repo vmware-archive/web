@@ -71,6 +71,7 @@ queryGroupsForRoute route =
 querySearchForRoute : Routes.ConcourseRoute -> String
 querySearchForRoute route =
     QueryString.one "search" route.queries
+        |> Maybe.withDefault ""
 
 
 init : String -> Routes.ConcourseRoute -> ( Model, Cmd Msg )

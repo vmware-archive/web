@@ -35,11 +35,11 @@ type Msg
     | KeyDown Keyboard.KeyCode
 
 
-init : Bool -> Maybe String -> ( Model, Cmd Msg )
+init : Bool -> String -> ( Model, Cmd Msg )
 init showSearch query =
     ( { user = RemoteData.Loading
       , teams = RemoteData.Loading
-      , query = Maybe.withDefault "" query
+      , query = query
       , showSearch = showSearch
       , showAutocomplete = False
       , selectionMade = False
