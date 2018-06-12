@@ -146,8 +146,8 @@
     }
 
     .job-combination:focus {
-      pointer-events: none;
-    }
+       pointer-events: none;
+     }
 
     .job-combination:focus .job-combination-details {
       opacity: 1;
@@ -190,6 +190,11 @@
       li {
         list-style: none;
         margin: 5px;
+        cursor: pointer;
+
+        &:hover {
+          filter: brightness(1.3);
+        }
 
         .fa {
           margin-right: 10px;
@@ -217,39 +222,27 @@
 
     .job-combination-input, .job-combination-output {
       .name {
-        margin-left: 10px;
-      }
-
-      .icon {
-        display: inline-block;
-        margin-left: 25px;
-        vertical-align: middle;
-        width: 10px;
-        height: 10px;
-        background-image: url('images/ic_resource_check.svg');
-        background-size: contain;
-        background-repeat: no-repeat;
-
-        &.errored {
-          background-image: url('images/ic_resource_error.svg');
-          background-color: inherit;
-        }
-
-        &.paused {
-          background-image: url('images/ic_resource_pause.svg');
-          background-color: inherit;
-        }
+        margin-left: 40px;
       }
 
       .trigger {
         position: absolute;
-        left: 15px;
+        left: 37px;
+        margin-top: 2px;
         display: inline-block;
-        vertical-align: middle;
-        width: 10px;
+        width: 9px;
         height: 10px;
         background-image: url('images/ic_resource_trigger.svg');
         background-color: inherit;
+        background-size: contain;
+      }
+
+      &.paused {
+        background: @blue-primary !important;
+      }
+
+      &.errored {
+        background: @amber-primary !important;
       }
     }
 

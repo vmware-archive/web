@@ -1,4 +1,4 @@
-module SpacePreview exposing (view)
+module SpacePreview exposing (Model, init, view, update, Msg(ResourceHoverMsg))
 
 import Concourse
 import Concourse.BuildStatus
@@ -6,10 +6,29 @@ import Debug
 import Dict exposing (Dict)
 import Html exposing (Html)
 import Html.Attributes exposing (attribute, class, classList, href, tabindex)
+import Html.Events exposing (onMouseOver, onMouseLeave)
 import SpaceRoutes
 
 
-view : List Concourse.SpaceJob -> List Concourse.SpaceResource -> ( String, String ) -> Html msg
+type alias Model =
+    ( String, String )
+
+
+type Msg
+    = ResourceHoverMsg ( String, String )
+
+
+init : Model
+init =
+    ( "", "" )
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update (ResourceHoverMsg resourceSpace) model =
+    ( resourceSpace, Cmd.none )
+
+
+view : List Concourse.SpaceJob -> List Concourse.SpaceResource -> Model -> Html Msg
 view jobs resources resourceSpace =
     let
         groups =
@@ -32,7 +51,7 @@ view jobs resources resourceSpace =
                 (Dict.values groups)
 
 
-viewJob : ( String, String ) -> Dict String Concourse.SpaceResource -> Concourse.SpaceJob -> Html msg
+viewJob : ( String, String ) -> Dict String Concourse.SpaceResource -> Concourse.SpaceJob -> Html Msg
 viewJob resourceSpace resources job =
     Html.div [ class "node" ]
         [ Html.div
@@ -46,7 +65,7 @@ viewJob resourceSpace resources job =
         ]
 
 
-viewJobCombination : Concourse.SpaceJobCombination -> ( String, String ) -> Dict String Concourse.SpaceResource -> Concourse.SpaceJob -> Html msg
+viewJobCombination : Concourse.SpaceJobCombination -> ( String, String ) -> Dict String Concourse.SpaceResource -> Concourse.SpaceJob -> Html Msg
 viewJobCombination jobCombination ( resource, space ) resources job =
     let
         buildStatus =
@@ -83,7 +102,7 @@ viewJobCombination jobCombination ( resource, space ) resources job =
             ]
 
 
-viewJobCombinationLink : Concourse.SpaceJobCombination -> Html msg
+viewJobCombinationLink : Concourse.SpaceJobCombination -> Html Msg
 viewJobCombinationLink jobCombination =
     let
         link =
@@ -100,7 +119,7 @@ viewJobCombinationLink jobCombination =
         Html.li [] [ link ]
 
 
-jobCombinationPopover : Dict String Concourse.SpaceResource -> Concourse.SpaceJob -> Concourse.SpaceJobCombination -> List (Html msg)
+jobCombinationPopover : Dict String Concourse.SpaceResource -> Concourse.SpaceJob -> Concourse.SpaceJobCombination -> List (Html Msg)
 jobCombinationPopover resources job jobCombination =
     let
         space =
@@ -139,10 +158,13 @@ jobCombinationPopover resources job jobCombination =
                                 _ ->
                                     ""
                     in
-                        Html.li [ class "job-combination-input" ]
+                        Html.li
+                            [ class <| "job-combination-input " ++ resourceStatus
+                            , onMouseOver (ResourceHoverMsg ( input.resource, Maybe.withDefault "default" <| Dict.get input.resource jobCombination.combination ))
+                            , onMouseLeave (ResourceHoverMsg ( "", "" ))
+                            ]
                             [ Html.span [ classList [ ( "trigger", input.trigger ) ] ] []
-                            , Html.span [ class <| "icon " ++ resourceStatus ] []
-                            , Html.span [ class <| "name " ++ resourceStatus ] [ Html.text <| space input.resource jobCombination.combination ]
+                            , Html.span [ class "name" ] [ Html.text <| space input.resource jobCombination.combination ]
                             ]
                 )
                 job.inputs
@@ -167,9 +189,12 @@ jobCombinationPopover resources job jobCombination =
                                 _ ->
                                     ""
                     in
-                        Html.li [ class "job-combination-output" ]
-                            [ Html.span [ class <| "icon " ++ resourceStatus ] []
-                            , Html.span [ class <| "name " ++ resourceStatus ] [ Html.text <| space output.resource jobCombination.combination ]
+                        Html.li
+                            [ class <| "job-combination-output " ++ resourceStatus
+                            , onMouseOver (ResourceHoverMsg ( output.resource, Maybe.withDefault "default" <| Dict.get output.resource jobCombination.combination ))
+                            , onMouseLeave (ResourceHoverMsg ( "", "" ))
+                            ]
+                            [ Html.span [ class "name" ] [ Html.text <| space output.resource jobCombination.combination ]
                             ]
                 )
                 job.outputs

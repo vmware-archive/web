@@ -20,7 +20,7 @@ type alias Model =
     , resources : List Concourse.SpaceResource
     , error : Maybe String
     , turbulenceImgSrc : String
-    , selectedResourceSpace : ( String, String )
+    , previewModel : SpacePreview.Model
     }
 
 
@@ -43,6 +43,7 @@ type Msg
     | JobsFetched (Result Http.Error (List Concourse.SpaceJob))
     | ResourcesFetched (Result Http.Error (List Concourse.SpaceResource))
     | ResourceHoverMsg ( String, String )
+    | PreviewMsg SpacePreview.Msg
 
 
 init : Ports -> Flags -> ( Model, Cmd Msg )
@@ -58,7 +59,7 @@ init ports flags =
             , resources = []
             , error = Nothing
             , turbulenceImgSrc = flags.turbulenceImgSrc
-            , selectedResourceSpace = ( "", "" )
+            , previewModel = SpacePreview.init
             }
     in
         ( model
@@ -96,7 +97,18 @@ update msg model =
             ( { model | error = Just (toString msg) }, Cmd.none )
 
         ResourceHoverMsg resourceSpace ->
-            ( { model | selectedResourceSpace = resourceSpace }, Cmd.none )
+            let
+                ( newModel, _ ) =
+                    SpacePreview.update (SpacePreview.ResourceHoverMsg resourceSpace) model.previewModel
+            in
+                ( { model | previewModel = newModel }, Cmd.none )
+
+        PreviewMsg msg ->
+            let
+                ( newModel, _ ) =
+                    SpacePreview.update msg model.previewModel
+            in
+                ( { model | previewModel = newModel }, Cmd.none )
 
 
 subscriptions : Model -> Sub Msg
@@ -135,7 +147,7 @@ view : Model -> Html Msg
 view model =
     Html.div [ class "pipeline-content" ]
         [ viewResources model.resources
-        , SpacePreview.view model.jobs model.resources model.selectedResourceSpace
+        , Html.map PreviewMsg <| SpacePreview.view model.jobs model.resources model.previewModel
         ]
 
 
