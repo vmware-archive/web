@@ -13,6 +13,7 @@ import Navigation
 import QueryString
 import RemoteData exposing (RemoteData)
 import Task
+import TopBar exposing (userDisplayName)
 
 
 type alias Model =
@@ -144,7 +145,7 @@ showUserInfo model =
             Html.text "loading"
 
         RemoteData.Success user ->
-            Html.text user.name
+            Html.text <| userDisplayName user
 
         RemoteData.Failure _ ->
             Html.a
@@ -159,6 +160,10 @@ view : Model -> Html Msg
 view model =
     Html.div [ class "module-topbar" ]
         [ Html.div [ class "topbar-logo" ] [ Html.a [ class "logo-image-link", href "#" ] [] ]
+        , Html.div [ class "topbar-login" ]
+            [ Html.div [ class "topbar-user-info" ]
+                [ showUserInfo model ]
+            ]
         , Html.div [ classList [ ( "topbar-search", True ), ( "hidden", not model.showSearch ) ] ]
             [ Html.div
                 [ class "topbar-search-form" ]
@@ -198,10 +203,6 @@ view model =
                                 [ Html.text option ]
                         )
                         options
-            ]
-        , Html.div [ class "topbar-login" ]
-            [ Html.div [ class "topbar-user-info" ]
-                [ showUserInfo model ]
             ]
         ]
 

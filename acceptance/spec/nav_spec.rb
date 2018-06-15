@@ -5,18 +5,18 @@ describe 'Nav', type: :feature do
 
   before do
     fly_login 'main'
-    fly_with_input("set-team -n #{team_name} --allow-all-users", 'y')
+    fly_with_input("set-team -n #{team_name} --local-user=#{ATC_USERNAME}", 'y')
 
     fly_login team_name
     fly('set-pipeline -n -p test-pipeline -c fixtures/states-pipeline.yml')
     fly('unpause-pipeline -p test-pipeline')
 
-    dash_login team_name
+    dash_login
   end
 
   context 'on home page' do
     before do
-      visit dash_route("/")
+      visit dash_route('/')
       expect(page).to have_content 'resource-metadata'
     end
 
@@ -26,8 +26,19 @@ describe 'Nav', type: :feature do
       end
     end
 
-    it 'the pipeline name is not a link' do
-      expect(page).not_to have_link 'test-pipeline'
+    it 'the pipeline name is a link that resets the group' do
+      expect(page).to have_link 'test-pipeline'
+
+      other_group = page.find '.main', text: 'some-other-group'
+      page.driver.browser.action.key_down(:shift)
+          .click(other_group.native)
+          .key_up(:shift).perform
+      expect(page).to have_css '.active', text: 'some-group'
+      expect(page).to have_css '.active', text: 'some-other-group'
+
+      click_link 'test-pipeline'
+      expect(page).to have_css '.active', text: 'some-group'
+      expect(page).not_to have_css '.active', text: 'some-other-group'
     end
 
     it 'includes the group names' do
@@ -48,8 +59,19 @@ describe 'Nav', type: :feature do
       end
     end
 
-    it 'the pipeline name is not a link' do
-      expect(page).not_to have_link 'test-pipeline'
+    it 'the pipeline name is a link that resets the group' do
+      expect(page).to have_link 'test-pipeline'
+
+      other_group = page.find '.main', text: 'some-other-group'
+      page.driver.browser.action.key_down(:shift)
+          .click(other_group.native)
+          .key_up(:shift).perform
+      expect(page).to have_css '.active', text: 'some-group'
+      expect(page).to have_css '.active', text: 'some-other-group'
+
+      click_link 'test-pipeline'
+      expect(page).to have_css '.active', text: 'some-group'
+      expect(page).not_to have_css '.active', text: 'some-other-group'
     end
 
     it 'includes the group names' do
@@ -129,6 +151,27 @@ describe 'Nav', type: :feature do
       within('.top-bar') do
         expect(page).to have_content 'resource-metadata'
       end
+    end
+  end
+
+  context 'pipeline name has special characters' do
+    before do
+      fly('set-pipeline -n -p "pipeline with special characters :)" -c fixtures/pipeline-with-slashes.yml')
+      fly('unpause-pipeline -p "pipeline with special characters :)"')
+    end
+
+    it 'renders special characters correctly' do
+      visit dash_route("/teams/#{team_name}/pipelines/pipeline%20with%20special%20characters%20%3A%29")
+      expect(page).to have_content 'pipeline with special characters :)'
+      expect(page).not_to have_content '%20'
+
+      visit dash_route("/teams/#{team_name}/pipelines/pipeline%20with%20special%20characters%20%3A%29/jobs/some%2Fjob")
+      expect(page).to have_content 'pipeline with special characters :)'
+      expect(page).to have_content 'some/job'
+
+      visit dash_route("/teams/#{team_name}/pipelines/pipeline%20with%20special%20characters%20%3A%29/resources/some%2Fresource")
+      expect(page).to have_content 'pipeline with special characters :)'
+      expect(page).to have_content 'some/resource'
     end
   end
 end
