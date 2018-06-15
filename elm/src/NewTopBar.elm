@@ -55,7 +55,7 @@ queryStringFromSearch : String -> String
 queryStringFromSearch query =
     case query of
         "" ->
-            ""
+            QueryString.render QueryString.empty
 
         query ->
             QueryString.render <|
