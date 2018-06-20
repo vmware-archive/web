@@ -102,13 +102,24 @@
 
     .topbar-user-info {
       border-left: 1px solid @base02;
+      background-color: @base00;
       display: inline-block;
       line-height: 64px;
       max-width: 80%;
-      padding: 0 10%;
+      // padding: 0 10%;
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
+      text-align: center;
+
+      &:hover {
+        cursor: pointer;
+      }
+
+      .user-id {
+        border-bottom: 1px solid @base02;
+        padding: 0 30px;
+      }
     }
   }
 }

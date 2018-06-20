@@ -189,8 +189,8 @@ pipelinesView model pipelines =
                 (pipelinesWithJobs model.pipelineJobs model.pipelineResourceErrors pipelines)
 
         sortedPipelinesByTeam =
-            case model.topBar.user of
-                RemoteData.Success user ->
+            case model.topBar.userState of
+                NewTopBar.UserStateLoggedIn _ ->
                     case pipelinesByTeam of
                         [] ->
                             []
