@@ -153,7 +153,7 @@ toString route =
 parsePath : Location -> ConcourseRoute
 parsePath location =
     { logical = match <| location.pathname
-    , queries = QueryString.parse location.search |> QueryString.remove "csrf_token"
+    , queries = QueryString.parse location.search |> QueryString.remove "csrf_token" |> QueryString.remove "token"
     , page = createPageFromSearch location.search
     , hash = location.hash
     }

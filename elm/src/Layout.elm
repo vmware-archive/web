@@ -75,7 +75,15 @@ init flags location =
             SubPage.init flags.turbulenceImgSrc route
 
         ( topModel, topCmd ) =
-            TopBar.init route
+            case route.logical of
+                Routes.Dashboard ->
+                    ( Nothing, Cmd.none )
+
+                Routes.DashboardHd ->
+                    ( Nothing, Cmd.none )
+
+                _ ->
+                    TopBar.init route
 
         ( sideModel, sideCmd ) =
             SideBar.init { csrfToken = flags.csrfToken }

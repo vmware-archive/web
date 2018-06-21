@@ -1,4 +1,4 @@
-module NewTopBar exposing (Model, Msg(FilterMsg, UserFetched, KeyDown), UserState(UserStateLoggedIn), init, fetchUser, update, view)
+module NewTopBar exposing (Model, Msg(FilterMsg, UserFetched, KeyDown, LoggedOut), UserState(UserStateLoggedIn), init, fetchUser, update, view)
 
 import Array
 import Concourse
@@ -94,11 +94,20 @@ update msg model =
             ( model, logOut )
 
         LoggedOut (Ok _) ->
-            ( { model
-                | userState = UserStateLoggedOut
-              }
-            , Navigation.newUrl "/dashboard"
-            )
+            let
+                redirectUrl =
+                    case model.showSearch of
+                        True ->
+                            "/dashboard"
+
+                        False ->
+                            "/dashboard/hd"
+            in
+                ( { model
+                    | userState = UserStateLoggedOut
+                  }
+                , Navigation.newUrl redirectUrl
+                )
 
         LoggedOut (Err err) ->
             flip always (Debug.log "failed to log out" err) <|

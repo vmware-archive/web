@@ -142,8 +142,16 @@ update msg model =
             let
                 ( newTopBar, newTopBarMsg ) =
                     NewTopBar.update msg model.topBar
+
+                newModel =
+                    case msg of
+                        NewTopBar.LoggedOut (Ok _) ->
+                            { model | pipelines = [] }
+
+                        _ ->
+                            { model | topBar = newTopBar }
             in
-                ( { model | topBar = newTopBar }, Cmd.map TopBarMsg newTopBarMsg )
+                ( newModel, Cmd.map TopBarMsg newTopBarMsg )
 
 
 subscriptions : Model -> Sub Msg

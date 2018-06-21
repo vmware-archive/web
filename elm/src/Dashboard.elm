@@ -182,6 +182,9 @@ update msg model =
                             else
                                 { model | topBar = newTopBar }
 
+                        NewTopBar.LoggedOut (Ok _) ->
+                            { model | pipelines = [], filteredPipelines = [] }
+
                         _ ->
                             { model | topBar = newTopBar }
             in
