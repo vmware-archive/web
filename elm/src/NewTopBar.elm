@@ -12,7 +12,6 @@ import Http
 import Keyboard
 import LoginRedirect
 import Navigation exposing (Location)
-import StrictEvents exposing (onLeftClickOrShiftLeftClick)
 import RemoteData exposing (RemoteData)
 import Task
 import TopBar exposing (userDisplayName)
@@ -105,6 +104,7 @@ update msg model =
             in
                 ( { model
                     | userState = UserStateLoggedOut
+                    , userMenuVisible = False
                   }
                 , Navigation.newUrl redirectUrl
                 )
@@ -178,10 +178,9 @@ viewUserState userState userMenuVisible =
             Html.text ""
 
         UserStateLoggedOut ->
-            Html.div [ class "user-id" ]
+            Html.div [ class "user-id", onClick LogIn ]
                 [ Html.a
-                    [ StrictEvents.onLeftClick <| LogIn
-                    , href "/sky/login"
+                    [ href "/sky/login"
                     , Html.Attributes.attribute "aria-label" "Log In"
                     , class "login-button"
                     ]
@@ -195,10 +194,9 @@ viewUserState userState userMenuVisible =
                     [ Html.text <|
                         userDisplayName user
                     ]
-                , Html.div [ classList [ ( "user-menu", True ), ( "hidden", not userMenuVisible ) ] ]
+                , Html.div [ classList [ ( "user-menu", True ), ( "hidden", not userMenuVisible ) ], onClick LogOut ]
                     [ Html.a
                         [ Html.Attributes.attribute "aria-label" "Log Out"
-                        , onClick LogOut
                         ]
                         [ Html.text "logout"
                         ]

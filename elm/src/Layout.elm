@@ -43,6 +43,7 @@ type alias Model =
     { navIndex : NavIndex
     , subModel : SubPage.Model
     , topModel : TopBar.Model
+    , topBarType : TopBarType
     , sideModel : SideBar.Model
     , sidebarVisible : Bool
     , turbulenceImgSrc : String
@@ -50,6 +51,11 @@ type alias Model =
     , csrfToken : String
     , route : Routes.ConcourseRoute
     }
+
+
+type TopBarType
+    = Dashboard
+    | Normal
 
 
 type Msg
@@ -71,19 +77,22 @@ init flags location =
         route =
             Routes.parsePath location
 
+        topBarType =
+            case route.logical of
+                Routes.Dashboard ->
+                    Dashboard
+
+                Routes.DashboardHd ->
+                    Dashboard
+
+                _ ->
+                    Normal
+
         ( subModel, subCmd ) =
             SubPage.init flags.turbulenceImgSrc route
 
         ( topModel, topCmd ) =
-            case route.logical of
-                Routes.Dashboard ->
-                    ( Nothing, Cmd.none )
-
-                Routes.DashboardHd ->
-                    ( Nothing, Cmd.none )
-
-                _ ->
-                    TopBar.init route
+            TopBar.init route
 
         ( sideModel, sideCmd ) =
             SideBar.init { csrfToken = flags.csrfToken }
@@ -95,6 +104,7 @@ init flags location =
             { navIndex = navIndex
             , subModel = subModel
             , topModel = topModel
+            , topBarType = topBarType
             , sideModel = sideModel
             , sidebarVisible = False
             , turbulenceImgSrc = flags.turbulenceImgSrc
@@ -342,13 +352,23 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.batch
-        [ newUrl NewUrl
-        , tokenReceived TokenReceived
-        , Sub.map (TopMsg model.navIndex) <| TopBar.subscriptions model.topModel
-        , Sub.map (SideMsg model.navIndex) <| SideBar.subscriptions model.sideModel
-        , Sub.map (SubMsg model.navIndex) <| SubPage.subscriptions model.subModel
-        ]
+    case model.topBarType of
+        Dashboard ->
+            Sub.batch
+                [ newUrl NewUrl
+                , tokenReceived TokenReceived
+                , Sub.map (SideMsg model.navIndex) <| SideBar.subscriptions model.sideModel
+                , Sub.map (SubMsg model.navIndex) <| SubPage.subscriptions model.subModel
+                ]
+
+        Normal ->
+            Sub.batch
+                [ newUrl NewUrl
+                , tokenReceived TokenReceived
+                , Sub.map (TopMsg model.navIndex) <| TopBar.subscriptions model.topModel
+                , Sub.map (SideMsg model.navIndex) <| SideBar.subscriptions model.sideModel
+                , Sub.map (SubMsg model.navIndex) <| SubPage.subscriptions model.subModel
+                ]
 
 
 routeMatchesModel : Routes.ConcourseRoute -> Model -> Bool
