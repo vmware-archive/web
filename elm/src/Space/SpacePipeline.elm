@@ -7,10 +7,11 @@ import Html exposing (Html)
 import Html.Attributes exposing (class, classList, href, rowspan, attribute)
 import Html.Events exposing (onMouseOver, onMouseLeave)
 import Http
+import Navigation
+import SpacePreview
 import SpaceRoutes
 import Task
 import Time exposing (Time)
-import SpacePreview
 
 
 type alias Model =
@@ -105,10 +106,18 @@ update msg model =
 
         PreviewMsg msg ->
             let
-                ( newModel, _ ) =
+                ( newPreviewModel, newPreviewMsg ) =
                     SpacePreview.update msg model.previewModel
+
+                newModel =
+                    { model | previewModel = newPreviewModel }
             in
-                ( { model | previewModel = newModel }, Cmd.none )
+                case msg of
+                    SpacePreview.NavTo url ->
+                        ( newModel, Navigation.newUrl url )
+
+                    _ ->
+                        ( newModel, Cmd.map PreviewMsg newPreviewMsg )
 
 
 subscriptions : Model -> Sub Msg

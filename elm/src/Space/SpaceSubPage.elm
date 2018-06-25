@@ -154,6 +154,24 @@ urlUpdate route model =
                     }
                     mdl
 
+        ( SpaceRoutes.SpaceBuild teamName pipelineName jobName jobCombinationID buildName, SpaceBuildModel scrollModel ) ->
+            let
+                ( submodel, subcmd ) =
+                    SpaceBuild.changeToBuild
+                        (SpaceBuild.SpaceJobBuildPage
+                            { teamName = teamName
+                            , pipelineName = pipelineName
+                            , jobName = jobName
+                            , jobCombinationID = Result.withDefault 0 <| String.toInt jobCombinationID
+                            , buildName = buildName
+                            }
+                        )
+                        scrollModel.subModel
+            in
+                ( SpaceBuildModel { scrollModel | subModel = submodel }
+                , Cmd.map SpaceBuildMsg (Cmd.map Autoscroll.SubMsg subcmd)
+                )
+
         _ ->
             ( model, Cmd.none )
 

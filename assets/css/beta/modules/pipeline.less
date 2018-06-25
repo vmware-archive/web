@@ -145,13 +145,24 @@
       }
     }
 
-    .job-combination:focus {
-       pointer-events: none;
+    .job-combination-resources {
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-top: 30px solid black;
+      border-left: 30px solid transparent;
+      opacity: 0.6;
+    }
+
+    .job-combination-resources:focus {
+       outline: none;
+       opacity: 1;
      }
 
-    .job-combination:focus .job-combination-details {
-      opacity: 1;
-      visibility: visible;
+    .job-combination-resources:focus + .job-combination-details {
+      display: block;
     }
 
     .job-combination-details {
@@ -160,31 +171,12 @@
       left: 100%;
       padding: 0 5px;
       z-index: 1;
-
-      opacity: 0;
-      visibility: hidden;
-      transition: visibility 0.5s;
-
+      display: none;
       background-color: black;
       width: max-content;
     }
 
-    .job-combination-details:before {
-      content: "";
-      width: 0;
-      height: 0;
-
-      border-right: 10px solid black;
-      border-top: 10px solid transparent;
-      border-bottom: 10px solid transparent;
-
-      position: absolute;
-      left: -10px;
-      //top: ~"calc(30% - 5px)";
-      top: 0;
-    }
-
-    .job-combination-build, .job-combination-inputs, .job-combination-outputs {
+    .job-combination-inputs, .job-combination-outputs {
       margin: 0;
 
       li {
@@ -209,14 +201,6 @@
         .description, .fa {
           visibility: visible;
         }
-      }
-    }
-
-    .job-combination-build {
-      a {
-        width: 100%;
-        color: white;
-        text-decoration: underline;
       }
     }
 

@@ -1,4 +1,4 @@
-module SpacePreview exposing (Model, init, view, update, Msg(ResourceHoverMsg))
+module SpacePreview exposing (Model, init, view, update, Msg(..))
 
 import Concourse
 import Concourse.BuildStatus
@@ -6,8 +6,9 @@ import Debug
 import Dict exposing (Dict)
 import Html exposing (Html)
 import Html.Attributes exposing (attribute, class, classList, href, tabindex)
-import Html.Events exposing (onMouseOver, onMouseLeave)
+import Html.Events exposing (onClick, onMouseOver, onMouseLeave, onWithOptions)
 import SpaceRoutes
+import Json.Decode as Json
 
 
 type alias Model =
@@ -16,6 +17,7 @@ type alias Model =
 
 type Msg
     = ResourceHoverMsg ( String, String )
+    | NavTo String
 
 
 init : Model
@@ -24,8 +26,13 @@ init =
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
-update (ResourceHoverMsg resourceSpace) model =
-    ( resourceSpace, Cmd.none )
+update msg model =
+    case msg of
+        ResourceHoverMsg resourceSpace ->
+            ( resourceSpace, Cmd.none )
+
+        _ ->
+            ( model, Cmd.none )
 
 
 view : List Concourse.SpaceJob -> List Concourse.SpaceResource -> Model -> Html Msg
@@ -65,6 +72,19 @@ viewJob resourceSpace resources job =
         ]
 
 
+jobCombinationLink : Concourse.SpaceJobCombination -> String
+jobCombinationLink jobCombination =
+    case ( jobCombination.finishedBuild, jobCombination.nextBuild ) of
+        ( _, Just nb ) ->
+            SpaceRoutes.buildRoute nb
+
+        ( Just fb, Nothing ) ->
+            SpaceRoutes.buildRoute fb
+
+        ( Nothing, Nothing ) ->
+            ""
+
+
 viewJobCombination : Concourse.SpaceJobCombination -> ( String, String ) -> Dict String Concourse.SpaceResource -> Concourse.SpaceJob -> Html Msg
 viewJobCombination jobCombination ( resource, space ) resources job =
     let
@@ -94,29 +114,18 @@ viewJobCombination jobCombination ( resource, space ) resources job =
                 , ( buildStatus, True )
                 , ( "inactive", not active )
                 ]
-            , tabindex 0
+            , onClick <| NavTo <| jobCombinationLink jobCombination
             ]
             [ Html.div
+                [ class "job-combination-resources"
+                , tabindex 0
+                , onWithOptions "click" { stopPropagation = True, preventDefault = True } (Json.succeed <| NavTo "")
+                ]
+                []
+            , Html.div
                 [ class "job-combination-details" ]
                 (jobCombinationPopover resources job jobCombination)
             ]
-
-
-viewJobCombinationLink : Concourse.SpaceJobCombination -> Html Msg
-viewJobCombinationLink jobCombination =
-    let
-        link =
-            case ( jobCombination.finishedBuild, jobCombination.nextBuild ) of
-                ( _, Just nb ) ->
-                    Html.a [ href <| SpaceRoutes.buildRoute nb ] [ Html.text "builds" ]
-
-                ( Just fb, Nothing ) ->
-                    Html.a [ href <| SpaceRoutes.buildRoute fb ] [ Html.text "builds" ]
-
-                ( Nothing, Nothing ) ->
-                    Html.a [] [ Html.text <| "no builds yet" ]
-    in
-        Html.li [] [ link ]
 
 
 jobCombinationPopover : Dict String Concourse.SpaceResource -> Concourse.SpaceJob -> Concourse.SpaceJobCombination -> List (Html Msg)
@@ -199,8 +208,7 @@ jobCombinationPopover resources job jobCombination =
                 )
                 job.outputs
     in
-        [ Html.ul [ class "job-combination-build" ] [ viewJobCombinationLink jobCombination ]
-        , Html.ul [ class "job-combination-inputs" ] <|
+        [ Html.ul [ class "job-combination-inputs" ] <|
             [ Html.li []
                 [ Html.span [ class "description" ] [ Html.text "get " ]
                 , Html.i [ class "fa fa-fw fa-arrow-down" ] []

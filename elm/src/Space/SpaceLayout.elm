@@ -279,5 +279,8 @@ routeMatchesModel route model =
         ( SpaceRoutes.SpacePipeline _ _, SpaceSubPage.SpacePipelineModel _ ) ->
             True
 
+        ( SpaceRoutes.SpaceBuild _ _ _ _ _, SpaceSubPage.SpaceBuildModel _ ) ->
+            True
+
         _ ->
             False
