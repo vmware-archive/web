@@ -333,19 +333,22 @@
     margin-top: 2px;
     overflow-y: auto;
     height: ~"calc(100vh - 42px)";
+    user-select: none;
 
     .resource {
       padding: 5px 20px;
 
       .resource-name {
         font-weight: bold;
+        cursor: pointer;
       }
 
       .resource-space {
         padding-left: 20px;
+        cursor: pointer;
       }
 
-      .space-mouseover:hover {
+      .active {
         background: lightgray;
         color: black;
       }

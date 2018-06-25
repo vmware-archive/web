@@ -5,13 +5,13 @@ import Concourse.Job
 import Concourse.Resource
 import Html exposing (Html)
 import Html.Attributes exposing (class, classList, href, rowspan, attribute)
-import Html.Events exposing (onMouseOver, onMouseLeave)
 import Http
 import Navigation
 import SpacePreview
 import SpaceRoutes
 import Task
 import Time exposing (Time)
+import StrictEvents exposing (onLeftClickOrShiftLeftClick)
 
 
 type alias Model =
@@ -19,6 +19,7 @@ type alias Model =
     , pipelineLocator : Concourse.PipelineIdentifier
     , jobs : List Concourse.SpaceJob
     , resources : List Concourse.SpaceResource
+    , selectedResourceSpaces : List ( String, String )
     , error : Maybe String
     , turbulenceImgSrc : String
     , previewModel : SpacePreview.Model
@@ -44,6 +45,8 @@ type Msg
     | JobsFetched (Result Http.Error (List Concourse.SpaceJob))
     | ResourcesFetched (Result Http.Error (List Concourse.SpaceResource))
     | ResourceHoverMsg ( String, String )
+    | ResourceClickMsg ( String, String )
+    | ResourceShiftClickMsg ( String, String )
     | PreviewMsg SpacePreview.Msg
 
 
@@ -58,6 +61,7 @@ init ports flags =
                 }
             , jobs = []
             , resources = []
+            , selectedResourceSpaces = []
             , error = Nothing
             , turbulenceImgSrc = flags.turbulenceImgSrc
             , previewModel = SpacePreview.init
@@ -97,12 +101,52 @@ update msg model =
         ResourcesFetched (Err msg) ->
             ( { model | error = Just (toString msg) }, Cmd.none )
 
-        ResourceHoverMsg resourceSpace ->
+        ResourceHoverMsg ( resource, space ) ->
             let
-                ( newModel, _ ) =
-                    SpacePreview.update (SpacePreview.ResourceHoverMsg resourceSpace) model.previewModel
+                ( newPreviewModel, _ ) =
+                    SpacePreview.update (SpacePreview.ResourceHoverMsg ( resource, space )) model.previewModel
             in
-                ( { model | previewModel = newModel }, Cmd.none )
+                ( { model
+                    | previewModel = newPreviewModel
+                  }
+                , Cmd.none
+                )
+
+        ResourceClickMsg resourceSpace ->
+            let
+                newSelectedResourceSpaces =
+                    if [ resourceSpace ] == model.selectedResourceSpaces then
+                        []
+                    else
+                        [ resourceSpace ]
+
+                ( newPreviewModel, _ ) =
+                    SpacePreview.update (SpacePreview.ResourceHighlightMsg newSelectedResourceSpaces) model.previewModel
+            in
+                ( { model
+                    | previewModel = newPreviewModel
+                    , selectedResourceSpaces = newSelectedResourceSpaces
+                  }
+                , Cmd.none
+                )
+
+        ResourceShiftClickMsg resourceSpace ->
+            let
+                newSelectedResourceSpaces =
+                    if List.member resourceSpace model.selectedResourceSpaces then
+                        List.filter ((/=) resourceSpace) model.selectedResourceSpaces
+                    else
+                        resourceSpace :: model.selectedResourceSpaces
+
+                ( newPreviewModel, _ ) =
+                    SpacePreview.update (SpacePreview.ResourceHighlightMsg newSelectedResourceSpaces) model.previewModel
+            in
+                ( { model
+                    | previewModel = newPreviewModel
+                    , selectedResourceSpaces = newSelectedResourceSpaces
+                  }
+                , Cmd.none
+                )
 
         PreviewMsg msg ->
             let
@@ -155,33 +199,53 @@ changeToPipeline flags model =
 view : Model -> Html Msg
 view model =
     Html.div [ class "pipeline-content" ]
-        [ viewResources model.resources
-        , Html.map PreviewMsg <| SpacePreview.view model.jobs model.resources model.previewModel
+        [ viewResources model
+        , Html.map PreviewMsg <| SpacePreview.view model.previewModel model.jobs model.resources
         ]
 
 
-viewResources : List Concourse.SpaceResource -> Html Msg
-viewResources resources =
-    Html.div [ class "resources" ] <| List.map (\resource -> viewResource resource) resources
+viewResources : Model -> Html Msg
+viewResources model =
+    Html.div [ class "resources" ] <|
+        List.map (\resource -> viewResource resource model.selectedResourceSpaces) <|
+            List.sortBy .name model.resources
 
 
-viewResource : Concourse.SpaceResource -> Html Msg
-viewResource resource =
+viewResource : Concourse.SpaceResource -> List ( String, String ) -> Html Msg
+viewResource resource resourceSpaces =
     if List.length resource.spaces > 1 then
         Html.div [ class "resource" ]
             [ Html.div [ class "resource-name" ] [ Html.text resource.name ]
-            , Html.div [ class "resource-spaces" ] <| List.map (\space -> viewResourceSpace ( resource.name, space )) resource.spaces
+            , Html.div [ class "resource-spaces" ] <| List.map (\space -> viewResourceSpace ( resource.name, space ) resourceSpaces) resource.spaces
             ]
     else
-        Html.div [ class "resource" ]
-            [ Html.div
-                [ class "resource-name space-mouseover", onMouseOver (ResourceHoverMsg ( resource.name, Maybe.withDefault "default" <| List.head resource.spaces )), onMouseLeave (ResourceHoverMsg ( "", "" )) ]
-                [ Html.text resource.name ]
-            ]
+        Html.div [ class "resource" ] <|
+            let
+                space =
+                    Maybe.withDefault "default" <| List.head resource.spaces
+            in
+                [ Html.div
+                    [ classList
+                        [ ( "resource-name", True )
+                        , ( "active", List.member ( resource.name, space ) resourceSpaces )
+                        ]
+                    , onLeftClickOrShiftLeftClick
+                        (ResourceClickMsg ( resource.name, space ))
+                        (ResourceShiftClickMsg ( resource.name, space ))
+                    ]
+                    [ Html.text resource.name ]
+                ]
 
 
-viewResourceSpace : ( String, String ) -> Html Msg
-viewResourceSpace ( resource, space ) =
+viewResourceSpace : ( String, String ) -> List ( String, String ) -> Html Msg
+viewResourceSpace ( resource, space ) resourceSpaces =
     Html.div
-        [ class "resource-space space-mouseover", onMouseOver (ResourceHoverMsg ( resource, space )), onMouseLeave (ResourceHoverMsg ( "", "" )) ]
+        [ classList
+            [ ( "resource-space", True )
+            , ( "active", List.member ( resource, space ) resourceSpaces )
+            ]
+        , onLeftClickOrShiftLeftClick
+            (ResourceClickMsg ( resource, space ))
+            (ResourceShiftClickMsg ( resource, space ))
+        ]
         [ Html.text space ]

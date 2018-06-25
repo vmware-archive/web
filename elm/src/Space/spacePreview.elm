@@ -12,31 +12,39 @@ import Json.Decode as Json
 
 
 type alias Model =
-    ( String, String )
+    { hoverResourceSpace : ( String, String )
+    , highlightResourceSpaces : List ( String, String )
+    }
 
 
 type Msg
     = ResourceHoverMsg ( String, String )
+    | ResourceHighlightMsg (List ( String, String ))
     | NavTo String
 
 
 init : Model
 init =
-    ( "", "" )
+    { hoverResourceSpace = ( "", "" )
+    , highlightResourceSpaces = []
+    }
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ResourceHoverMsg resourceSpace ->
-            ( resourceSpace, Cmd.none )
+            ( { model | hoverResourceSpace = resourceSpace }, Cmd.none )
+
+        ResourceHighlightMsg resourceSpaces ->
+            ( { model | highlightResourceSpaces = resourceSpaces }, Cmd.none )
 
         _ ->
             ( model, Cmd.none )
 
 
-view : List Concourse.SpaceJob -> List Concourse.SpaceResource -> Model -> Html Msg
-view jobs resources resourceSpace =
+view : Model -> List Concourse.SpaceJob -> List Concourse.SpaceResource -> Html Msg
+view model jobs resources =
     let
         groups =
             jobGroups jobs
@@ -52,14 +60,14 @@ view jobs resources resourceSpace =
         Html.div [ class "pipeline-grid" ] <|
             List.map
                 (\jobs ->
-                    List.map (viewJob resourceSpace resourcesDict) jobs
+                    List.map (viewJob model resourcesDict) jobs
                         |> Html.div [ class "space-parallel-grid" ]
                 )
                 (Dict.values groups)
 
 
-viewJob : ( String, String ) -> Dict String Concourse.SpaceResource -> Concourse.SpaceJob -> Html Msg
-viewJob resourceSpace resources job =
+viewJob : Model -> Dict String Concourse.SpaceResource -> Concourse.SpaceJob -> Html Msg
+viewJob model resources job =
     Html.div [ class "node" ]
         [ Html.div
             [ classList [ ( "job", True ), ( "paused", job.paused ) ] ]
@@ -67,7 +75,7 @@ viewJob resourceSpace resources job =
                 [ Html.text job.name
                 ]
             , Html.div [ class "combination-container" ] <|
-                List.map (\combination -> viewJobCombination combination resourceSpace resources job) job.combintations
+                List.map (\combination -> viewJobCombination model combination resources job) job.combintations
             ]
         ]
 
@@ -85,9 +93,12 @@ jobCombinationLink jobCombination =
             ""
 
 
-viewJobCombination : Concourse.SpaceJobCombination -> ( String, String ) -> Dict String Concourse.SpaceResource -> Concourse.SpaceJob -> Html Msg
-viewJobCombination jobCombination ( resource, space ) resources job =
+viewJobCombination : Model -> Concourse.SpaceJobCombination -> Dict String Concourse.SpaceResource -> Concourse.SpaceJob -> Html Msg
+viewJobCombination model jobCombination resources job =
     let
+        ( resource, space ) =
+            model.hoverResourceSpace
+
         buildStatus =
             case ( job.paused, jobCombination.finishedBuild, jobCombination.nextBuild ) of
                 ( True, _, _ ) ->
@@ -106,7 +117,17 @@ viewJobCombination jobCombination ( resource, space ) resources job =
                     Concourse.BuildStatus.show fb.status ++ " started"
 
         active =
-            (String.isEmpty space) || Dict.get resource jobCombination.combination == Just space
+            if not (String.isEmpty space) then
+                Dict.get resource jobCombination.combination == Just space
+            else if List.isEmpty model.highlightResourceSpaces then
+                True
+            else
+                List.foldl
+                    (\( highlightResource, highlightSpace ) byJobCombination ->
+                        byJobCombination || (Dict.get highlightResource jobCombination.combination == Just highlightSpace)
+                    )
+                    False
+                    model.highlightResourceSpaces
     in
         Html.div
             [ classList
