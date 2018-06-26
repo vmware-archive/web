@@ -100,6 +100,7 @@
       min-height: 20px;
       position: relative;
       outline: 0;
+      cursor: pointer;
 
       &.inactive {
         opacity: 0.1;
@@ -151,14 +152,20 @@
       right: 0;
       width: 0;
       height: 0;
-      border-top: 30px solid black;
-      border-left: 30px solid transparent;
+      border-top: 20px solid black;
+      border-left: 20px solid transparent;
       opacity: 0.6;
     }
+
+    .job-combination-resources:hover {
+       outline: none;
+       opacity: 0.8;
+     }
 
     .job-combination-resources:focus {
        outline: none;
        opacity: 1;
+       pointer-events: none;
      }
 
     .job-combination-resources:focus + .job-combination-details {
@@ -341,11 +348,17 @@
       .resource-name {
         font-weight: bold;
         cursor: pointer;
+        padding: 0 10px;
       }
 
       .resource-space {
         padding-left: 20px;
         cursor: pointer;
+      }
+
+      .resource-name:hover, .resource-space:hover {
+        background: #2F2F2F;
+        color: white;
       }
 
       .active {
