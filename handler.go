@@ -11,7 +11,6 @@ import (
 )
 
 func NewHandler(logger lager.Logger) (http.Handler, error) {
-
 	indexHandler, err := indexhandler.NewHandler(logger)
 	if err != nil {
 		return nil, err
