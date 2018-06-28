@@ -29,5 +29,6 @@ func NewHandler(logger lager.Logger) (http.Handler, error) {
 	webMux.Handle("/manifest.json", manifestHandler)
 	webMux.Handle("/robots.txt", robotsHandler)
 	webMux.Handle("/", indexHandler)
+
 	return webMux, nil
 }
