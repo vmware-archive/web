@@ -20,6 +20,9 @@ GEM
       rack (>= 1.6.0)
       rack-test (>= 0.6.3)
       xpath (~> 3.0)
+    capybara-screenshot (1.0.21)
+      capybara (>= 1.0, < 4)
+      launchy
     capybara-selenium (0.0.6)
       capybara
       selenium-webdriver
@@ -78,6 +81,7 @@ PLATFORMS
 
 DEPENDENCIES
   capybara
+  capybara-screenshot
   capybara-selenium
   color
   launchy

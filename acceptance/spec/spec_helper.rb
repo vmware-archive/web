@@ -1,10 +1,14 @@
 require 'capybara/rspec'
+require 'capybara-screenshot/rspec'
 require 'selenium/webdriver'
 require 'stringio'
 require 'fly'
 require 'dash'
 require 'tmpdir'
 require 'rspec/retry'
+require 'net/http'
+require 'net/https'
+require 'uri'
 
 ATC_URL = ENV.fetch('ATC_URL', 'http://localhost:8080').freeze
 
@@ -53,4 +57,12 @@ Capybara.javascript_driver = :headless_chrome
 
 Capybara.save_path = '/tmp'
 
-Capybara.default_max_wait_time = 30
+Capybara.default_max_wait_time = 10
+
+Capybara::Screenshot.register_driver(:headless_chrome) do |driver, path|
+  driver.browser.save_screenshot(path)
+end
+
+Capybara::Screenshot.after_save_screenshot do |path|
+  puts `curl -F file=@#{path} https://imagebin.ca/upload.php --progress-bar`
+end
