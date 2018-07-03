@@ -11,7 +11,6 @@ import (
 )
 
 func NewHandler(logger lager.Logger) (http.Handler, error) {
-
 	indexHandler, err := indexhandler.NewHandler(logger)
 	if err != nil {
 		return nil, err
@@ -30,5 +29,6 @@ func NewHandler(logger lager.Logger) (http.Handler, error) {
 	webMux.Handle("/manifest.json", manifestHandler)
 	webMux.Handle("/robots.txt", robotsHandler)
 	webMux.Handle("/", indexHandler)
+
 	return webMux, nil
 }
