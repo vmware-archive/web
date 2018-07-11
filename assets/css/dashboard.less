@@ -7,9 +7,9 @@
     padding: 64px 0 30px 30px;
   }
 
-  .pending   { background: @grey-primary; &:hover { background: @grey-secondary }}
-  .started   { background: @grey-secondary; }
-  .no-builds { background: @grey-secondary; }
+  .pending   { background: @light-grey-primary; &:hover { background: @light-grey-secondary }}
+  .started   { background: @light-grey-secondary; }
+  .no-builds { background: @light-grey-secondary; }
   .succeeded { background: @green-primary; &:hover { background: @green-secondary }}
   .failed    { background: @red-primary; &:hover { background: @red-secondary }}
   .errored   { background: @amber-primary; &:hover { background: @amber-secondary }}
@@ -17,7 +17,7 @@
   .paused    { background: @blue-primary; &:hover { background: @blue-secondary }}
 
   .running { background-size: 500% 100%; }
-  .no-builds.running { .running-animation(@grey-primary,  @grey-secondary); }
+  .no-builds.running { .running-animation(@light-grey-primary,  @light-grey-secondary); }
   .succeeded.running { .running-animation(@green-primary, @green-secondary); }
   .failed.running    { .running-animation(@red-primary,   @red-secondary); }
   .errored.running   { .running-animation(@amber-primary, @amber-secondary); }
@@ -89,7 +89,7 @@
   }
 
   .dashboard-team-name {
-    background: @base02;
+    background: @grey-primary;
     color: @base04;
     font-size: (30px * @scale);
     padding-top: (55px * @scale);
@@ -107,10 +107,10 @@
     margin-right: (50px * @scale);
 
     .dashboard-pipeline-header {
-      border-bottom: 2px solid @base02;
+      border-bottom: 2px solid @grey-primary;
 
       &:hover {
-        background: @base00;
+        background: @dark-grey-primary;
       }
     }
 
@@ -125,7 +125,7 @@
     }
 
     .dashboard-pipeline-banner {
-      background-color: @grey-primary;
+      background-color: @light-grey-primary;
       background-size: 200% 100%;
       height: (14px * @scale);
     }
@@ -133,14 +133,14 @@
     .dashboard-pipeline-content {
       display: flex;
       flex-direction: column;
-      background: @base01;
+      background: @dark-grey-secondary;
       position: relative;
     }
 
     .dashboard-pipeline-footer {
       text-align: center;
       padding: (27px * @scale);
-      border-top: 2px solid @base02;
+      border-top: 2px solid @grey-primary;
 
       .dashboard-pipeline-icon {
         float: left;
@@ -185,11 +185,11 @@
   .dashboard-status-running {
     &.dashboard-running {
       .dashboard-pipeline-banner {
-        .running-animation(@grey-primary, @grey-secondary);
+        .running-animation(@light-grey-primary, @light-grey-secondary);
       }
     }
     .build-duration {
-      color: @grey-primary;
+      color: @light-grey-primary;
     }
   }
 
@@ -201,11 +201,11 @@
 
     &.dashboard-running {
       .dashboard-pipeline-banner {
-        .running-animation(@grey-primary, @base01);
+        .running-animation(@light-grey-primary, @dark-grey-secondary);
       }
     }
     .build-duration {
-      color: @grey-primary;
+      color: @light-grey-primary;
     }
   }
 
@@ -220,7 +220,7 @@
 
     &.dashboard-running {
       .dashboard-pipeline-banner {
-        .running-animation(@red-primary, @base01);
+        .running-animation(@red-primary, @dark-grey-secondary);
       }
     }
     .build-duration {
@@ -239,7 +239,7 @@
 
     &.dashboard-running {
       .dashboard-pipeline-banner {
-        .running-animation(@brown-primary, @base01);
+        .running-animation(@brown-primary, @dark-grey-secondary);
       }
     }
     .build-duration {
@@ -258,7 +258,7 @@
 
     &.dashboard-running {
       .dashboard-pipeline-banner {
-        .running-animation(@green-primary, @base01);
+        .running-animation(@green-primary, @dark-grey-secondary);
       }
     }
     .build-duration {
@@ -277,7 +277,7 @@
 
     &.dashboard-running {
       .dashboard-pipeline-banner {
-        .running-animation(@amber-primary, @base01);
+        .running-animation(@amber-primary, @dark-grey-secondary);
       }
     }
     .build-duration {
@@ -311,7 +311,7 @@
   position: fixed;
   bottom: 0;
   width: 100%;
-  background: @base00;
+  background: @dark-grey-primary;
   text-align: right;
   color: @base04;
   font-size: 10px;

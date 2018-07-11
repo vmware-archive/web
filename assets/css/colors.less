@@ -1,20 +1,20 @@
 @import (reference) "_vars.less";
 
-.steps .nest.even { background: @base01; }
+.steps .nest.even { background: @dark-grey-secondary; }
 
-#builds { background: @base00; }
-.builds-list { background: @base00; }
-.build-step .header { background: @base00; }
-.top-bar { background: @base00; }
+#builds { background: @dark-grey-primary; }
+.builds-list { background: @dark-grey-primary; }
+.build-step .header { background: @dark-grey-primary; }
+.top-bar { background: @dark-grey-primary; }
 
-.steps .nest.odd { background: @base02; }
+.steps .nest.odd { background: @grey-primary; }
 
 .build-step.first-occurrence .header { background: @base0G; }
 .groups li.active a { background: @base0G; }
 
 .build-action { background-color: transparent; }
 .build-action i { color: @base07; }
-.build-action:hover i { background: @base02; }
+.build-action:hover i { background: @grey-primary; }
 .build-action:active i { background: @base04; }
 .build-action:focus i { background: @base04; }
 
@@ -28,9 +28,9 @@
 .build-step i.errored   { color: @base07; background: @base09; }
 
 // combined statuses go first so previous status background wins
-.pending { background: @grey-primary; }
+.pending { background: @light-grey-primary; }
 .started { background: @base0A; }
-.no-builds { background: @base03; }
+.no-builds { background: @grey-secondary; }
 .succeeded { background: @green-primary; }
 .failed { background: @red-primary; }
 .errored { background: @amber-primary; }
@@ -45,7 +45,7 @@
 .build-step .header i.aborted { color: @base0F; background: transparent; }
 
 .fail-triangle {
-  stroke: @base01;
+  stroke: @dark-grey-secondary;
   stroke-linecap: round;
   stroke-linejoin: round;
   fill: @base08;
@@ -110,7 +110,7 @@ span.error { color: @base08; }
 }
 
 .halo-outline(@blue-radius, @color-radius, @color) {
-  box-shadow: 0 0 0 @blue-radius @base01, 0 0 0 @blue-radius + @color-radius fade(@color, 70%)
+  box-shadow: 0 0 0 @blue-radius @dark-grey-secondary, 0 0 0 @blue-radius + @color-radius fade(@color, 70%)
 }
 
 .failed-outline(@blue-radius, @red-radius) {
@@ -127,29 +127,29 @@ span.error { color: @base08; }
 
   @-webkit-keyframes @name {
     0% {
-      box-shadow: 0 0 0 -@ripple-factor @base01, 0 0 0 0px @ripple-color, 0 0 0 @ripple-factor @base01, 0 0 0 @ripple-factor * 2 @ripple-color;
+      box-shadow: 0 0 0 -@ripple-factor @dark-grey-secondary, 0 0 0 0px @ripple-color, 0 0 0 @ripple-factor @dark-grey-secondary, 0 0 0 @ripple-factor * 2 @ripple-color;
     }
 
     50% {
-      box-shadow: 0 0 0 0px @base01, 0 0 0 @ripple-factor @ripple-color, 0 0 0 @ripple-factor * 2  @base01, 0 0 0 @ripple-factor * 3 fade(@ripple-color, 50%);
+      box-shadow: 0 0 0 0px @dark-grey-secondary, 0 0 0 @ripple-factor @ripple-color, 0 0 0 @ripple-factor * 2  @dark-grey-secondary, 0 0 0 @ripple-factor * 3 fade(@ripple-color, 50%);
     }
 
     100% {
-      box-shadow: 0 0 0 @ripple-factor @base01, 0 0 0 @ripple-factor * 2  @ripple-color, 0 0 0 @ripple-factor * 3 @base01, 0 0 0 @ripple-factor * 4 transparent;
+      box-shadow: 0 0 0 @ripple-factor @dark-grey-secondary, 0 0 0 @ripple-factor * 2  @ripple-color, 0 0 0 @ripple-factor * 3 @dark-grey-secondary, 0 0 0 @ripple-factor * 4 transparent;
     }
   }
 
   @keyframes @name {
     0% {
-      box-shadow: 0 0 0 -@ripple-factor @base01, 0 0 0 0px @ripple-color, 0 0 0 @ripple-factor @base01, 0 0 0 @ripple-factor * 2 @ripple-color;
+      box-shadow: 0 0 0 -@ripple-factor @dark-grey-secondary, 0 0 0 0px @ripple-color, 0 0 0 @ripple-factor @dark-grey-secondary, 0 0 0 @ripple-factor * 2 @ripple-color;
     }
 
     50% {
-      box-shadow: 0 0 0 0px @base01, 0 0 0 @ripple-factor @ripple-color, 0 0 0 @ripple-factor * 2  @base01, 0 0 0 @ripple-factor * 3 fade(@ripple-color, 50%);
+      box-shadow: 0 0 0 0px @dark-grey-secondary, 0 0 0 @ripple-factor @ripple-color, 0 0 0 @ripple-factor * 2  @dark-grey-secondary, 0 0 0 @ripple-factor * 3 fade(@ripple-color, 50%);
     }
 
     100% {
-      box-shadow: 0 0 0 @ripple-factor @base01, 0 0 0 @ripple-factor * 2  @ripple-color, 0 0 0 @ripple-factor * 3 @base01, 0 0 0 @ripple-factor * 4 transparent;
+      box-shadow: 0 0 0 @ripple-factor @dark-grey-secondary, 0 0 0 @ripple-factor * 2  @ripple-color, 0 0 0 @ripple-factor * 3 @dark-grey-secondary, 0 0 0 @ripple-factor * 4 transparent;
     }
   }
 }
@@ -159,18 +159,18 @@ span.error { color: @base08; }
   color: @base07;
   padding: 5px;
   text-align: center;
-  border: 5px solid @base00;
+  border: 5px solid @dark-grey-primary;
   text-decoration: none;
   font-weight: bold;
 }
 
 .build-one-off {
-  background-color: @base03;
+  background-color: @grey-secondary;
 }
 
 .build-action.btn-pause i {
   font-size: 23px;
 }
 
-.build-login input { background: @base01; color: @base06; }
+.build-login input { background: @dark-grey-secondary; color: @base06; }
 .build-login input:hover { background: @base04; }

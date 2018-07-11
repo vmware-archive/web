@@ -5,7 +5,7 @@
   top: 0;
   width: 100%;
   z-index: 999;
-  background: @base00;
+  background: @dark-grey-primary;
   &.paused {
     background: @base0D;
   }
@@ -42,7 +42,7 @@
 
       .search-input-field {
         background: transparent url('images/ic_search_white_24px.svg') 10px 10px no-repeat;
-        border: 1px solid @base03;
+        border: 1px solid @grey-secondary;
         color: @white;
         font-size: 14px;
         height: 35px;
@@ -50,7 +50,7 @@
         padding: 0 42px;
         background-position-x: 12px;
         &:focus {
-          border: 1px solid @base03;
+          border: 1px solid @grey-secondary;
           outline: 0;
         }
       }
@@ -59,7 +59,7 @@
         flex-grow: 1;
         background: transparent url('images/ic_close_white_24px.svg') 10px 12px no-repeat;
         border: 0;
-        color: @base03;
+        color: @grey-secondary;
         cursor: pointer;
         padding: 17px;
         position: absolute;
@@ -72,7 +72,7 @@
       top: -13px;
       list-style-type: none;
       background: #2E2E2E;
-      border: 1px solid @base03;
+      border: 1px solid @grey-secondary;
       border-bottom: none;
     }
 
@@ -80,18 +80,18 @@
       text-align: left;
       line-height: 24px;
       padding: 5px 0 5px 42px;
-      color: @grey-primary;
+      color: @light-grey-primary;
       border: 1px solid #363636;
       font-weight: bold;
       max-width: 304px;
       cursor: pointer;
 
       &:last-of-type {
-        border-bottom: 1px solid @base03;
+        border-bottom: 1px solid @grey-secondary;
       }
 
       &.active {
-        background: @base00;
+        background: @dark-grey-primary;
         color: white;
       }
     }
@@ -104,8 +104,8 @@
     white-space: nowrap;
 
     .topbar-user-info {
-      border-left: 1px solid @base02;
-      background-color: @base00;
+      border-left: 1px solid @grey-primary;
+      background-color: @dark-grey-primary;
       display: inline-block;
       line-height: @top-bar-height;
       max-width: 80%;
@@ -123,11 +123,11 @@
       }
 
       .user-menu {
-        border-top: 1px solid @base02;
+        border-top: 1px solid @grey-primary;
       }
 
       .user-menu:hover {
-        background-color: @base01;
+        background-color: @dark-grey-secondary;
       }
     }
   }

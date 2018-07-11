@@ -6,10 +6,10 @@ let color = require('color');
 // team name color
 
 module.exports = {
-  "base00": color("#1E1D1D"),
-  "base01": color("#2A2929"),
-  "base02": color("#3D3C3C"),
-  "base03": color("#504B4B"),
+  "dark-grey-primary": color("#1E1D1D"),
+  "dark-grey-secondary": color("#2A2929"),
+  "grey-primary": color("#3D3C3C"),
+  "grey-secondary": color("#504B4B"),
   "base04": color("#868585"),
 
   "white": color("#ffffff"),
