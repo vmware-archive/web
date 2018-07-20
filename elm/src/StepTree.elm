@@ -19,21 +19,22 @@ module StepTree
         , parseHighlight
         )
 
+import Ansi.Log
+import Array exposing (Array)
+import Concourse
 import Date exposing (Date)
 import Date.Format
 import Debug
 import Dict exposing (Dict)
-import Ansi.Log
-import Array exposing (Array)
 import Dict exposing (Dict)
+import DictView
 import Focus exposing (Focus, (=>))
 import Html exposing (Html)
+import Html.Attributes exposing (attribute, class, classList, style, href)
 import Html.Events exposing (onClick, onMouseDown)
-import Html.Attributes exposing (attribute, class, classList, href)
-import Concourse
-import DictView
-import StrictEvents
+import InfiniteList as IL
 import Navigation
+import StrictEvents
 
 
 type StepTree
@@ -63,6 +64,7 @@ type Msg
     | SwitchTab StepID Int
     | SetHighlight StepID Int
     | ExtendHighlight StepID Int
+    | InfListMsg IL.Model
 
 
 type alias HookedStep =
@@ -110,6 +112,7 @@ type alias Model =
     , foci : Dict StepID StepFocus
     , finished : Bool
     , highlight : Highlight
+    , infList : IL.Model
     }
 
 
@@ -161,7 +164,7 @@ init hl resources plan =
                 foci =
                     Array.foldr Dict.union Dict.empty wrappedSubFoci
             in
-                Model (Aggregate trees) foci False hl
+                Model (Aggregate trees) foci False hl IL.init
 
         Concourse.BuildStepDo plans ->
             let
@@ -180,7 +183,7 @@ init hl resources plan =
                 foci =
                     Array.foldr Dict.union Dict.empty wrappedSubFoci
             in
-                Model (Do trees) foci False hl
+                Model (Do trees) foci False hl IL.init
 
         Concourse.BuildStepOnSuccess hookedPlan ->
             initHookedStep hl resources OnSuccess hookedPlan
@@ -217,7 +220,7 @@ init hl resources plan =
                 foci =
                     Array.foldr Dict.union selfFoci wrappedSubFoci
             in
-                Model (Retry plan.id trees 1 Auto) foci False hl
+                Model (Retry plan.id trees 1 Auto) foci False hl IL.init
 
         Concourse.BuildStepTimeout plan ->
             initWrappedStep hl resources Timeout plan
@@ -338,6 +341,21 @@ update action root =
             in
                 ( { root | highlight = hl }, Navigation.modifyUrl (showHighlight hl) )
 
+        InfListMsg infList ->
+            flip always (Debug.log "inflistmsg" infList) <|
+            ( { root | infList = infList }, Cmd.none )
+
+
+config : IL.Config Ansi.Log.Line Msg
+config =
+    IL.config
+        { itemView = \idx listIdx line -> viewLine line
+        , itemHeight = IL.constantHeight 20
+        , containerHeight = 500
+        }
+        |> IL.withOffset 300
+        |> IL.withCustomContainer customContainer
+
 
 toggleExpanded : Step -> Maybe Bool
 toggleExpanded { expanded, state } =
@@ -418,6 +436,7 @@ initBottom hl create id name =
         , foci = Dict.singleton id (Focus.create identity identity)
         , finished = False
         , highlight = hl
+        , infList = IL.init
         }
 
 
@@ -431,6 +450,7 @@ initWrappedStep hl resources create plan =
         , foci = Dict.map wrapStep foci
         , finished = False
         , highlight = hl
+        , infList = IL.init
         }
 
 
@@ -450,6 +470,7 @@ initHookedStep hl resources create hookedPlan =
                 (Dict.map wrapHook hookModel.foci)
         , finished = stepModel.finished
         , highlight = hl
+        , infList = IL.init
         }
 
 
@@ -724,12 +745,12 @@ viewStep model { id, name, log, state, error, expanded, version, metadata, first
                 , ( "clearfix", True )
                 , ( "step-collapsed", not <| Maybe.withDefault (autoExpanded state) expanded )
                 ]
+            , IL.onScroll InfListMsg
             ]
           <|
             if Maybe.withDefault (autoExpanded state) (Maybe.map (always True) expanded) then
                 [ viewMetadata metadata
-                , Html.pre [ class "timestamped-logs" ] <|
-                    viewLogs log timestamps model.highlight id
+                , IL.view config model.infList <| Array.toList log.lines
                 , case error of
                     Nothing ->
                         Html.span [] []
@@ -740,6 +761,11 @@ viewStep model { id, name, log, state, error, expanded, version, metadata, first
             else
                 []
         ]
+
+
+customContainer : List ( String, String ) -> List (Html msg) -> Html msg
+customContainer styles children =
+    flip Html.pre children <| [ class "timestamped-logs", style styles ]
 
 
 viewLogs : Ansi.Log.Model -> Dict Int Date -> Highlight -> String -> List (Html Msg)
@@ -777,8 +803,14 @@ viewTimestampedLine timestamps hl id lineNo line =
 
 viewLine : Ansi.Log.Line -> Html Msg
 viewLine line =
-    Html.td [ class "timestamped-content" ]
-        [ Ansi.Log.viewLine line
+    Html.tr
+        [ classList
+            [ ( "timestamped-line", True ) ],
+          style [ ("height", "20") ]
+        ]
+        [ Html.td [ class "timestamped-content" ]
+            [ Ansi.Log.viewLine line
+            ]
         ]
 
 
