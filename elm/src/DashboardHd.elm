@@ -213,8 +213,25 @@ pipelinesView model pipelines =
                 _ ->
                     List.reverse <| List.sortBy (List.length << Tuple.second) pipelinesByTeam
 
+        teamsWithPipeline =
+            Dict.keys (Dict.fromList pipelinesByTeam)
+
+        teamsWithoutPipeline =
+            case model.topBar.teams of
+                RemoteData.Success teams ->
+                    List.filter (\team -> not <| List.member team.name teamsWithPipeline) teams
+
+                _ ->
+                    []
+
         pipelinesByTeamView =
-            List.concatMap (\( teamName, pipelines ) -> groupView model.now teamName (List.reverse pipelines)) sortedPipelinesByTeam
+            List.append
+                (List.concatMap (\( teamName, pipelines ) -> groupView model.now teamName (List.reverse pipelines))
+                    sortedPipelinesByTeam
+                )
+                (List.concatMap (\team -> groupView model.now team.name [])
+                    teamsWithoutPipeline
+                )
     in
         Html.div
             [ class "dashboard dashboard-hd" ]
@@ -285,7 +302,10 @@ groupView : Maybe Time -> String -> List PipelineWithJobs -> List (Html msg)
 groupView now teamName pipelines =
     let
         teamPiplines =
-            List.map (pipelineView now) pipelines
+            if List.isEmpty pipelines then
+                [ pipelineNotSetView ]
+            else
+                List.map (pipelineView now) pipelines
     in
         case teamPiplines of
             [] ->
@@ -314,6 +334,22 @@ pipelineView now { pipeline, jobs, resourceError } =
                 [ Html.text pipeline.name ]
             ]
         , Html.div [ classList [ ( "dashboard-resource-error", resourceError ) ] ] []
+        ]
+
+
+pipelineNotSetView : Html msg
+pipelineNotSetView =
+    Html.div
+        [ classList
+            [ ( "dashboard-pipeline", True )
+            ]
+        , attribute "data-pipeline-name" "no pipelines set"
+        ]
+        [ Html.div
+            [ class "dashboard-pipeline-content" ]
+            [ Html.a [ class "no-set" ]
+                [ Html.text "no pipelines set" ]
+            ]
         ]
 
 
