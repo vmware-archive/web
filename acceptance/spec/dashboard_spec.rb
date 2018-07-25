@@ -82,6 +82,26 @@ describe 'dashboard', type: :feature do
       before do
         fly_login 'main'
         fly_with_input("set-team -n #{other_team_name} --local-user=#{ATC_USERNAME}", 'y')
+      end
+
+      after do
+        fly_login 'main'
+        fly_with_input("destroy-team -n #{other_team_name}", other_team_name)
+      end
+
+      it 'shows no pipelines set group for the other teams' do
+        visit_dashboard
+        expect(page).to have_content other_team_name
+        expect(page).to have_content 'no pipelines set'
+      end
+    end
+
+    context 'with multiple teams' do
+      let(:other_team_name) { generate_team_name }
+
+      before do
+        fly_login 'main'
+        fly_with_input("set-team -n #{other_team_name} --local-user=#{ATC_USERNAME}", 'y')
 
         fly_login other_team_name
         fly('set-pipeline -n -p other-pipeline-private -c fixtures/dashboard-pipeline.yml')
@@ -100,7 +120,6 @@ describe 'dashboard', type: :feature do
       end
 
       it 'shows all pipelines from the authenticated team and public pipelines from other teams' do
-        dash_login
         visit_dashboard
         within '.dashboard-team-group', text: team_name do
           expect(page).to have_content 'some-pipeline'
@@ -190,6 +209,23 @@ describe 'dashboard', type: :feature do
         end
         expect(banner_color).to be_greyscale
       end
+
+      context 'when there is a search query' do
+        before do
+          search 'some'
+          expect(page).to have_content 'some-pipeline'
+        end
+
+        it 'shows a play button that unpauses' do
+          within '.dashboard-pipeline', text: 'some-pipeline' do
+            expect(page).to have_css '.icon-play'
+
+            page.find('.icon-play').click
+            expect(page).not_to have_css '.icon-play'
+          end
+          expect(banner_color).to be_greyscale
+        end
+      end
     end
 
     context 'when a pipeline is pending' do
@@ -216,6 +252,23 @@ describe 'dashboard', type: :feature do
           expect(page).not_to have_css '.icon-pause'
         end
         expect(banner_palette).to eq(BLUE)
+      end
+
+      context 'when there is a search query' do
+        before do
+          search 'some'
+          expect(page).to have_content 'some-pipeline'
+        end
+
+        it 'shows a play button that pauses' do
+          within '.dashboard-pipeline', text: 'some-pipeline' do
+            expect(page).to have_css '.icon-pause'
+
+            page.find('.icon-pause').click
+            expect(page).not_to have_css '.icon-pause'
+          end
+          expect(banner_palette).to eq(BLUE)
+        end
       end
     end
 
@@ -366,6 +419,17 @@ describe 'dashboard', type: :feature do
         drag_and_drop(team_name, 'some-pipeline')
         expect_team_pipelines team_name, ['another-pipeline', 'third-pipeline', 'some-pipeline']
       end
+
+      it 'reorders when dragging in a fitered list' do
+        fly('set-pipeline -n -p another-pipeline -c fixtures/dashboard-pipeline.yml')
+        fly('set-pipeline -n -p third-pipeline -c fixtures/dashboard-pipeline.yml')
+
+        visit_dashboard
+        expect_team_pipelines team_name, ['some-pipeline', 'another-pipeline', 'third-pipeline']
+        search('pipeline')
+        drag_and_drop(team_name, 'some-pipeline')
+        expect_team_pipelines team_name, ['another-pipeline', 'third-pipeline', 'some-pipeline']
+      end
     end
 
     it 'anchors URL links on team groups' do
@@ -394,7 +458,8 @@ describe 'dashboard', type: :feature do
       expect(page).to have_content team_name
 
       page.evaluate_script('window.scrollTo(0, document.body.scrollHeight)')
-      expect(page.find('.dashboard-team-name').native.style('position')).to eq 'fixed'
+      expect(page.find("##{team_name}").find('.dashboard-team-name').native.style('position')).to eq 'fixed'
+      expect(page.find("#main").find('.dashboard-team-name').native.style('position')).to eq 'static'
     end
   end
 
@@ -530,6 +595,26 @@ describe 'dashboard', type: :feature do
       before do
         fly_login 'main'
         fly_with_input("set-team -n #{other_team_name} --local-user=#{ATC_USERNAME}", 'y')
+      end
+
+      after do
+        fly_login 'main'
+        fly_with_input("destroy-team -n #{other_team_name}", other_team_name)
+      end
+
+      it 'shows no pipelines set group for the other teams' do
+        visit_hd_dashboard
+        expect(page).to have_content other_team_name
+        expect(page).to have_content 'no pipelines set'
+      end
+    end
+
+    context 'with multiple teams' do
+      let(:other_team_name) { generate_team_name }
+
+      before do
+        fly_login 'main'
+        fly_with_input("set-team -n #{other_team_name} --local-user=#{ATC_USERNAME}", 'y')
 
         fly_login other_team_name
         fly('set-pipeline -n -p other-pipeline-private -c fixtures/dashboard-pipeline.yml')
@@ -577,7 +662,6 @@ describe 'dashboard', type: :feature do
 
     it 'does not scroll' do
       1.upto(50) do |i|
-        fly("set-pipeline -n -p some-pipeline-#{i} -c fixtures/simple-pipeline.yml")
       end
 
       visit_hd_dashboard
@@ -622,5 +706,9 @@ describe 'dashboard', type: :feature do
   def visit_hd_dashboard
     login
     visit dash_route('/hd')
+  end
+
+  def search(term)
+    term.split('').each { |c| find_field('search-input-field').native.send_keys(c) }
   end
 end
