@@ -12,7 +12,6 @@ import Http
 import Keyboard
 import Navigation
 import LoginRedirect
-import Navigation exposing (Location)
 import QueryString
 import RemoteData exposing (RemoteData)
 import Task
