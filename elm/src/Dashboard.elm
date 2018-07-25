@@ -15,15 +15,20 @@ import Date exposing (Date)
 import Dict exposing (Dict)
 import Dom
 import Html exposing (Html)
-import Html.Attributes exposing (class, classList, id, href, src, attribute)
+import Html.Attributes exposing (class, classList, id, href, src, attribute, draggable)
 import Html.Attributes.Aria exposing (ariaLabel)
+import Html.Events exposing (on)
 import Http
+import Json.Decode
 import Keyboard
+import List.Extra
 import Mouse
 import NewTopBar
+import NoPipeline exposing (view, Msg)
 import RemoteData
 import Routes
 import Simple.Fuzzy exposing (match, root, filter)
+import StrictEvents exposing (onLeftClick)
 import Task exposing (Task)
 import Time exposing (Time)
 
@@ -36,6 +41,27 @@ type alias Ports =
 port pinTeamNames : () -> Cmd msg
 
 
+type alias PipelineIndex =
+    Int
+
+
+type DragState
+    = NotDragging
+    | Dragging Concourse.TeamName PipelineIndex
+
+
+type DropState
+    = NotDropping
+    | Dropping PipelineIndex
+
+
+type alias Flags =
+    { csrfToken : String
+    , turbulencePath : String
+    , search : String
+    }
+
+
 type alias Model =
     { topBar : NewTopBar.Model
     , mPipelines : RemoteData.WebData (List Concourse.Pipeline)
@@ -45,11 +71,14 @@ type alias Model =
     , pipelineJobs : Dict Int (List Concourse.Job)
     , pipelineResourceErrors : Dict ( String, String ) Bool
     , concourseVersion : String
+    , csrfToken : String
     , turbulenceImgSrc : String
     , now : Maybe Time
     , showHelp : Bool
     , hideFooter : Bool
     , hideFooterCounter : Time
+    , dragState : DragState
+    , dropState : DropState
     }
 
 
@@ -65,13 +94,18 @@ type Msg
     | KeyPressed Keyboard.KeyCode
     | KeyDowns Keyboard.KeyCode
     | TopBarMsg NewTopBar.Msg
+    | TogglePipelinePaused Concourse.Pipeline
+    | PipelinePauseToggled Concourse.Pipeline (Result Http.Error ())
+    | DragStart String Int
+    | DragOver String Int
+    | DragEnd
 
 
-init : Ports -> String -> String -> ( Model, Cmd Msg )
-init ports turbulencePath search =
+init : Ports -> Flags -> ( Model, Cmd Msg )
+init ports flags =
     let
         ( topBar, topBarMsg ) =
-            NewTopBar.init True search
+            NewTopBar.init True flags.search
     in
         ( { topBar = topBar
           , mPipelines = RemoteData.NotAsked
@@ -81,11 +115,14 @@ init ports turbulencePath search =
           , pipelineJobs = Dict.empty
           , pipelineResourceErrors = Dict.empty
           , now = Nothing
-          , turbulenceImgSrc = turbulencePath
+          , csrfToken = flags.csrfToken
+          , turbulenceImgSrc = flags.turbulencePath
           , concourseVersion = ""
           , showHelp = False
           , hideFooter = False
           , hideFooterCounter = 0
+          , dragState = NotDragging
+          , dropState = NotDropping
           }
         , Cmd.batch
             [ fetchPipelines
@@ -100,92 +137,195 @@ init ports turbulencePath search =
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
-    case msg of
-        Noop ->
-            ( model, Cmd.none )
-
-        PipelinesResponse response ->
-            case response of
-                RemoteData.Success pipelines ->
-                    ( { model | mPipelines = response, pipelines = pipelines }, Cmd.batch [ fetchAllJobs, fetchAllResources ] )
-
-                _ ->
-                    ( model, Cmd.none )
-
-        JobsResponse response ->
-            case ( response, model.mPipelines ) of
-                ( RemoteData.Success jobs, RemoteData.Success pipelines ) ->
-                    ( { model | mJobs = response, pipelineJobs = jobsByPipelineId pipelines jobs }, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
-
-        ResourcesResponse response ->
-            case ( response, model.mPipelines ) of
-                ( RemoteData.Success resources, RemoteData.Success pipelines ) ->
-                    ( { model | pipelineResourceErrors = resourceErrorsByPipelineIdentifier resources }, Cmd.none )
-
-                _ ->
-                    ( model, Cmd.none )
-
-        VersionFetched (Ok version) ->
-            ( { model | concourseVersion = version }, Cmd.none )
-
-        VersionFetched (Err err) ->
-            ( { model | concourseVersion = "" }, Cmd.none )
-
-        ClockTick now ->
-            if model.hideFooterCounter + Time.second > 5 * Time.second then
-                ( { model | now = Just now, hideFooter = True }, Cmd.none )
-            else
-                ( { model | now = Just now, hideFooterCounter = model.hideFooterCounter + Time.second }, Cmd.none )
-
-        AutoRefresh _ ->
-            ( model
-            , Cmd.batch <|
+    let
+        reload =
+            Cmd.batch <|
                 (if model.mPipelines == RemoteData.Loading then
                     []
                  else
                     [ fetchPipelines ]
                 )
                     ++ [ fetchVersion, Cmd.map TopBarMsg NewTopBar.fetchUser ]
-            )
+    in
+        case msg of
+            Noop ->
+                ( model, Cmd.none )
 
-        KeyPressed keycode ->
-            handleKeyPressed (Char.fromCode keycode) model
+            PipelinesResponse response ->
+                case response of
+                    RemoteData.Success pipelines ->
+                        ( { model | mPipelines = response, pipelines = pipelines }, Cmd.batch [ fetchAllJobs, fetchAllResources ] )
 
-        KeyDowns keycode ->
-            update (TopBarMsg (NewTopBar.KeyDown keycode)) model
+                    _ ->
+                        ( model, Cmd.none )
 
-        ShowFooter ->
-            ( { model | hideFooter = False, hideFooterCounter = 0 }, Cmd.none )
+            JobsResponse response ->
+                case ( response, model.mPipelines ) of
+                    ( RemoteData.Success jobs, RemoteData.Success pipelines ) ->
+                        ( { model | mJobs = response, pipelineJobs = jobsByPipelineId pipelines jobs }, Cmd.none )
 
-        TopBarMsg msg ->
-            let
-                ( newTopBar, newTopBarMsg ) =
-                    NewTopBar.update msg model.topBar
+                    _ ->
+                        ( model, Cmd.none )
 
-                newModel =
-                    case msg of
-                        NewTopBar.FilterMsg query ->
-                            { model
-                                | topBar = newTopBar
-                                , filteredPipelines = filter query model
-                            }
+            ResourcesResponse response ->
+                case ( response, model.mPipelines ) of
+                    ( RemoteData.Success resources, RemoteData.Success pipelines ) ->
+                        ( { model | pipelineResourceErrors = resourceErrorsByPipelineIdentifier resources }, Cmd.none )
 
-                        NewTopBar.KeyDown keycode ->
-                            if keycode == 13 then
+                    _ ->
+                        ( model, Cmd.none )
+
+            VersionFetched (Ok version) ->
+                ( { model | concourseVersion = version }, Cmd.none )
+
+            VersionFetched (Err err) ->
+                ( { model | concourseVersion = "" }, Cmd.none )
+
+            ClockTick now ->
+                if model.hideFooterCounter + Time.second > 5 * Time.second then
+                    ( { model | now = Just now, hideFooter = True }, Cmd.none )
+                else
+                    ( { model | now = Just now, hideFooterCounter = model.hideFooterCounter + Time.second }, Cmd.none )
+
+            AutoRefresh _ ->
+                ( model
+                , reload
+                )
+
+            KeyPressed keycode ->
+                handleKeyPressed (Char.fromCode keycode) model
+
+            KeyDowns keycode ->
+                update (TopBarMsg (NewTopBar.KeyDown keycode)) model
+
+            ShowFooter ->
+                ( { model | hideFooter = False, hideFooterCounter = 0 }, Cmd.none )
+
+            TopBarMsg msg ->
+                let
+                    ( newTopBar, newTopBarMsg ) =
+                        NewTopBar.update msg model.topBar
+
+                    newModel =
+                        case msg of
+                            NewTopBar.FilterMsg query ->
                                 { model
                                     | topBar = newTopBar
-                                    , filteredPipelines = filter newTopBar.query model
+                                    , filteredPipelines = filter query model
                                 }
-                            else
+
+                            NewTopBar.KeyDown keycode ->
+                                if keycode == 13 then
+                                    { model
+                                        | topBar = newTopBar
+                                        , filteredPipelines = filter newTopBar.query model
+                                    }
+                                else
+                                    { model | topBar = newTopBar }
+
+                            _ ->
                                 { model | topBar = newTopBar }
 
-                        _ ->
-                            { model | topBar = newTopBar }
-            in
-                ( newModel, Cmd.map TopBarMsg newTopBarMsg )
+                    newMsg =
+                        case msg of
+                            NewTopBar.LoggedOut (Ok _) ->
+                                reload
+
+                            _ ->
+                                Cmd.map TopBarMsg newTopBarMsg
+                in
+                    ( newModel, newMsg )
+
+            TogglePipelinePaused pipeline ->
+                ( model, togglePipelinePaused pipeline model.csrfToken )
+
+            PipelinePauseToggled pipeline (Ok ()) ->
+                ( { model
+                    | pipelines =
+                        List.Extra.updateIf
+                            ((==) pipeline)
+                            (\pipeline -> { pipeline | paused = not pipeline.paused })
+                            model.pipelines
+                  }
+                , Cmd.none
+                )
+
+            PipelinePauseToggled _ (Err _) ->
+                ( model, Cmd.none )
+
+            DragStart teamName index ->
+                ( { model | dragState = Dragging teamName index }, Cmd.none )
+
+            DragOver teamName index ->
+                ( { model | dropState = Dropping index }, Cmd.none )
+
+            DragEnd ->
+                case ( model.dragState, model.dropState ) of
+                    ( Dragging teamName dragIndex, Dropping dropIndex ) ->
+                        let
+                            pipelines =
+                                if dragIndex == dropIndex then
+                                    model.pipelines
+                                else
+                                    case
+                                        List.head <|
+                                            List.drop dragIndex <|
+                                                (List.filter ((==) teamName << .teamName) model.pipelines)
+                                    of
+                                        Nothing ->
+                                            model.pipelines
+
+                                        Just pipeline ->
+                                            shiftPipelineTo pipeline dropIndex model.pipelines
+                        in
+                            ( { model
+                                | dragState = NotDragging
+                                , dropState = NotDropping
+                                , pipelines = pipelines
+                              }
+                            , orderPipelines teamName pipelines model.csrfToken
+                            )
+
+                    _ ->
+                        ( { model | dragState = NotDragging, dropState = NotDropping }, Cmd.none )
+
+
+shiftPipelineTo : Concourse.Pipeline -> Int -> List Concourse.Pipeline -> List Concourse.Pipeline
+shiftPipelineTo pipeline position pipelines =
+    case pipelines of
+        [] ->
+            if position < 0 then
+                []
+            else
+                [ pipeline ]
+
+        p :: ps ->
+            if p.teamName /= pipeline.teamName then
+                p :: (shiftPipelineTo pipeline position ps)
+            else if p == pipeline then
+                shiftPipelineTo pipeline (position - 1) ps
+            else if position == 0 then
+                pipeline :: p :: (shiftPipelineTo pipeline (position - 1) ps)
+            else
+                p :: (shiftPipelineTo pipeline (position - 1) ps)
+
+
+orderPipelines : String -> List Concourse.Pipeline -> Concourse.CSRFToken -> Cmd Msg
+orderPipelines teamName pipelines csrfToken =
+    Task.attempt (always Noop) <|
+        Concourse.Pipeline.order
+            teamName
+            (List.map (.name) <| List.filter ((==) teamName << .teamName) pipelines)
+            csrfToken
+
+
+togglePipelinePaused : Concourse.Pipeline -> Concourse.CSRFToken -> Cmd Msg
+togglePipelinePaused pipeline csrfToken =
+    Task.attempt (PipelinePauseToggled pipeline) <|
+        if pipeline.paused then
+            Concourse.Pipeline.unpause pipeline.teamName pipeline.name csrfToken
+        else
+            Concourse.Pipeline.pause pipeline.teamName pipeline.name csrfToken
 
 
 subscriptions : Model -> Sub Msg
@@ -211,6 +351,9 @@ view model =
 dashboardView : Model -> Html Msg
 dashboardView model =
     case ( model.mPipelines, model.mJobs ) of
+        ( RemoteData.Success [], _ ) ->
+            Html.map (\_ -> Noop) NoPipeline.view
+
         ( RemoteData.Success _, RemoteData.Success _ ) ->
             if List.length model.filteredPipelines > 0 then
                 pipelinesView model model.filteredPipelines
@@ -335,7 +478,7 @@ pipelinesView model pipelines =
                 (pipelinesWithJobs model.pipelineJobs model.pipelineResourceErrors pipelines)
 
         pipelinesByTeamView =
-            List.map (\( teamName, pipelines ) -> groupView model.now teamName (List.reverse pipelines)) pipelinesByTeam
+            List.map (\( teamName, pipelines ) -> groupView model teamName (List.reverse pipelines)) pipelinesByTeam
     in
         Html.div
             [ class "dashboard" ]
@@ -359,31 +502,43 @@ handleKeyPressed key model =
             update ShowFooter model
 
 
-groupView : Maybe Time -> String -> List PipelineWithJobs -> Html msg
-groupView now teamName pipelines =
+groupView : Model -> String -> List PipelineWithJobs -> Html Msg
+groupView model teamName pipelines =
     Html.div [ id teamName, class "dashboard-team-group", attribute "data-team-name" teamName ]
         [ Html.div [ class "pin-wrapper" ]
             [ Html.div [ class "dashboard-team-name" ] [ Html.text teamName ] ]
-        , Html.div [ class "dashboard-team-pipelines" ]
-            (List.map (pipelineView now) pipelines)
+        , Html.div [ class "dashboard-team-pipelines" ] <|
+            List.append
+                (List.indexedMap
+                    (\i pipeline ->
+                        Html.div [ class "pipeline-wrapper" ] [ pipelineDropAreaView model teamName i, pipelineView model pipeline i ]
+                    )
+                    pipelines
+                )
+                [ (pipelineDropAreaView model teamName (List.length pipelines)) ]
         ]
 
 
-pipelineView : Maybe Time -> PipelineWithJobs -> Html msg
-pipelineView now ({ pipeline, jobs, resourceError } as pipelineWithJobs) =
+pipelineView : Model -> PipelineWithJobs -> Int -> Html Msg
+pipelineView model ({ pipeline, jobs, resourceError } as pipelineWithJobs) index =
     Html.div
         [ classList
             [ ( "dashboard-pipeline", True )
             , ( "dashboard-paused", pipeline.paused )
             , ( "dashboard-running", List.any (\job -> job.nextBuild /= Nothing) jobs )
             , ( "dashboard-status-" ++ Concourse.PipelineStatus.show (pipelineStatusFromJobs jobs False), not pipeline.paused )
+            , ( "dragging", model.dragState == Dragging pipeline.teamName index )
             ]
         , attribute "data-pipeline-name" pipeline.name
+        , attribute "ondragstart" "event.dataTransfer.setData('text/plain', '');"
+        , draggable "true"
+        , on "dragstart" (Json.Decode.succeed (DragStart pipeline.teamName index))
+        , on "dragend" (Json.Decode.succeed DragEnd)
         ]
         [ Html.div [ class "dashboard-pipeline-banner" ] []
         , Html.div
             [ class "dashboard-pipeline-content" ]
-            [ Html.a [ href <| Routes.pipelineRoute pipeline ]
+            [ Html.a [ href <| Routes.pipelineRoute pipeline, draggable "false" ]
                 [ Html.div
                     [ class "dashboard-pipeline-header" ]
                     [ Html.div [ class "dashboard-pipeline-name" ]
@@ -393,12 +548,46 @@ pipelineView now ({ pipeline, jobs, resourceError } as pipelineWithJobs) =
                 ]
             , DashboardPreview.view jobs
             , Html.div [ class "dashboard-pipeline-footer" ]
-                [ Html.div [ class "dashboard-pipeline-icon" ]
-                    []
-                , timeSincePipelineTransitioned now pipelineWithJobs
+                [ Html.div [ class "dashboard-pipeline-icon" ] []
+                , timeSincePipelineTransitioned model.now pipelineWithJobs
+                , pauseToggleView pipeline
                 ]
             ]
         ]
+
+
+pipelineDropAreaView : Model -> String -> Int -> Html Msg
+pipelineDropAreaView model teamName index =
+    let
+        ( active, over ) =
+            case ( model.dragState, model.dropState ) of
+                ( Dragging team dragIndex, NotDropping ) ->
+                    ( team == teamName, index == dragIndex )
+
+                ( Dragging team dragIndex, Dropping dropIndex ) ->
+                    ( team == teamName, index == dropIndex )
+
+                _ ->
+                    ( False, False )
+    in
+        Html.div
+            [ classList [ ( "drop-area", True ), ( "active", active ), ( "over", over ), ( "animation", model.dropState /= NotDropping ) ]
+            , on "dragenter" (Json.Decode.succeed (DragOver teamName index))
+            ]
+            [ Html.text "" ]
+
+
+pauseToggleView : Concourse.Pipeline -> Html Msg
+pauseToggleView pipeline =
+    Html.a
+        [ classList
+            [ ( "pause-toggle", True )
+            , ( "icon-play", pipeline.paused )
+            , ( "icon-pause", not pipeline.paused )
+            ]
+        , onLeftClick <| TogglePipelinePaused pipeline
+        ]
+        []
 
 
 timeSincePipelineTransitioned : Maybe Time -> PipelineWithJobs -> Html a

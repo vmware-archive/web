@@ -126,12 +126,12 @@ update msg model =
             , Navigation.newUrl "/"
             )
 
-        ResetToPipeline url ->
-            ( model, Cmd.batch [ Navigation.newUrl url, Pipeline.resetPipelineFocus () ] )
-
         LoggedOut (Err err) ->
             flip always (Debug.log "failed to log out" err) <|
                 ( model, Cmd.none )
+
+        ResetToPipeline url ->
+            ( model, Cmd.batch [ Navigation.newUrl url, Pipeline.resetPipelineFocus () ] )
 
         ToggleUserMenu ->
             ( { model | userMenuVisible = not model.userMenuVisible }, Cmd.none )
@@ -189,9 +189,6 @@ extractPidFromRoute route =
         Routes.DashboardHd ->
             Nothing
 
-        Routes.Home ->
-            Nothing
-
 
 urlUpdate : Routes.ConcourseRoute -> Model -> ( Model, Cmd Msg )
 urlUpdate route model =
@@ -211,47 +208,51 @@ urlUpdate route model =
         )
 
 
-view : Model -> Html Msg
-view model =
+view : Model -> Bool -> Html Msg
+view model sidebarVisible =
     Html.nav
         [ classList
-            [ ( "top-bar", True )
+            [ ( "module-topbar", True )
+            , ( "top-bar", True )
             , ( "test", True )
             , ( "paused", isPaused model.pipeline )
             ]
         ]
-        [ Html.ul [ class "groups" ] <|
+        [ Html.div
+            [ classList [ ( "topbar-logo", True ), ( "wide", sidebarVisible ) ] ]
+            [ Html.a [ class "logo-image-link", href "/" ] [] ]
+        , Html.ul [ class "groups" ] <|
             [ Html.li [ class "main" ]
-                [ Html.span
-                    [ class "sidebar-toggle test btn-hamburger"
-                    , onClick ToggleSidebar
-                    , Html.Attributes.attribute "aria-label" "Toggle List of Pipelines"
-                    ]
-                    [ Html.i [ class "fa fa-bars" ] []
-                    ]
+                [ viewSidebarToggle sidebarVisible
                 ]
             ]
                 ++ viewBreadcrumbs model
-        , Html.ul [ class "nav-right" ]
-            [ Html.li [ class "nav-item" ]
+        , Html.div [ class "topbar-login" ]
+            [ Html.div [ class "topbar-user-info" ]
                 [ viewUserState model.userState model.userMenuVisible
                 ]
             ]
         ]
 
 
+viewSidebarToggle : Bool -> Html Msg
+viewSidebarToggle sidebarVisible =
+    Html.span
+        [ class "sidebar-toggle test btn-hamburger"
+        , onClick ToggleSidebar
+        , Html.Attributes.attribute "aria-label" "Toggle List of Pipelines"
+        ]
+    <|
+        if sidebarVisible then
+            [ Html.div [ class "sidebar-dismiss" ] [] ]
+        else
+            [ Html.i [ class "fa fa-bars" ] [] ]
+
+
 viewBreadcrumbs : Model -> List (Html Msg)
 viewBreadcrumbs model =
     List.intersperse viewBreadcrumbSeparator <|
         case model.route.logical of
-            Routes.Home ->
-                case model.pipeline of
-                    Nothing ->
-                        []
-
-                    Just pipeline ->
-                        [ viewBreadcrumbPipeline pipeline.name model.route.logical ]
-
             Routes.Pipeline teamName pipelineName ->
                 [ viewBreadcrumbPipeline pipelineName model.route.logical ]
 
@@ -329,10 +330,9 @@ viewUserState userState userMenuVisible =
             Html.text ""
 
         UserStateLoggedOut ->
-            Html.div [ class "user-info" ]
+            Html.div [ class "user-id", onClick LogIn ]
                 [ Html.a
-                    [ StrictEvents.onLeftClick <| LogIn
-                    , href "/sky/login"
+                    [ href "/sky/login"
                     , Html.Attributes.attribute "aria-label" "Log In"
                     , class "login-button"
                     ]
@@ -343,16 +343,12 @@ viewUserState userState userMenuVisible =
         UserStateLoggedIn user ->
             Html.div [ class "user-info" ]
                 [ Html.div [ class "user-id", onClick ToggleUserMenu ]
-                    [ Html.i [ class "fa fa-user" ] []
-                    , Html.text " "
-                    , Html.text <| userDisplayName user
-                    , Html.text " "
-                    , Html.i [ class "fa fa-caret-down" ] []
+                    [ Html.text <|
+                        userDisplayName user
                     ]
-                , Html.div [ classList [ ( "user-menu", True ), ( "hidden", not userMenuVisible ) ] ]
+                , Html.div [ classList [ ( "user-menu", True ), ( "hidden", not userMenuVisible ) ], onClick LogOut ]
                     [ Html.a
                         [ Html.Attributes.attribute "aria-label" "Log Out"
-                        , onClick LogOut
                         ]
                         [ Html.text "logout"
                         ]

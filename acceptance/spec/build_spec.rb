@@ -25,7 +25,7 @@ describe 'build', type: :feature do
     context 'when output has 10k lines' do
       it 'should load the page' do
         page.find('.build-step .header', text: 'print').click
-        expect(page).to have_content('Line 10000', wait: 60)
+        expect(page).to have_content('Line 10000', wait: 20)
       end
     end
   end
@@ -183,7 +183,7 @@ describe 'build', type: :feature do
     end
 
     it 'can be manually triggered' do
-      visit dash_route("/teams/#{team_name}")
+      visit dash_route("/teams/#{team_name}/pipelines/pipeline")
       expect(page).to have_content 'manual-trigger'
 
       page.find('a > text', text: 'manual-trigger').click

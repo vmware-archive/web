@@ -30,14 +30,14 @@ test('shows abort hooks', async t => {
   await t.context.web.waitForText(t.context.page, "say-bye-from-job");
   await t.context.web.waitForText(t.context.page, "looping");
 
-  await t.context.web.clickAndWait(t.context.page, '.build-action-abort');
+  await t.context.web.clickAndWait(t.context.page, '.build-action-abort', '.build-header.aborted');
   await t.context.page.waitFor('[data-step-name="say-bye-from-step"] i.succeeded');
   await t.context.page.waitFor('[data-step-name="say-bye-from-job"] i.succeeded');
 
-  await t.context.web.clickAndWait(t.context.page, '[data-step-name="say-bye-from-step"] .header');
+  await t.context.web.clickAndWait(t.context.page, '[data-step-name="say-bye-from-step"] .header', '[data-step-name="say-bye-from-step"] .step-body:not(.step-collapsed)');
   t.regex(await t.context.web.text(t.context.page), /bye from step/);
 
-  await t.context.web.clickAndWait(t.context.page, '[data-step-name="say-bye-from-job"] .header');
+  await t.context.web.clickAndWait(t.context.page, '[data-step-name="say-bye-from-job"] .header', '[data-step-name="say-bye-from-job"] .step-body:not(.step-collapsed)');
   t.regex(await t.context.web.text(t.context.page), /bye from job/);
 });
 
@@ -50,10 +50,10 @@ test('can be switched between', async t => {
 
   await t.context.page.goto(t.context.web.route(`/teams/${t.context.teamName}/pipelines/some-pipeline/jobs/passing/builds/1`));
 
-  await t.context.web.clickAndWait(t.context.page, '#builds li:nth-child(1) a');
+  await t.context.web.clickAndWait(t.context.page, '#builds li:nth-child(1) a', '[data-build-name="2"]');
   t.regex(await t.context.web.text(t.context.page), /passing #2/);
 
-  await t.context.web.clickAndWait(t.context.page, '#builds li:nth-child(2) a');
+  await t.context.web.clickAndWait(t.context.page, '#builds li:nth-child(2) a', '[data-build-name="1"]');
   t.regex(await t.context.web.text(t.context.page), /passing #1/);
 });
 

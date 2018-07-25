@@ -6,35 +6,64 @@ describe 'dashboard', type: :feature do
 
   let(:team_name) { generate_team_name }
   let(:fly_home) { Dir.mktmpdir }
+  let(:username) { ATC_USERNAME }
 
   before(:each) do
     fly_login 'main'
     fly_with_input("set-team -n #{team_name} --local-user=#{ATC_USERNAME}", 'y')
     fly_login team_name
-    fly('set-pipeline -n -p some-pipeline -c fixtures/states-pipeline.yml')
+    fly('set-pipeline -n -p some-pipeline -c fixtures/dashboard-pipeline.yml')
     fly('unpause-pipeline -p some-pipeline')
+  end
+
+  describe 'logout' do
+    context 'with user logged in' do
+      before(:each) do
+        fly('set-pipeline -n -p some-other-pipeline -c fixtures/dashboard-pipeline.yml')
+        fly('expose-pipeline -p some-other-pipeline')
+      end
+
+      it 'logout current user' do
+        visit_dashboard
+
+        expect(page).to have_content ATC_USERNAME.to_s
+        expect(page).to have_content 'some-pipeline'
+        expect(page).to have_content 'some-other-pipeline'
+
+        page.find('.user-id', text: username).click
+        expect(page).to have_content 'logout'
+
+        page.find('.user-menu', text: 'logout').click
+
+        expect(page).to_not have_content 'logout'
+        expect(page).to have_content 'login'
+
+        expect(page).to have_content 'some-other-pipeline'
+        expect(page).to_not have_content 'some-pipeline'
+      end
+    end
   end
 
   describe 'view toggle' do
     context 'when the view is the default view' do
       it 'switches to compact view' do
         dash_login
-        visit dash_route('/dashboard')
+        visit_dashboard
         expect(page).to have_content('HIGH-DENSITY')
 
         click_on 'high-density'
-        expect(page).to have_current_path '/dashboard/hd'
+        expect(page).to have_current_path '/hd'
       end
     end
 
     context 'when the view is the compact view' do
       it 'switches to default view' do
         dash_login
-        visit dash_route('/dashboard/hd')
+        visit_hd_dashboard
         expect(page).to have_content('HIGH-DENSITY')
 
         click_on 'high-density'
-        expect(page).to have_current_path '/dashboard'
+        expect(page).to have_current_path '/'
       end
     end
   end
@@ -42,7 +71,7 @@ describe 'dashboard', type: :feature do
   describe 'default view' do
     context 'with no user logged in' do
       it 'displays a login button' do
-        visit dash_route('/dashboard')
+        visit dash_route
         expect(page).to have_link('login', href: '/sky/login')
       end
     end
@@ -55,9 +84,9 @@ describe 'dashboard', type: :feature do
         fly_with_input("set-team -n #{other_team_name} --local-user=#{ATC_USERNAME}", 'y')
 
         fly_login other_team_name
-        fly('set-pipeline -n -p other-pipeline-private -c fixtures/states-pipeline.yml')
+        fly('set-pipeline -n -p other-pipeline-private -c fixtures/dashboard-pipeline.yml')
         fly('unpause-pipeline -p other-pipeline-private')
-        fly('set-pipeline -n -p other-pipeline-public -c fixtures/states-pipeline.yml')
+        fly('set-pipeline -n -p other-pipeline-public -c fixtures/dashboard-pipeline.yml')
         fly('unpause-pipeline -p other-pipeline-public')
         fly('expose-pipeline -p other-pipeline-public')
 
@@ -72,7 +101,7 @@ describe 'dashboard', type: :feature do
 
       it 'shows all pipelines from the authenticated team and public pipelines from other teams' do
         dash_login
-        visit dash_route('/dashboard')
+        visit_dashboard
         within '.dashboard-team-group', text: team_name do
           expect(page).to have_content 'some-pipeline'
         end
@@ -86,7 +115,7 @@ describe 'dashboard', type: :feature do
       it 'shows authenticated team first' do
         dash_login
 
-        visit dash_route('/dashboard')
+        visit_dashboard
 
         expect(page).to have_content(team_name)
         expect(page).to have_content(other_team_name)
@@ -98,40 +127,32 @@ describe 'dashboard', type: :feature do
       before do
         fly('destroy-pipeline -n -p some-pipeline')
 
-        fly('set-pipeline -n -p failing-pipeline -c fixtures/states-pipeline.yml')
+        fly('set-pipeline -n -p failing-pipeline -c fixtures/dashboard-pipeline.yml')
         fly('unpause-pipeline -p failing-pipeline')
         fly_fail('trigger-job -w -j failing-pipeline/failing')
 
-        fly('set-pipeline -n -p other-failing-pipeline -c fixtures/states-pipeline.yml')
+        fly('set-pipeline -n -p other-failing-pipeline -c fixtures/dashboard-pipeline.yml')
         fly('unpause-pipeline -p other-failing-pipeline')
         fly_fail('trigger-job -w -j other-failing-pipeline/failing')
         fly('trigger-job -j other-failing-pipeline/running')
 
-        fly('set-pipeline -n -p errored-pipeline -c fixtures/states-pipeline.yml')
+        fly('set-pipeline -n -p errored-pipeline -c fixtures/dashboard-pipeline.yml')
         fly('unpause-pipeline -p errored-pipeline')
         fly_fail('trigger-job -w -j errored-pipeline/erroring')
 
-        fly('set-pipeline -n -p aborted-pipeline -c fixtures/states-pipeline.yml')
+        fly('set-pipeline -n -p aborted-pipeline -c fixtures/dashboard-pipeline.yml')
         fly('unpause-pipeline -p aborted-pipeline')
         fly('trigger-job -j aborted-pipeline/running')
         fly('abort-build -j aborted-pipeline/running -b 1')
 
-        fly('set-pipeline -n -p paused-pipeline -c fixtures/states-pipeline.yml')
+        fly('set-pipeline -n -p paused-pipeline -c fixtures/dashboard-pipeline.yml')
 
-        fly('set-pipeline -n -p succeeded-pipeline -c fixtures/states-pipeline.yml')
+        fly('set-pipeline -n -p succeeded-pipeline -c fixtures/dashboard-pipeline.yml')
         fly('unpause-pipeline -p succeeded-pipeline')
         fly('trigger-job -w -j succeeded-pipeline/passing')
 
-        fly('set-pipeline -n -p pending-pipeline -c fixtures/states-pipeline.yml')
+        fly('set-pipeline -n -p pending-pipeline -c fixtures/dashboard-pipeline.yml')
         fly('unpause-pipeline -p pending-pipeline')
-
-        fly('expose-pipeline -p failing-pipeline')
-        fly('expose-pipeline -p other-failing-pipeline')
-        fly('expose-pipeline -p errored-pipeline')
-        fly('expose-pipeline -p aborted-pipeline')
-        fly('expose-pipeline -p paused-pipeline')
-        fly('expose-pipeline -p succeeded-pipeline')
-        fly('expose-pipeline -p pending-pipeline')
       end
 
       it 'displays the pipelines in correct sort order' do
@@ -159,6 +180,16 @@ describe 'dashboard', type: :feature do
           expect(page).to have_content('paused')
         end
       end
+
+      it 'shows a play button that unpauses' do
+        within '.dashboard-pipeline', text: 'some-pipeline' do
+          expect(page).to have_css '.icon-play'
+
+          page.find('.icon-play').click
+          expect(page).not_to have_css '.icon-play'
+        end
+        expect(banner_color).to be_greyscale
+      end
     end
 
     context 'when a pipeline is pending' do
@@ -176,11 +207,21 @@ describe 'dashboard', type: :feature do
           expect(page).to have_content('pending', wait: 10)
         end
       end
+
+      it 'shows a pause button that pauses' do
+        within '.dashboard-pipeline', text: 'some-pipeline' do
+          expect(page).to have_css '.icon-pause'
+
+          page.find('.icon-pause').click
+          expect(page).not_to have_css '.icon-pause'
+        end
+        expect(banner_palette).to eq(BLUE)
+      end
     end
 
     context 'when a pipeline has a failed build' do
       before(:each) do
-        fly('set-pipeline -n -p some-other-pipeline -c fixtures/states-pipeline.yml')
+        fly('set-pipeline -n -p some-other-pipeline -c fixtures/dashboard-pipeline.yml')
         fly('unpause-pipeline -p some-other-pipeline')
         fly_fail('trigger-job -w -j some-other-pipeline/failing')
       end
@@ -205,11 +246,13 @@ describe 'dashboard', type: :feature do
     context 'when a pipeline has an aborted build' do
       before do
         fly('trigger-job -j some-pipeline/running')
+        visit_dashboard
+        expect(page).to have_css('.dashboard-pipeline.dashboard-running')
+
         fly('abort-build -j some-pipeline/running -b 1')
       end
 
       it 'is shown in brown' do
-        visit_dashboard
         expect(page).to have_css('.dashboard-pipeline.dashboard-status-aborted')
         expect(banner_palette).to eq(BROWN)
       end
@@ -274,23 +317,91 @@ describe 'dashboard', type: :feature do
       end
     end
 
+    context 'when drag-n-dropping a pipeline' do
+      def expect_team_pipelines(team, pipelines)
+        within '.dashboard-team-group', text: team do
+          expect(page.find_all('.dashboard-pipeline-name').map(&:text)).to eq pipelines
+        end
+      end
+
+      def drag_and_drop(team, source, target = nil)
+        page.driver.execute_script <<~EVENTS
+          $(".dashboard-team-group:contains('#{team}') .pipeline-wrapper:contains(#{source}) .dashboard-pipeline")[0].dispatchEvent(new Event('dragstart'));
+          #{if target.nil?
+              "$('.dashboard-team-group:contains(\"#{team}\") .drop-area:last-of-type')[0].dispatchEvent(new Event('dragenter'));"
+            else
+              "$('.dashboard-team-group:contains(\"#{team}\") .pipeline-wrapper:contains(#{target}) .drop-area')[0].dispatchEvent(new Event('dragenter'));"
+            end}
+          $(".dashboard-team-group:contains('#{team}') .pipeline-wrapper:contains(#{source}) .dashboard-pipeline")[0].dispatchEvent(new Event('dragend'));
+        EVENTS
+      end
+
+      it 'reorders the pipeline within the same team' do
+        other_team_name = generate_team_name
+        fly_login 'main'
+        fly_with_input("set-team -n #{other_team_name} --local-user=#{ATC_USERNAME}", 'y')
+
+        fly_login other_team_name
+        fly('set-pipeline -n -p some-pipeline -c fixtures/dashboard-pipeline.yml')
+        fly('set-pipeline -n -p another-pipeline -c fixtures/dashboard-pipeline.yml')
+        fly('set-pipeline -n -p third-pipeline -c fixtures/dashboard-pipeline.yml')
+
+        visit_dashboard
+        expect_team_pipelines other_team_name, ['some-pipeline', 'another-pipeline', 'third-pipeline']
+
+        drag_and_drop(other_team_name, 'some-pipeline', 'third-pipeline')
+        expect_team_pipelines other_team_name, ['another-pipeline', 'some-pipeline', 'third-pipeline']
+
+        fly_login 'main'
+        fly_with_input("destroy-team -n #{other_team_name}", other_team_name)
+      end
+
+      it 'reorders when dragging to the end of the pipeline list' do
+        fly('set-pipeline -n -p another-pipeline -c fixtures/dashboard-pipeline.yml')
+        fly('set-pipeline -n -p third-pipeline -c fixtures/dashboard-pipeline.yml')
+
+        visit_dashboard
+        expect_team_pipelines team_name, ['some-pipeline', 'another-pipeline', 'third-pipeline']
+
+        drag_and_drop(team_name, 'some-pipeline')
+        expect_team_pipelines team_name, ['another-pipeline', 'third-pipeline', 'some-pipeline']
+      end
+    end
+
     it 'anchors URL links on team groups' do
       visit_dashboard
       expect(page).to have_css('.dashboard-team-group', id: team_name)
     end
 
     it 'links to latest build in the preview' do
+      build_path = "/teams/#{team_name}/pipelines/some-pipeline/jobs/failing/builds/1"
       fly_fail('trigger-job -w -j some-pipeline/failing')
+
       visit_dashboard
-      expect(page).to have_css("a[href=\"/teams/#{team_name}/pipelines/some-pipeline/jobs/failing/builds/1\"]")
-      expect(page.find("a[href=\"/teams/#{team_name}/pipelines/some-pipeline/jobs/failing/builds/1\"]").text).not_to be_nil
+      expect(page).to have_css("a[href=\"#{build_path}\"]")
+      expect(page.find("a[href=\"#{build_path}\"]").text).not_to be_nil
+
+      page.find("a[href=\"/teams/#{team_name}/pipelines/some-pipeline/jobs/failing/builds/1\"]").click
+      expect(page).to have_current_path(build_path)
+    end
+
+    it 'keeps the team name sticky on scroll' do
+      1.upto(50) do |i|
+        fly("set-pipeline -n -p some-pipeline-#{i} -c fixtures/simple-pipeline.yml")
+      end
+
+      visit_dashboard
+      expect(page).to have_content team_name
+
+      page.evaluate_script('window.scrollTo(0, document.body.scrollHeight)')
+      expect(page.find('.dashboard-team-name').native.style('position')).to eq 'fixed'
     end
   end
 
   describe 'high density view' do
     context 'with no user logged in' do
       it 'displays a login button' do
-        visit dash_route('/dashboard/hd')
+        visit dash_route('/hd')
         expect(page).to have_link('login', href: '/sky/login')
       end
     end
@@ -358,8 +469,10 @@ describe 'dashboard', type: :feature do
     context 'when a pipeline has an aborted build' do
       before do
         fly('trigger-job -j some-pipeline/running')
-        fly('abort-build -j some-pipeline/running -b 1')
         visit_hd_dashboard
+        expect(page).to have_css('.dashboard-pipeline.dashboard-running')
+
+        fly('abort-build -j some-pipeline/running -b 1')
       end
 
       it 'has a brown banner' do
@@ -367,7 +480,7 @@ describe 'dashboard', type: :feature do
         expect(banner_palette).to eq(BROWN)
       end
 
-      it 'displays its name in a brown background' do
+      it 'displays its name in a black background' do
         expect(title_palette).to eq(BLACK)
       end
     end
@@ -419,9 +532,9 @@ describe 'dashboard', type: :feature do
         fly_with_input("set-team -n #{other_team_name} --local-user=#{ATC_USERNAME}", 'y')
 
         fly_login other_team_name
-        fly('set-pipeline -n -p other-pipeline-private -c fixtures/states-pipeline.yml')
+        fly('set-pipeline -n -p other-pipeline-private -c fixtures/dashboard-pipeline.yml')
         fly('unpause-pipeline -p other-pipeline-private')
-        fly('set-pipeline -n -p other-pipeline-public -c fixtures/states-pipeline.yml')
+        fly('set-pipeline -n -p other-pipeline-public -c fixtures/dashboard-pipeline.yml')
         fly('unpause-pipeline -p other-pipeline-public')
         fly('expose-pipeline -p other-pipeline-public')
 
@@ -451,16 +564,28 @@ describe 'dashboard', type: :feature do
         fly_with_input("set-team -n #{other_team_name} --local-user=bad-username", 'y')
         fly_login team_name
 
-        visit dash_route('/dashboard/hd')
+        visit dash_route('/hd')
         expect(page).to have_css('.dashboard-team-name')
         expect(page.first('.dashboard-team-name').text).to eq(other_team_name)
 
-        dash_login
         visit_hd_dashboard
         expect(page).to have_content(team_name)
         expect(page).to have_content(other_team_name)
         expect(page.first('.dashboard-team-name').text).to eq(team_name)
       end
+    end
+
+    it 'does not scroll' do
+      1.upto(50) do |i|
+        fly("set-pipeline -n -p some-pipeline-#{i} -c fixtures/simple-pipeline.yml")
+      end
+
+      visit_hd_dashboard
+      expect(page).to have_content team_name
+
+      scroll_height = page.evaluate_script('document.body.scrollHeight')
+      window_height = page.evaluate_script('window.innerHeight')
+      expect(scroll_height).to eq window_height
     end
   end
 
@@ -492,11 +617,10 @@ describe 'dashboard', type: :feature do
 
   def visit_dashboard
     login
-    visit dash_route('/dashboard')
   end
 
   def visit_hd_dashboard
     login
-    visit dash_route('/dashboard/hd')
+    visit dash_route('/hd')
   end
 end

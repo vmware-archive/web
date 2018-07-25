@@ -1,14 +1,28 @@
 @import (reference) "_vars.less";
 
 @font-face {
-  font-family: "UnifrakturCook";
+  font-family: 'UnifrakturCook';
   src: url("https://fonts.googleapis.com/css?family=UnifrakturCook:700");
+}
+
+@font-face {
+  font-family: 'Inconsolata';
+  font-style: normal;
+  font-weight: 400;
+  src: url("/public/fonts/Inconsolata-Regular.ttf");
+}
+
+@font-face {
+  font-family: 'Inconsolata';
+  font-style: normal;
+  font-weight: 700;
+  src: url("/public/fonts/Inconsolata-Bold.ttf");
 }
 
 h1, .h1 {
   line-height: 60px;
   color: @base07;
-  font-weight: bold;
+  font-weight: 300;
   font-size: 24px;
 }
 
@@ -39,7 +53,7 @@ h3, .h3 {
 .ansi-cyan-fg { color: @base0C; }
 .ansi-white-fg { color: @base07; }
 
-.ansi-bright-black-fg { color: @base03; font-weight: bold; }
+.ansi-bright-black-fg { color: @grey-secondary; font-weight: bold; }
 .ansi-bright-red-fg { color: @base08; font-weight: bold; }
 .ansi-bright-green-fg { color: @base0B; font-weight: bold; }
 .ansi-bright-yellow-fg { color: @base0A; font-weight: bold; }

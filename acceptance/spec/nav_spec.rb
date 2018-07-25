@@ -14,40 +14,6 @@ describe 'Nav', type: :feature do
     dash_login
   end
 
-  context 'on home page' do
-    before do
-      visit dash_route('/')
-      expect(page).to have_content 'resource-metadata'
-    end
-
-    it 'includes the pipeline name' do
-      within('.top-bar') do
-        expect(page).to have_content 'test-pipeline'
-      end
-    end
-
-    it 'the pipeline name is a link that resets the group' do
-      expect(page).to have_link 'test-pipeline'
-
-      other_group = page.find '.main', text: 'some-other-group'
-      page.driver.browser.action.key_down(:shift)
-          .click(other_group.native)
-          .key_up(:shift).perform
-      expect(page).to have_css '.active', text: 'some-group'
-      expect(page).to have_css '.active', text: 'some-other-group'
-
-      click_link 'test-pipeline'
-      expect(page).to have_css '.active', text: 'some-group'
-      expect(page).not_to have_css '.active', text: 'some-other-group'
-    end
-
-    it 'includes the group names' do
-      within('.groups-bar') do
-        expect(page).to have_content 'some-group'
-      end
-    end
-  end
-
   context 'on pipeline page' do
     before do
       visit dash_route(pipeline_route)
@@ -78,6 +44,18 @@ describe 'Nav', type: :feature do
       within('.groups-bar') do
         expect(page).to have_content 'some-group'
       end
+    end
+
+    it 'sidebar button and logo update on toggle' do
+      page.find('.sidebar-toggle').click
+      expect(page).not_to have_css '.sidebar-toggle .fa-bars'
+      expect(page).to have_css '.sidebar-toggle .sidebar-dismiss'
+      expect(page).to have_css '.topbar-logo.wide'
+
+      page.find('.sidebar-toggle').click
+      expect(page).to have_css '.sidebar-toggle .fa-bars'
+      expect(page).not_to have_css '.sidebar-toggle .sidebar-dismiss'
+      expect(page).not_to have_css '.topbar-logo.wide'
     end
   end
 
@@ -156,7 +134,7 @@ describe 'Nav', type: :feature do
 
   context 'pipeline name has special characters' do
     before do
-      fly('set-pipeline -n -p "pipeline with special characters :)" -c fixtures/pipeline-with-slashes.yml')
+      fly('set-pipeline -n -p "pipeline with special characters :)" -c fixtures/pipeline-with-special-characters.yml')
       fly('unpause-pipeline -p "pipeline with special characters :)"')
     end
 
@@ -165,13 +143,18 @@ describe 'Nav', type: :feature do
       expect(page).to have_content 'pipeline with special characters :)'
       expect(page).not_to have_content '%20'
 
-      visit dash_route("/teams/#{team_name}/pipelines/pipeline%20with%20special%20characters%20%3A%29/jobs/some%2Fjob")
+      visit dash_route("/teams/#{team_name}/pipelines/pipeline%20with%20special%20characters%20%3A%29/jobs/some-job")
       expect(page).to have_content 'pipeline with special characters :)'
-      expect(page).to have_content 'some/job'
+      expect(page).to have_content 'some-job'
 
-      visit dash_route("/teams/#{team_name}/pipelines/pipeline%20with%20special%20characters%20%3A%29/resources/some%2Fresource")
+      visit dash_route("/teams/#{team_name}/pipelines/pipeline%20with%20special%20characters%20%3A%29/resources/some-resource")
       expect(page).to have_content 'pipeline with special characters :)'
-      expect(page).to have_content 'some/resource'
+      expect(page).to have_content 'some-resource'
+    end
+
+    it 'updates the title' do
+      visit dash_route("/teams/#{team_name}/pipelines/pipeline%20with%20special%20characters%20%3A%29")
+      expect(page).to have_title 'pipeline with special characters :) - Concourse'
     end
   end
 end

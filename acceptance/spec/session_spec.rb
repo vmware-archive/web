@@ -7,6 +7,23 @@ describe 'session', type: :feature do
     fly_with_input("set-team -n #{team_name} --local-user=#{ATC_USERNAME}", 'y')
   end
 
+  context 'when logging in' do
+    it 'hides the tokens after redirect' do
+      visit dash_route
+      expect(page).to have_content 'login'
+
+      click_on 'login'
+      expect(page).to have_content 'username'
+
+      fill_in 'login', with: ATC_USERNAME
+      fill_in 'password', with: ATC_PASSWORD
+      click_button 'login'
+
+      expect(page).to have_content 'no pipelines configured'
+      expect(page.current_url).to match %r{\A#{ATC_URL}(\/?)\z}
+    end
+  end
+
   context 'when not logged in' do
     before(:each) do
       fly_login team_name
@@ -42,34 +59,29 @@ describe 'session', type: :feature do
     end
   end
 
-  xcontext 'when session expires' do
-    it 'displays the correct state in the top bar' do
+  context 'when session expires' do
+    it 'redirects to login from a non-exposed pipeline' do
+      fly_login team_name
+      fly('set-pipeline -n -p pipeline -c fixtures/simple-pipeline.yml')
+
       dash_login
-      visit dash_route
-      expect(page).to have_content team_name
+      visit dash_route("/teams/#{team_name}/pipelines/pipeline")
+      expect(page).to have_content ATC_USERNAME
 
-      within_window open_new_window do
-        visit dash_route
-        find('.user-info').click
-        find('a', text: 'logout').click
-      end
+      Capybara.current_session.driver.browser.manage.delete_all_cookies
 
-      expect(page).to_not have_content team_name
-      expect(page).to have_content 'login'
+      expect(page).to_not have_content ATC_USERNAME
+      expect(page).to have_content 'password'
     end
 
-    it 'displays the correct state in the dashboard top bar' do
+    it 'changes top bar to prompt login from the dashboard' do
       dash_login
-      visit dash_route('/dashboard')
-      expect(page).to have_content team_name
+      visit dash_route
+      expect(page).to have_content ATC_USERNAME
 
-      within_window open_new_window do
-        visit dash_route
-        find('.user-info').click
-        find('a', text: 'logout').click
-      end
+      Capybara.current_session.driver.browser.manage.delete_all_cookies
 
-      expect(page).to_not have_content team_name
+      expect(page).to_not have_content ATC_USERNAME
       expect(page).to have_content 'login'
     end
   end

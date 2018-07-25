@@ -96,7 +96,7 @@ type StepRenderingState
     = StepsLoading
     | StepsLiveUpdating
     | StepsComplete
-    | LoginRequired
+    | NotAuthorized
 
 
 type Msg
@@ -617,7 +617,7 @@ view : Model -> Html Msg
 view model =
     case model.currentBuild |> RemoteData.toMaybe of
         Just currentBuild ->
-            Html.div [ class "with-fixed-header" ]
+            Html.div [ class "with-fixed-header", attribute "data-build-name" currentBuild.build.name ]
                 [ viewBuildHeader currentBuild.build model
                 , Html.div [ class "scrollable-body build-body" ] <|
                     [ viewBuildPrep currentBuild.prep
@@ -701,7 +701,7 @@ view model =
                                         [ class "explanation" ]
                                         [ Html.text "This log has been "
                                         , Html.a
-                                            [ Html.Attributes.href "http://concourse-ci.org/configuring-jobs.html#build_logs_to_retain" ]
+                                            [ Html.Attributes.href "https://concourse-ci.org/jobs.html#job-build-logs-to-retain" ]
                                             [ Html.text "reaped." ]
                                         ]
                                     ]

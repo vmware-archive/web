@@ -6,15 +6,18 @@
   width: 100%;
   z-index: 999;
   background: @base00;
+  &.paused {
+    background: @base0D;
+  }
   color: @white;
-  height: 64px;
-  line-height: 64px;
+  height: @top-bar-height;
+  line-height: @top-bar-height;
   text-align: center;
 
   .topbar-logo {
     float: left;
-    width: 10%;
     text-align: left;
+    width: 10%;
 
     .logo-image-link {
       background-image: url('images/concourse_logo_white.svg');
@@ -22,8 +25,8 @@
       background-position: center center;
       background-repeat: no-repeat;
       display: inline-block;
-      height: 64px;
-      width: 64px;
+      height: @top-bar-height;
+      width: @top-bar-height;
     }
   }
 
@@ -41,7 +44,8 @@
         background: transparent url('images/ic_search_white_24px.svg') 10px 10px no-repeat;
         border: 1px solid @base03;
         color: @white;
-        font-size: 14px;
+        font-size: (2.3em * @scale);
+        font-family: Inconsolata, monospace;
         height: 35px;
         width: 220px;
         padding: 0 42px;
@@ -82,6 +86,8 @@
       font-weight: bold;
       max-width: 304px;
       cursor: pointer;
+      font-size: (2.3em * @scale);
+      font-family: Inconsolata, monospace;
 
       &:last-of-type {
         border-bottom: 1px solid @base03;
@@ -96,26 +102,37 @@
 
   .topbar-login {
     float: right;
-    width: 10%;
+    max-width: 20%;
     text-align: right;
     white-space: nowrap;
 
     .topbar-user-info {
       border-left: 1px solid @base02;
+      background-color: @base00;
       display: inline-block;
-      line-height: 64px;
-      max-width: 80%;
-      padding: 0 10%;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
-  }
-}
+      line-height: @top-bar-height;
+      width: 100%;
+      text-align: center;
 
-@media (min-width : 320px) and (max-width : 768px) {
-  .module-topbar .topbar-search .topbar-search-form .search-input-field {
-    width: 160px;
+      &:hover {
+        cursor: pointer;
+      }
+
+      .user-id {
+        padding: 0 30px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      .user-menu {
+        border-top: 1px solid @base02;
+      }
+
+      .user-menu:hover {
+        background-color: @base01;
+      }
+    }
   }
 }
 
@@ -125,6 +142,7 @@
     flex-flow: row wrap;
     height: unset;
     line-height: unset;
+    min-height: @top-bar-height;
 
     .topbar-search {
       width: 100%;
@@ -148,8 +166,16 @@
       }
     }
 
-    .topbar-login .topbar-user-info {
-      border: none;
+    .topbar-login {
+      max-width: 65%;
+
+      .topbar-user-info {
+        border: none;
+
+        .user-id {
+          border: none;
+        }
+      }
     }
   }
 }

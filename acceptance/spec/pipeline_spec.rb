@@ -1,3 +1,5 @@
+require 'colors'
+
 describe 'pipeline', type: :feature do
   let(:team_name) { generate_team_name }
   let(:fly_home) { Dir.mktmpdir }
@@ -7,49 +9,22 @@ describe 'pipeline', type: :feature do
     fly_with_input("set-team -n #{team_name} --local-user=#{ATC_USERNAME}", 'y')
 
     fly_login team_name
-    fly('set-pipeline -n -p test-pipeline -c fixtures/pipeline-with-slashes.yml')
+    fly('set-pipeline -n -p test-pipeline -c fixtures/simple-pipeline.yml')
+    fly('set-pipeline -n -p other-pipeline -c fixtures/simple-pipeline.yml')
 
     dash_login
-  end
-
-  context 'with jobs and resources that have unescaped names' do
-    it 'displays the unescaped names in the pipeline view' do
-      expect(page.find('.job')).to have_content 'some/job'
-      expect(page.find('.input')).to have_content 'some/resource'
-    end
-
-    it 'can navigate to the escaped links' do
-      page.find('a > text', text: 'some/job').click
-      expect(page).to have_current_path "/teams/#{team_name}/pipelines/test-pipeline/jobs/some%2Fjob"
-
-      page.go_back
-
-      expect(page).to have_content 'some/resource'
-      page.find('a > text', text: 'some/resource').click
-      expect(page).to have_current_path "/teams/#{team_name}/pipelines/test-pipeline/resources/some%2Fresource"
-    end
-
-    context 'with builds triggered' do
-      it 'can navigate to the build of escaped links of job name' do
-        fly('unpause-pipeline -p test-pipeline')
-        fly('trigger-job -j test-pipeline/some/job')
-        dash_login
-
-        page.find('a > text', text: 'some/job').click
-        expect(page).to have_current_path "/teams/#{team_name}/pipelines/test-pipeline/jobs/some%2Fjob/builds/1"
-      end
-    end
+    visit dash_route("/teams/#{team_name}/pipelines/test-pipeline")
   end
 
   it 'is linked in the sidebar' do
     page.find('.sidebar-toggle').click
 
     within('.sidebar') do
-      expect(page).to have_content('test-pipeline')
-      expect(page).to have_link('test-pipeline')
+      expect(page).to have_content('other-pipeline')
+      expect(page).to have_link('other-pipeline')
 
-      click_on 'test-pipeline'
-      expect(page).to have_current_path "/teams/#{team_name}/pipelines/test-pipeline"
+      click_on 'other-pipeline'
+      expect(page).to have_current_path "/teams/#{team_name}/pipelines/other-pipeline"
     end
   end
 
@@ -67,7 +42,7 @@ describe 'pipeline', type: :feature do
 
   it 'can be paused' do
     fly('unpause-pipeline -p test-pipeline')
-    visit dash_route
+    visit dash_route("/teams/#{team_name}/pipelines/test-pipeline")
 
     page.find('.sidebar-toggle').click
 
@@ -78,5 +53,31 @@ describe 'pipeline', type: :feature do
     pause_button.click
     expect(page).to have_css('.top-bar.paused')
     expect(pause_button['class']).to include 'enabled'
+  end
+
+  context 'with a failing output resource' do
+    include Colors
+
+    let(:node) { page.find('.node.output', text: 'broken-time') }
+    let(:rect) { node.find('rect') }
+
+    before do
+      fly('set-pipeline -n -p states-pipeline -c fixtures/states-pipeline.yml')
+      fly('unpause-pipeline -p states-pipeline')
+      fly_fail('check-resource -r states-pipeline/broken-time')
+      dash_login
+      visit dash_route("/teams/#{team_name}/pipelines/states-pipeline")
+    end
+
+    it 'shows the resource node in amber' do
+      expect(fill_color(rect)).to eq AMBER
+    end
+
+    it 'when the resource is paused shows the node in blue' do
+      node.click
+      page.find('.btn-pause').click
+      visit dash_route("/teams/#{team_name}/pipelines/states-pipeline")
+      expect(fill_color(rect)).to eq BLUE
+    end
   end
 end

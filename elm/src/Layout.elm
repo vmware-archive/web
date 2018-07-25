@@ -43,6 +43,7 @@ type alias Model =
     { navIndex : NavIndex
     , subModel : SubPage.Model
     , topModel : TopBar.Model
+    , topBarType : TopBarType
     , sideModel : SideBar.Model
     , sidebarVisible : Bool
     , turbulenceImgSrc : String
@@ -50,6 +51,11 @@ type alias Model =
     , csrfToken : String
     , route : Routes.ConcourseRoute
     }
+
+
+type TopBarType
+    = Dashboard
+    | Normal
 
 
 type Msg
@@ -71,8 +77,19 @@ init flags location =
         route =
             Routes.parsePath location
 
+        topBarType =
+            case route.logical of
+                Routes.Dashboard ->
+                    Dashboard
+
+                Routes.DashboardHd ->
+                    Dashboard
+
+                _ ->
+                    Normal
+
         ( subModel, subCmd ) =
-            SubPage.init flags.turbulenceImgSrc route
+            SubPage.init { turbulencePath = flags.turbulenceImgSrc, csrfToken = flags.csrfToken } route
 
         ( topModel, topCmd ) =
             TopBar.init route
@@ -87,6 +104,7 @@ init flags location =
             { navIndex = navIndex
             , subModel = subModel
             , topModel = topModel
+            , topBarType = topBarType
             , sideModel = sideModel
             , sidebarVisible = False
             , turbulenceImgSrc = flags.turbulenceImgSrc
@@ -172,44 +190,6 @@ update msg model =
                     ]
                 )
 
-        SubMsg navIndex (SubPage.PipelinesFetched (Ok pipelines)) ->
-            let
-                pipeline =
-                    List.head pipelines
-
-                ( subModel, subCmd ) =
-                    SubPage.update
-                        model.turbulenceImgSrc
-                        model.notFoundImgSrc
-                        model.csrfToken
-                        (SubPage.DefaultPipelineFetched pipeline)
-                        model.subModel
-            in
-                case pipeline of
-                    Nothing ->
-                        ( { model
-                            | subModel = subModel
-                          }
-                        , Cmd.map (SubMsg navIndex) subCmd
-                        )
-
-                    Just p ->
-                        let
-                            ( topModel, topCmd ) =
-                                TopBar.update
-                                    (TopBar.FetchPipeline { teamName = p.teamName, pipelineName = p.name })
-                                    model.topModel
-                        in
-                            ( { model
-                                | subModel = subModel
-                                , topModel = topModel
-                              }
-                            , Cmd.batch
-                                [ Cmd.map (SubMsg navIndex) subCmd
-                                , Cmd.map (TopMsg navIndex) topCmd
-                                ]
-                            )
-
         -- otherwise, pass down
         SubMsg navIndex m ->
             if validNavIndex model.navIndex navIndex then
@@ -268,7 +248,7 @@ urlUpdate route model =
             else if routeMatchesModel route model then
                 SubPage.urlUpdate route model.subModel
             else
-                SubPage.init model.turbulenceImgSrc route
+                SubPage.init { turbulencePath = model.turbulenceImgSrc, csrfToken = model.csrfToken } route
 
         ( newTopModel, tCmd ) =
             if route == model.route then
@@ -317,7 +297,7 @@ view model =
             _ ->
                 Html.div [ class "content-frame" ]
                     [ Html.div [ id "top-bar-app" ]
-                        [ Html.map (TopMsg model.navIndex) (TopBar.view model.topModel) ]
+                        [ Html.map (TopMsg model.navIndex) (TopBar.view model.topModel model.sidebarVisible) ]
                     , Html.div [ class "bottom" ]
                         [ Html.div
                             [ id "pipelines-nav-app"
@@ -334,13 +314,23 @@ view model =
 
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    Sub.batch
-        [ newUrl NewUrl
-        , tokenReceived TokenReceived
-        , Sub.map (TopMsg model.navIndex) <| TopBar.subscriptions model.topModel
-        , Sub.map (SideMsg model.navIndex) <| SideBar.subscriptions model.sideModel
-        , Sub.map (SubMsg model.navIndex) <| SubPage.subscriptions model.subModel
-        ]
+    case model.topBarType of
+        Dashboard ->
+            Sub.batch
+                [ newUrl NewUrl
+                , tokenReceived TokenReceived
+                , Sub.map (SideMsg model.navIndex) <| SideBar.subscriptions model.sideModel
+                , Sub.map (SubMsg model.navIndex) <| SubPage.subscriptions model.subModel
+                ]
+
+        Normal ->
+            Sub.batch
+                [ newUrl NewUrl
+                , tokenReceived TokenReceived
+                , Sub.map (TopMsg model.navIndex) <| TopBar.subscriptions model.topModel
+                , Sub.map (SideMsg model.navIndex) <| SideBar.subscriptions model.sideModel
+                , Sub.map (SubMsg model.navIndex) <| SubPage.subscriptions model.subModel
+                ]
 
 
 routeMatchesModel : Routes.ConcourseRoute -> Model -> Bool

@@ -1,4 +1,4 @@
-module NewTopBar exposing (Model, Msg(FilterMsg, UserFetched, KeyDown), init, fetchUser, update, view)
+module NewTopBar exposing (Model, Msg(FilterMsg, UserFetched, KeyDown, LoggedOut), UserState(UserStateLoggedIn), init, fetchUser, update, view)
 
 import Array
 import Concourse
@@ -8,8 +8,11 @@ import Dom
 import Html exposing (Html)
 import Html.Attributes exposing (class, classList, href, id, src, type_, placeholder, value)
 import Html.Events exposing (..)
+import Http
 import Keyboard
 import Navigation
+import LoginRedirect
+import Navigation exposing (Location)
 import QueryString
 import RemoteData exposing (RemoteData)
 import Task
@@ -17,8 +20,9 @@ import TopBar exposing (userDisplayName)
 
 
 type alias Model =
-    { user : RemoteData.WebData Concourse.User
-    , teams : RemoteData.WebData (List Concourse.Team)
+    { teams : RemoteData.WebData (List Concourse.Team)
+    , userState : UserState
+    , userMenuVisible : Bool
     , query : String
     , showSearch : Bool
     , showAutocomplete : Bool
@@ -27,21 +31,32 @@ type alias Model =
     }
 
 
+type UserState
+    = UserStateLoggedIn Concourse.User
+    | UserStateLoggedOut
+    | UserStateUnknown
+
+
 type Msg
     = Noop
     | UserFetched (RemoteData.WebData Concourse.User)
     | TeamsFetched (RemoteData.WebData (List Concourse.Team))
+    | LogIn
+    | LogOut
+    | LoggedOut (Result Http.Error ())
     | FilterMsg String
     | FocusMsg
     | BlurMsg
     | SelectMsg Int
     | KeyDown Keyboard.KeyCode
+    | ToggleUserMenu
 
 
 init : Bool -> String -> ( Model, Cmd Msg )
-init showSearch query =
-    ( { user = RemoteData.Loading
-      , teams = RemoteData.Loading
+init showSearch query = 
+    ( { teams = RemoteData.Loading
+      , userState = UserStateUnknown
+      , userMenuVisible = False
       , query = query
       , showSearch = showSearch
       , showAutocomplete = False
@@ -77,8 +92,47 @@ update msg model =
                 ]
             )
 
-        UserFetched response ->
-            ( { model | user = response }, Cmd.none )
+        UserFetched user ->
+            case user of
+                RemoteData.Success user ->
+                    ( { model | userState = UserStateLoggedIn user }, Cmd.none )
+
+                _ ->
+                    ( { model | userState = UserStateLoggedOut }
+                    , Cmd.none
+                    )
+
+        LogIn ->
+            ( model
+            , LoginRedirect.requestLoginRedirect ""
+            )
+
+        LogOut ->
+            ( model, logOut )
+
+        LoggedOut (Ok _) ->
+            let
+                redirectUrl =
+                    case model.showSearch of
+                        True ->
+                            "/dashboard"
+
+                        False ->
+                            "/dashboard/hd"
+            in
+                ( { model
+                    | userState = UserStateLoggedOut
+                    , userMenuVisible = False
+                  }
+                , Navigation.newUrl redirectUrl
+                )
+
+        LoggedOut (Err err) ->
+            flip always (Debug.log "failed to log out" err) <|
+                ( model, Cmd.none )
+
+        ToggleUserMenu ->
+            ( { model | userMenuVisible = not model.userMenuVisible }, Cmd.none )
 
         TeamsFetched response ->
             ( { model | teams = response }, Cmd.none )
@@ -135,24 +189,36 @@ update msg model =
                         ( { model | selectionMade = False, selection = 0 }, Cmd.none )
 
 
-showUserInfo : Model -> Html Msg
-showUserInfo model =
-    case model.user of
-        RemoteData.NotAsked ->
-            Html.text "n/a"
+viewUserState : UserState -> Bool -> Html Msg
+viewUserState userState userMenuVisible =
+    case userState of
+        UserStateUnknown ->
+            Html.text ""
 
-        RemoteData.Loading ->
-            Html.text "loading"
-
-        RemoteData.Success user ->
-            Html.text <| userDisplayName user
-
-        RemoteData.Failure _ ->
-            Html.a
-                [ href "/sky/login"
-                , Html.Attributes.attribute "aria-label" "Log In"
+        UserStateLoggedOut ->
+            Html.div [ class "user-id", onClick LogIn ]
+                [ Html.a
+                    [ href "/sky/login"
+                    , Html.Attributes.attribute "aria-label" "Log In"
+                    , class "login-button"
+                    ]
+                    [ Html.text "login"
+                    ]
                 ]
-                [ Html.text "login"
+
+        UserStateLoggedIn user ->
+            Html.div [ class "user-info" ]
+                [ Html.div [ class "user-id", onClick ToggleUserMenu ]
+                    [ Html.text <|
+                        userDisplayName user
+                    ]
+                , Html.div [ classList [ ( "user-menu", True ), ( "hidden", not userMenuVisible ) ], onClick LogOut ]
+                    [ Html.a
+                        [ Html.Attributes.attribute "aria-label" "Log Out"
+                        ]
+                        [ Html.text "logout"
+                        ]
+                    ]
                 ]
 
 
@@ -162,7 +228,8 @@ view model =
         [ Html.div [ class "topbar-logo" ] [ Html.a [ class "logo-image-link", href "#" ] [] ]
         , Html.div [ class "topbar-login" ]
             [ Html.div [ class "topbar-user-info" ]
-                [ showUserInfo model ]
+                [ viewUserState model.userState model.userMenuVisible
+                ]
             ]
         , Html.div [ classList [ ( "topbar-search", True ), ( "hidden", not model.showSearch ) ] ]
             [ Html.div
@@ -238,3 +305,8 @@ autocompleteOptions model =
 
         _ ->
             []
+
+
+logOut : Cmd Msg
+logOut =
+    Task.attempt LoggedOut Concourse.User.logOut

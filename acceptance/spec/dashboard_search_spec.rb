@@ -13,13 +13,13 @@ describe 'dashboard search', type: :feature do
     fly_login team_name
     dash_login
 
-    fly('set-pipeline -n -p some-pipeline -c fixtures/states-pipeline.yml')
+    fly('set-pipeline -n -p some-pipeline -c fixtures/dashboard-pipeline.yml')
     fly('unpause-pipeline -p some-pipeline')
 
-    fly('set-pipeline -n -p other-pipeline -c fixtures/states-pipeline.yml')
+    fly('set-pipeline -n -p other-pipeline -c fixtures/dashboard-pipeline.yml')
     fly('unpause-pipeline -p other-pipeline')
 
-    visit dash_route('/dashboard')
+    visit dash_route
   end
 
   it 'shows "no result" text when query returns nothing' do
@@ -41,7 +41,7 @@ describe 'dashboard search', type: :feature do
     search 'invalid'
     expect(page).to have_content('No results for "invalid" matched your search.', wait: 1)
 
-    sleep 5
+    sleep 5 # auto refresh interval
     expect(page).to have_content('No results for "invalid" matched your search.')
   end
 
@@ -70,7 +70,8 @@ describe 'dashboard search', type: :feature do
       search 'some'
       expect(page.find_all('.dashboard-pipeline-name').map(&:text)).to eq ['some-pipeline']
 
-      fill_in 'search-input-field', with: ''
+      clear_search
+
       search 'pipeline'
       expect(page.find_all('.dashboard-pipeline-name').map(&:text)).to eq ['some-pipeline', 'other-pipeline']
     end
@@ -81,7 +82,8 @@ describe 'dashboard search', type: :feature do
       search '-some'
       expect(page.find_all('.dashboard-pipeline-name').map(&:text)).to eq ['other-pipeline']
 
-      fill_in 'search-input-field', with: ''
+      clear_search
+
       search '-pipeline'
       expect(page).to have_content('No results for "-pipeline" matched your search.')
     end
@@ -96,19 +98,14 @@ describe 'dashboard search', type: :feature do
 
       fly_login other_team_name
 
-      fly('set-pipeline -n -p some-pipeline -c fixtures/states-pipeline.yml')
+      fly('set-pipeline -n -p some-pipeline -c fixtures/dashboard-pipeline.yml')
       fly('unpause-pipeline -p some-pipeline')
-      fly('expose-pipeline -p some-pipeline')
 
-      fly('set-pipeline -n -p other-pipeline -c fixtures/states-pipeline.yml')
+      fly('set-pipeline -n -p other-pipeline -c fixtures/dashboard-pipeline.yml')
       fly('unpause-pipeline -p other-pipeline')
-      fly('expose-pipeline -p other-pipeline')
-
-      fly_with_input("set-team -n #{other_team_name} --local-user=bad-username", 'y')
-      fly_login team_name
 
       dash_login
-      visit dash_route('/dashboard')
+      visit dash_route
     end
 
     after do
@@ -121,9 +118,10 @@ describe 'dashboard search', type: :feature do
       search "team:#{team_name}"
       expect(page.find_all('.dashboard-team-name').map(&:text)).to eq [team_name]
 
-      fill_in 'search-input-field', with: ''
+      clear_search
+
       search "team:#{team_name} some"
-      expect(page.find_all('.dashboard-team-name').map(&:text)).to eq [team_name]
+      expect(page.find_all('.dashboard-team-name', minimum: 1).map(&:text)).to eq [team_name]
       expect(page.find_all('.dashboard-pipeline-name').map(&:text)).to eq ['some-pipeline']
     end
 
@@ -131,7 +129,8 @@ describe 'dashboard search', type: :feature do
       search "team:-#{team_name}"
       expect(page.find_all('.dashboard-team-name').map(&:text)).to eq [other_team_name]
 
-      fill_in 'search-input-field', with: ''
+      clear_search
+
       search "team:-#{team_name} -some"
       expect(page.find_all('.dashboard-team-name').map(&:text)).to eq [other_team_name]
       expect(page.find_all('.dashboard-pipeline-name').map(&:text)).to eq ['other-pipeline']
@@ -141,7 +140,8 @@ describe 'dashboard search', type: :feature do
       search "team:-#{team_name}"
       expect(page.find_all('.dashboard-team-name').map(&:text)).to eq [other_team_name]
 
-      fill_in 'search-input-field', with: ''
+      clear_search
+
       search "team:-#{team_name} status:-pending -some"
       expect(page).to have_content("No results for \"team:-#{team_name} status:-pending -some\" matched your search.")
     end
@@ -151,7 +151,7 @@ describe 'dashboard search', type: :feature do
     it 'filters the pipelines by succeeded status' do
       fly('trigger-job -w -j some-pipeline/passing')
 
-      visit dash_route('/dashboard')
+      visit dash_route
       expect(border_palette).to eq(GREEN)
 
       search 'status:succeeded'
@@ -161,7 +161,7 @@ describe 'dashboard search', type: :feature do
     it 'filters the pipelines by errored status' do
       fly_fail('trigger-job -w -j some-pipeline/erroring')
 
-      visit dash_route('/dashboard')
+      visit dash_route
       expect(border_palette).to eq(AMBER)
 
       search 'status:errored'
@@ -174,18 +174,18 @@ describe 'dashboard search', type: :feature do
       expect(page).to have_content 'hello'
 
       fly('abort-build -j some-pipeline/running -b 1')
-      visit dash_route('/dashboard')
-      expect(page).to have_css('.dashboard-pipeline.dashboard-status-aborted')
+      visit dash_route
+      expect(page).not_to have_content 'running'
       expect(border_palette).to eq(BROWN)
 
       search 'status:aborted'
-      expect(page.find_all('.dashboard-pipeline-name').map(&:text)).to eq ['some-pipeline']
+      expect(page.find_all('.dashboard-pipeline-name', minimum: 1).map(&:text)).to eq ['some-pipeline']
     end
 
     it 'filters the pipelines by paused status' do
       fly('pause-pipeline -p some-pipeline')
 
-      visit dash_route('/dashboard')
+      visit dash_route
       expect(border_palette).to eq(BLUE)
 
       search 'status:paused'
@@ -195,7 +195,7 @@ describe 'dashboard search', type: :feature do
     it 'filters the pipelines by failed status' do
       fly_fail('trigger-job -w -j some-pipeline/failing')
 
-      visit dash_route('/dashboard')
+      visit dash_route
       expect(border_palette).to eq(RED)
 
       search 'status:failed'
@@ -205,7 +205,7 @@ describe 'dashboard search', type: :feature do
     it 'filters the pipelines by negate failed status' do
       fly_fail('trigger-job -w -j some-pipeline/failing')
 
-      visit dash_route('/dashboard')
+      visit dash_route
       expect(border_palette).to eq(RED)
 
       search 'status:-failed'
@@ -222,7 +222,7 @@ describe 'dashboard search', type: :feature do
       visit dash_route("/teams/#{team_name}/pipelines/some-pipeline/jobs/running/builds/1")
       expect(page).to have_content 'hello'
 
-      visit dash_route('/dashboard')
+      visit dash_route
       expect(page).to have_content 'some-pipeline'
 
       search 'status:running'
@@ -231,6 +231,11 @@ describe 'dashboard search', type: :feature do
   end
 
   private
+
+  def clear_search
+    page.find('#search-clear-button').click
+    expect(page.find('#search-input-field').value).to be_empty
+  end
 
   def search(term)
     term.split('').each { |c| find_field('search-input-field').native.send_keys(c) }
