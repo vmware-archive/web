@@ -53,8 +53,8 @@ describe 'dashboard search', type: :feature do
 
     it 'cleans the url with empty query' do
       search 'some-text'
+      search("\b" * 'some-text'.size)
 
-      fill_in 'search-input-field', with: ''
       expect(page.current_url).to end_with '?'
     end
 
