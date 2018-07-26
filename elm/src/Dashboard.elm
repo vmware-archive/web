@@ -155,7 +155,11 @@ update msg model =
             PipelinesResponse response ->
                 case response of
                     RemoteData.Success pipelines ->
-                        ( { model | mPipelines = response, pipelines = pipelines }, Cmd.batch [ fetchAllJobs, fetchAllResources ] )
+                        let
+                            newModel =
+                                { model | pipelines = pipelines }
+                        in
+                            ( { newModel | mPipelines = response, filteredPipelines = filter model.topBar.query newModel }, Cmd.batch [ fetchAllJobs, fetchAllResources ] )
 
                     _ ->
                         ( model, Cmd.none )
