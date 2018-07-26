@@ -73,8 +73,12 @@ queryStringFromSearch query =
             QueryString.render QueryString.empty
 
         query ->
-            QueryString.render <|
-                QueryString.add "search" query QueryString.empty
+            let
+                cleanedQuery =
+                    String.map (\c -> if c == '+' then ' ' else c) query
+            in
+                QueryString.render <|
+                    QueryString.add "search" cleanedQuery QueryString.empty
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
