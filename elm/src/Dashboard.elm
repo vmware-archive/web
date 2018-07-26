@@ -24,7 +24,10 @@ import Keyboard
 import List.Extra
 import Mouse
 import NewTopBar
-import NoPipeline exposing (view, Msg)
+
+
+-- import NoPipeline exposing (view, Msg)
+
 import Regex exposing (replace, regex, HowMany(AtMost))
 import RemoteData
 import Routes
@@ -369,7 +372,7 @@ dashboardView : Model -> Html Msg
 dashboardView model =
     case ( model.mPipelines, model.mJobs ) of
         ( RemoteData.Success [], _ ) ->
-            Html.map (\_ -> Noop) NoPipeline.view
+            pipelinesView model model.pipelines
 
         ( RemoteData.Success _, RemoteData.Success _ ) ->
             if List.length model.filteredPipelines > 0 then
@@ -502,9 +505,26 @@ pipelinesView model pipelines =
                 (List.map (\( teamName, pipelines ) -> groupView model teamName (List.reverse pipelines))
                     pipelinesByTeam
                 )
-                (List.map (\team -> groupView model team.name [])
-                    emptyTeams
-                )
+            <|
+                case String.isEmpty model.topBar.query of
+                    True ->
+                        List.map (\team -> groupView model team.name [])
+                            emptyTeams
+
+                    False ->
+                        let
+                            ( searchTeams, teamSearchTerm ) =
+                                parseSearchQuery "team" model.topBar.query
+
+                            matchTeams =
+                                fuzzySearch .name teamSearchTerm emptyTeams
+                        in
+                            flip always (Debug.log "search" teamSearchTerm) <|
+                                if searchTeams && not (List.isEmpty matchTeams) then
+                                    List.map (\team -> groupView model team.name [])
+                                        matchTeams
+                                else
+                                    []
     in
         Html.div
             [ class "dashboard" ]
@@ -757,23 +777,11 @@ filterByTerms model terms pipelines =
 filterByTerm : String -> List PipelineWithJobs -> List Concourse.Pipeline
 filterByTerm term pipelines =
     let
-        searchTeams =
-            String.startsWith "team:" term
+        ( searchTeams, teamSearchTerm ) =
+            parseSearchQuery "team" term
 
-        searchStatus =
-            String.startsWith "status:" term
-
-        teamSearchTerm =
-            if searchTeams then
-                String.dropLeft 5 term
-            else
-                term
-
-        statusSearchTerm =
-            if searchStatus then
-                String.dropLeft 7 term
-            else
-                term
+        ( searchStatus, statusSearchTerm ) =
+            parseSearchQuery "status" term
 
         plist =
             List.map (\p -> p.pipeline) pipelines
@@ -799,3 +807,22 @@ fuzzySearch map needle records =
             List.filter (not << (Simple.Fuzzy.match needle) << map) records
         else
             List.filter ((Simple.Fuzzy.match needle) << map) records
+
+
+parseSearchQuery : String -> String -> ( Bool, String )
+parseSearchQuery term query =
+    case term of
+        "team" ->
+            if String.startsWith "team:" query then
+                ( True, String.dropLeft 5 query )
+            else
+                ( False, query )
+
+        "status" ->
+            if String.startsWith "status:" query then
+                ( True, String.dropLeft 7 query )
+            else
+                ( False, query )
+
+        _ ->
+            ( False, query )
