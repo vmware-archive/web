@@ -69,7 +69,7 @@ test('scrolls to the top with gg, and to the bottom with G', async t => {
     return document.body.innerText.indexOf("Line 100") !== -1
   }, {
     polling: 100,
-    timeout: 60000
+    timeout: 90000
   });
 
   await t.context.page.type('body', 'G');
