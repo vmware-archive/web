@@ -1,17 +1,25 @@
-module NewTopBar exposing (Model, Msg(FilterMsg, UserFetched, KeyDown, LoggedOut), UserState(UserStateLoggedIn), init, fetchUser, update, view)
+module NewTopBar exposing
+    ( Model
+    , Msg(FilterMsg, KeyDown, LoggedOut, UserFetched)
+    , UserState(UserStateLoggedIn, UserStateLoggedOut, UserStateUnknown)
+    , fetchUser
+    , init
+    , update
+    , view
+    )
 
 import Array
 import Concourse
-import Concourse.User
 import Concourse.Team
+import Concourse.User
 import Dom
 import Html exposing (Html)
-import Html.Attributes exposing (class, classList, href, id, src, type_, placeholder, value)
+import Html.Attributes exposing (class, classList, href, id, placeholder, src, type_, value)
 import Html.Events exposing (..)
 import Http
 import Keyboard
-import Navigation
 import LoginRedirect
+import Navigation
 import QueryString
 import RemoteData exposing (RemoteData)
 import Task
@@ -119,13 +127,13 @@ update msg model =
                         False ->
                             "/dashboard/hd"
             in
-                ( { model
-                    | userState = UserStateLoggedOut
-                    , userMenuVisible = False
-                    , teams = RemoteData.Loading
-                  }
-                , Navigation.newUrl redirectUrl
-                )
+            ( { model
+                | userState = UserStateLoggedOut
+                , userMenuVisible = False
+                , teams = RemoteData.Loading
+              }
+            , Navigation.newUrl redirectUrl
+            )
 
         LoggedOut (Err err) ->
             flip always (Debug.log "failed to log out" err) <|
@@ -149,19 +157,21 @@ update msg model =
         KeyDown keycode ->
             if not model.showAutocomplete then
                 ( { model | selectionMade = False, selection = 0 }, Cmd.none )
+
             else
                 case keycode of
                     -- enter key
                     13 ->
                         if not model.selectionMade then
                             ( model, Cmd.none )
+
                         else
                             let
                                 options =
                                     Array.fromList (autocompleteOptions model)
 
                                 index =
-                                    (model.selection - 1) % (Array.length options)
+                                    (model.selection - 1) % Array.length options
 
                                 selectedItem =
                                     case Array.get index options of
@@ -171,7 +181,7 @@ update msg model =
                                         Just item ->
                                             item
                             in
-                                ( { model | selectionMade = False, selection = 0, query = selectedItem }, Cmd.none )
+                            ( { model | selectionMade = False, selection = 0, query = selectedItem }, Cmd.none )
 
                     -- up arrow
                     38 ->
@@ -257,19 +267,19 @@ view model =
                     options =
                         autocompleteOptions model
                 in
-                    List.indexedMap
-                        (\index option ->
-                            Html.li
-                                [ classList
-                                    [ ( "search-option", True )
-                                    , ( "active", model.selectionMade && index == (model.selection - 1) % (List.length options) )
-                                    ]
-                                , onMouseDown (FilterMsg option)
-                                , onMouseOver (SelectMsg index)
+                List.indexedMap
+                    (\index option ->
+                        Html.li
+                            [ classList
+                                [ ( "search-option", True )
+                                , ( "active", model.selectionMade && index == (model.selection - 1) % List.length options )
                                 ]
-                                [ Html.text option ]
-                        )
-                        options
+                            , onMouseDown (FilterMsg option)
+                            , onMouseOver (SelectMsg index)
+                            ]
+                            [ Html.text option ]
+                    )
+                    options
             ]
         ]
 
