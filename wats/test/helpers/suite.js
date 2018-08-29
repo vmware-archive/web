@@ -1,4 +1,3 @@
-const puppeteer = require('puppeteer');
 
 const Fly = require('./fly');
 const Web = require('./web');
@@ -19,24 +18,13 @@ class Suite {
   async start(t) {
     await this.fly.setup();
 
-    this.browser = await puppeteer.launch({
-      //headless: false,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
-
-    this.page = await this.browser.newPage();
-    //Default page navigation timeout to 90 Seconds.
-    this.page.setDefaultNavigationTimeout(90000);
-    this.page.on("console", (msg) => {
-      console.log(`BROWSER (${msg.type}):`, msg.text);
-    });
-
+    await this.web.expensiveInitThing();
     this.teamName = await this.fly.newTeam();
 
     t.log("team:", this.teamName);
 
     await this.fly.loginAs(this.teamName);
-    await this.web.login(t, this.page);
+    await this.web.login(t);
 
     this.succeeded = false;
   }
@@ -48,12 +36,12 @@ class Suite {
   async finish(t) {
     await this.fly.cleanup();
 
-    if (this.page && !this.succeeded) {
-      await this.page.screenshot({path: 'failure.png'});
+    if (this.web.page && !this.succeeded) {
+      await this.web.page.screenshot({path: 'failure.png'});
     }
 
-    if (this.browser) {
-      await this.browser.close();
+    if (this.web.browser) {
+      await this.web.browser.close();
     }
   }
 }

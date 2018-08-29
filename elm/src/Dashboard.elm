@@ -625,10 +625,37 @@ groupView model teamName pipelines =
                     [ pipelineDropAreaView model teamName (List.length pipelines) ]
     in
     Html.div [ id teamName, class "dashboard-team-group", attribute "data-team-name" teamName ]
-        [ Html.div [ class "pin-wrapper" ]
-            [ Html.div [ class "dashboard-team-name" ] [ Html.text teamName ] ]
+        [ Html.div [ class "pin-wrapper" ] <|
+            compact
+                [ Just <| Html.div [ class "dashboard-team-name" ] [ Html.text teamName ]
+                , groupTagView model teamName
+                ]
         , Html.div [ class "dashboard-team-pipelines" ] teamPipelines
         ]
+
+
+compact : List (Maybe a) -> List a
+compact =
+    List.filterMap identity
+
+
+groupTagView : Model -> String -> Maybe (Html Msg)
+groupTagView model teamName =
+    case model.userState of
+        NewTopBar.UserStateLoggedIn user ->
+            Just <| Html.div [ class "dashboard-team-tag" ] [ groupTagText user teamName |> Html.text ]
+
+        _ ->
+            Nothing
+
+
+groupTagText : Concourse.User -> String -> String
+groupTagText user teamName =
+    if List.member teamName user.teams then
+        "MEMBER"
+
+    else
+        "PUBLIC"
 
 
 pipelineView : Model -> PipelineWithJobs -> Int -> Html Msg

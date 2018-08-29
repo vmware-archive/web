@@ -26,12 +26,12 @@ class Fly {
     return this._spawn('fly', ['-t', this.target].concat(command.split(' ')));
   }
 
-  async newTeam() {
+  async newTeam(username = this.username) {
     await this.loginAs('main');
 
     var name = `watsjs-team-${uuidv4()}`;
 
-    await this.run(`set-team -n ${name} --local-user=${this.username} --non-interactive`);
+    await this.run(`set-team -n ${name} --local-user=${username} --non-interactive`);
 
     this.teams.push(name);
 
