@@ -409,7 +409,7 @@ dashboardView model =
             Html.map (\_ -> Noop) NoPipeline.view
 
         ( RemoteData.Success _, RemoteData.Success _ ) ->
-            pipelinesView model model.filteredPipelines
+            pipelinesView model
 
         ( RemoteData.Failure _, _ ) ->
             turbulenceView model
@@ -533,61 +533,130 @@ turbulenceView model =
 --
 
 
-pipelinesView : Model -> List Concourse.Pipeline -> Html Msg
-pipelinesView model pipelines =
+type Tag
+    = Public
+    | Member
+
+
+tagCompare : Maybe Tag -> Maybe Tag -> Order
+tagCompare a b =
+    case ( a, b ) of
+        ( Just Public, Just Member ) ->
+            GT
+
+        ( Just Member, Just Public ) ->
+            LT
+
+        ( _, _ ) ->
+            EQ
+
+
+tagText : Tag -> String
+tagText tag =
+    case tag of
+        Public ->
+            "PUBLIC"
+
+        Member ->
+            "MEMBER"
+
+
+groupCompare : Group -> Group -> Order
+groupCompare ta tb =
     let
-        pipelinesByTeam =
-            List.foldl
-                (\pipelineWithJobs byTeam ->
-                    groupPipelines byTeam ( pipelineWithJobs.pipeline.teamName, pipelineWithJobs )
-                )
-                []
-                (pipelinesWithJobs model.pipelineJobs model.pipelineResourceErrors pipelines)
-
-        teamsWithPipelines =
-            List.map Tuple.first pipelinesByTeam
-
-        teamsWithoutPipelines =
-            case model.topBar.teams of
-                RemoteData.Success teams ->
-                    Set.toList <| Set.diff (Set.fromList (List.map .name teams)) (Set.fromList teamsWithPipelines)
-
-                _ ->
-                    []
-
-        pipelinesByTeamView =
-            List.map (\( teamName, pipelines ) -> groupView model teamName (List.reverse pipelines))
-                (if String.isEmpty model.topBar.query then
-                    pipelinesByTeam ++ List.map (\team -> ( team, [] )) teamsWithoutPipelines
-
-                 else
-                    let
-                        teamFilters =
-                            filterTerms model.topBar.query |> List.filter (String.startsWith "team:")
-
-                        matchedTeams =
-                            List.foldl
-                                (\teamFilter byTeam ->
-                                    fuzzySearch identity (String.dropLeft 5 teamFilter) byTeam
-                                )
-                                teamsWithoutPipelines
-                                teamFilters
-                    in
-                    if List.isEmpty teamFilters || not (List.all (String.startsWith "team:") (filterTerms model.topBar.query)) then
-                        pipelinesByTeam
-
-                    else
-                        pipelinesByTeam ++ List.map (\team -> ( team, [] )) matchedTeams
-                )
+        tc =
+            tagCompare ta.tag tb.tag
     in
-    if List.isEmpty pipelinesByTeamView then
+    case tc of
+        EQ ->
+            compare ta.team.name tb.team.name
+
+        _ ->
+            tc
+
+
+type alias Group =
+    { team : Concourse.Team
+    , pipelines : List PipelineWithJobs
+    , tag : Maybe Tag
+    }
+
+
+groups : List Concourse.Team -> List PipelineWithJobs -> NewTopBar.UserState -> List Group
+groups teams pipelines userState =
+    let
+        pipelineLists =
+            List.map (pipelinesForTeam pipelines) teams
+
+        tags =
+            List.map (computeTag userState) teams
+    in
+    List.sortWith groupCompare <| List.map3 Group teams pipelineLists tags
+
+
+computeTag : NewTopBar.UserState -> Concourse.Team -> Maybe Tag
+computeTag userState team =
+    case userState of
+        NewTopBar.UserStateLoggedIn user ->
+            if List.member team.name user.teams then
+                Just Member
+
+            else
+                Just Public
+
+        _ ->
+            Nothing
+
+
+pipelinesForTeam : List PipelineWithJobs -> Concourse.Team -> List PipelineWithJobs
+pipelinesForTeam pipelines team =
+    List.sortBy pipelineTeamName <|
+        List.filter ((==) team.name << pipelineTeamName) pipelines
+
+
+pipelineTeamName : PipelineWithJobs -> String
+pipelineTeamName =
+    .pipeline >> .teamName
+
+
+filterOnFuzzyMatchingTerm : String -> List Group -> List Group
+filterOnFuzzyMatchingTerm term groups =
+    fuzzySearch (.team >> .name) term groups
+
+
+pipelinesView : Model -> Html Msg
+pipelinesView model =
+    let
+        pipelines =
+            pipelinesWithJobs model.pipelineJobs model.pipelineResourceErrors model.filteredPipelines
+
+        teams =
+            RemoteData.withDefault [] model.topBar.teams
+
+        allGroups =
+            groups teams pipelines model.topBar.userState
+
+        teamFilters =
+            filterTerms model.topBar.query |> List.filter (String.startsWith "team:") |> List.map (String.dropLeft 5)
+
+        filteredGroups =
+            List.foldl filterOnFuzzyMatchingTerm allGroups teamFilters
+
+        groupViews =
+            if List.isEmpty teamFilters || not (List.all (String.startsWith "team:") (filterTerms model.topBar.query)) then
+                List.map (groupView model) <| List.filter (not << List.isEmpty << .pipelines) <| filteredGroups
+
+            else
+                List.map (groupView model) filteredGroups
+    in
+    if List.isEmpty groupViews then
         noResultsView (toString model.topBar.query)
 
     else
         Html.div
             [ class "dashboard" ]
         <|
-            [ Html.div [ class "dashboard-content" ] <| pipelinesByTeamView
+            [ Html.div [ class "dashboard-content" ] <| groupViews
             , footerView model
             , helpView model
             ]
@@ -606,30 +675,30 @@ handleKeyPressed key model =
             update ShowFooter model
 
 
-groupView : Model -> String -> List PipelineWithJobs -> Html Msg
-groupView model teamName pipelines =
+groupView : Model -> Group -> Html Msg
+groupView model group =
     let
         teamPipelines =
-            if List.isEmpty pipelines then
+            if List.isEmpty group.pipelines then
                 [ pipelineNotSetView ]
 
             else
                 List.append
                     (List.indexedMap
                         (\i pipeline ->
-                            Html.div [ class "pipeline-wrapper" ] [ pipelineDropAreaView model teamName i, pipelineView model pipeline i ]
+                            Html.div [ class "pipeline-wrapper" ] [ pipelineDropAreaView model group.team.name i, pipelineView model pipeline i ]
                         )
-                        pipelines
+                        group.pipelines
                     )
-                    [ pipelineDropAreaView model teamName (List.length pipelines) ]
+                    [ pipelineDropAreaView model group.team.name (List.length group.pipelines) ]
     in
-    Html.div [ id teamName, class "dashboard-team-group", attribute "data-team-name" teamName ]
+    Html.div [ id group.team.name, class "dashboard-team-group", attribute "data-team-name" group.team.name ]
         [ Html.div [ class "pin-wrapper" ] <|
             compact
-                [ Just <| Html.div [ class "dashboard-team-name" ] [ Html.text teamName ]
-                , groupTagView model teamName
+                [ Just <| Html.div [ class "dashboard-team-name" ] [ Html.text group.team.name ]
+                , groupTagView model group.team.name
                 ]
-        , Html.div [ class "dashboard-team-pipelines" ] teamPipelines
+        , Html.div [ class "dashboard-team-group.pipelines" ] teamPipelines
         ]
 
 
