@@ -11,7 +11,13 @@ class Web {
     this.password = password;
   }
 
-  async expensiveInitThing() {
+  static async build(url, username, password) {
+    let web = new Web(url, username, password);
+    await web.init();
+    return web;
+  }
+
+  async init() {
     this.browser = await puppeteer.launch({
       //headless: false,
       args: ['--disable-setuid-sandbox']

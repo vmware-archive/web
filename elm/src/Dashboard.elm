@@ -13,7 +13,6 @@ import Concourse.User
 import DashboardHelpers exposing (..)
 import DashboardPreview
 import Date exposing (Date)
-import Debug
 import Dict exposing (Dict)
 import Dom
 import Html exposing (Html)

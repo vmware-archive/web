@@ -14,7 +14,13 @@ class Fly {
     this.teams = [];
   }
 
-  async setup() {
+  static async build(url, username, password) {
+    let fly = new Fly(url, username, password);
+    await fly.init();
+    return fly;
+  }
+
+  async init() {
     this.home = await tmp.dir({ unsafeCleanup: true });
   }
 
@@ -27,6 +33,7 @@ class Fly {
   }
 
   async newTeam(username = this.username) {
+    let oldTeam = this.currentTeam || 'main';
     await this.loginAs('main');
 
     var name = `watsjs-team-${uuidv4()}`;
@@ -34,6 +41,7 @@ class Fly {
     await this.run(`set-team -n ${name} --local-user=${username} --non-interactive`);
 
     this.teams.push(name);
+    await this.loginAs(oldTeam);
 
     return name;
   }
@@ -49,6 +57,7 @@ class Fly {
   }
 
   loginAs(teamName) {
+    this.currentTeam = teamName;
     return this.run(`login -c ${this.url} -n ${teamName} -u ${this.username} -p ${this.password}`);
   }
 

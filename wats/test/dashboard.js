@@ -9,8 +9,7 @@ const color = require('color');
 const palette = require('./helpers/palette');
 
 test.beforeEach(async t => {
-  t.context = new Suite();
-  await t.context.start(t);
+  t.context = await Suite.build(t);
 });
 
 test.afterEach(async t => {
@@ -20,7 +19,6 @@ test.afterEach(async t => {
 test.always.afterEach(async t => {
   await t.context.finish(t);
 });
-
 
 async function showsPipelineState(t, setup, assertions) {
   await t.context.fly.run('set-pipeline -n -p some-pipeline -c fixtures/states-pipeline.yml');
@@ -41,63 +39,70 @@ async function showsPipelineState(t, setup, assertions) {
   await assertions(t, text, color(background), group);
 };
 
-// no exposed pipelines, teams: main, A, B
-// unauthenticated - can't see group A
-// member of team A - see "MEMBER" on group A
-// on only team B - can't see group A  (TODO)
-// on only main - see "PUBLIC" on group A
-//
-// exposed pipeline P belongs to team A
-// unauthenticated - no tag on group A
-// on only team B - see "PUBLIC" on group A
-
 test('does not show team name when unauthenticated and team has no exposed pipelines', async t => {
-  let teamName = await t.context.fly.newTeam('test2');
+  t.context.web = await Web.build(t.context.url)
   await t.context.web.page.goto(t.context.web.route('/'));
 
-  const group = `.dashboard-team-group[data-team-name="${teamName}"]`;
+  const group = `.dashboard-team-group[data-team-name="main"]`;
   const element = await t.context.web.page.$(group);
 
   t.falsy(element);
 })
 
+test('shows team name with no tag when unauthenticated and team has an exposed pipeline', async t => {
+  await t.context.fly.run('set-pipeline -n -p some-pipeline -c fixtures/states-pipeline.yml');
+  await t.context.fly.run('expose-pipeline -p some-pipeline');
+
+  t.context.web = await Web.build(t.context.url)
+  await t.context.web.page.goto(t.context.web.route('/'));
+
+  const group = `.dashboard-team-group[data-team-name="${t.context.teamName}"]`;
+  const element = await t.context.web.page.waitFor(group);
+  t.truthy(element);
+
+  const tag = await t.context.web.page.$(`${group} .dashboard-team-tag`);
+  t.falsy(tag);
+});
+
 test('shows team name with member tag when user is a member of the team', async t => {
   let teamName = await t.context.fly.newTeam('test2');
 
-  let userFly = await t.context.newFly('test2', 'test2');
+  let userFly = await Fly.build(t.context.url, 'test2', 'test2');
   await userFly.loginAs(teamName);
   await userFly.run('set-pipeline -n -p some-pipeline -c fixtures/states-pipeline.yml');
 
-  let userWeb = new Web(t.context.url, 'test2', 'test2');
-  await userWeb.expensiveInitThing();
-  await userWeb.login(t);
+  t.context.web = await Web.build(t.context.url, 'test2', 'test2');
+  await t.context.web.login(t);
 
   const group = `.dashboard-team-group[data-team-name="${teamName}"] .dashboard-team-tag`;
-  const element = await userWeb.page.waitFor(group);
+  const element = await t.context.web.page.waitFor(group);
   t.truthy(element);
 
-  const tagText = await userWeb.page.$$eval(group, n => n[0].innerText);
+  const tagText = await t.context.web.page.$$eval(group, n => n[0].innerText);
   t.deepEqual(tagText, "MEMBER");
 })
 
 test('does not show team name when user is logged in another team and has no exposed pipelines', async t => {
-  let teamName = await t.context.fly.newTeam('test2');
-
   await t.context.fly.run('set-pipeline -n -p some-pipeline -c fixtures/states-pipeline.yml');
 
-  let userWeb = new Web(t.context.url, 'test2', 'test2');
-  await userWeb.expensiveInitThing();
-  await userWeb.login(t);
+  let teamName = await t.context.fly.newTeam('test2');
 
-  const group = `.dashboard-team-group[data-team-name="${teamName}"]`;
+  t.context.web = await Web.build(t.context.url, 'test2', 'test2');
+  await t.context.web.login(t);
+
+  await t.context.web.page.waitFor('.dashboard-content');
+  const group = `.dashboard-team-group[data-team-name="${t.context.teamName}"]`;
   const element = await t.context.web.page.$(group);
   t.falsy(element);
 })
 
 test('shows team name with public tag when user is member of main team', async t => {
-  await t.context.fly.run('set-pipeline -n -p some-pipeline -c fixtures/states-pipeline.yml');
-
   let teamName = await t.context.fly.newTeam('test2');
+
+  let userFly = await Fly.build(t.context.url, 'test2', 'test2');
+  await userFly.loginAs(teamName);
+  await userFly.run('set-pipeline -n -p some-pipeline -c fixtures/states-pipeline.yml');
+
   await t.context.web.page.goto(t.context.web.route('/'));
   const group = `.dashboard-team-group[data-team-name="${teamName}"] .dashboard-team-tag`;
   const element = await t.context.web.page.waitFor(group);
@@ -107,6 +112,21 @@ test('shows team name with public tag when user is member of main team', async t
   t.deepEqual(tagText, "PUBLIC");
 });
 
+test('shows team name with public tag when team has an exposed pipeline and user is logged into another team', async t => {
+  await t.context.fly.run('set-pipeline -n -p some-pipeline -c fixtures/states-pipeline.yml');
+  await t.context.fly.run('expose-pipeline -p some-pipeline');
+  let teamName = await t.context.fly.newTeam('test2');
+
+  t.context.web = await Web.build(t.context.url, 'test2', 'test2');
+  await t.context.web.login(t);
+
+  const group = `.dashboard-team-group[data-team-name="${t.context.teamName}"] .dashboard-team-tag`;
+  const element = await t.context.web.page.waitFor(group);
+  t.truthy(element);
+
+  const tagText = await t.context.web.page.$$eval(group, n => n[0].innerText);
+  t.deepEqual(tagText, "PUBLIC");
+});
 
 test('shows pipelines in their correct order', async t => {
   let pipelineOrder = ['first', 'second', 'third', 'fourth', 'fifth'];
