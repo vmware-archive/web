@@ -16,7 +16,7 @@ test.afterEach(async t => {
   t.context.passed(t);
 });
 
-test.always.afterEach(async t => {
+test.afterEach.always(async t => {
   await t.context.finish(t);
 });
 
@@ -65,10 +65,8 @@ test('shows team name with no tag when unauthenticated and team has an exposed p
 });
 
 test('shows team name with member tag when user is a member of the team', async t => {
-  let teamName = await t.context.fly.newTeam('test2');
-
-  let userFly = await Fly.build(t.context.url, 'test2', 'test2');
-  await userFly.loginAs(teamName);
+  let teamName = await t.context.newTeam('test2');
+  let userFly = await Fly.build(t.context.url, 'test2', 'test2', teamName);
   await userFly.run('set-pipeline -n -p some-pipeline -c fixtures/states-pipeline.yml');
 
   t.context.web = await Web.build(t.context.url, 'test2', 'test2');
@@ -85,7 +83,7 @@ test('shows team name with member tag when user is a member of the team', async 
 test('does not show team name when user is logged in another team and has no exposed pipelines', async t => {
   await t.context.fly.run('set-pipeline -n -p some-pipeline -c fixtures/states-pipeline.yml');
 
-  let teamName = await t.context.fly.newTeam('test2');
+  let teamName = await t.context.newTeam('test2');
 
   t.context.web = await Web.build(t.context.url, 'test2', 'test2');
   await t.context.web.login(t);
@@ -97,10 +95,8 @@ test('does not show team name when user is logged in another team and has no exp
 })
 
 test('shows team name with public tag when user is member of main team', async t => {
-  let teamName = await t.context.fly.newTeam('test2');
-
-  let userFly = await Fly.build(t.context.url, 'test2', 'test2');
-  await userFly.loginAs(teamName);
+  let teamName = await t.context.newTeam('test2');
+  let userFly = await Fly.build(t.context.url, 'test2', 'test2', teamName);
   await userFly.run('set-pipeline -n -p some-pipeline -c fixtures/states-pipeline.yml');
 
   await t.context.web.page.goto(t.context.web.route('/'));
@@ -115,7 +111,7 @@ test('shows team name with public tag when user is member of main team', async t
 test('shows team name with public tag when team has an exposed pipeline and user is logged into another team', async t => {
   await t.context.fly.run('set-pipeline -n -p some-pipeline -c fixtures/states-pipeline.yml');
   await t.context.fly.run('expose-pipeline -p some-pipeline');
-  let teamName = await t.context.fly.newTeam('test2');
+  let teamName = await t.context.newTeam('test2');
 
   t.context.web = await Web.build(t.context.url, 'test2', 'test2');
   await t.context.web.login(t);

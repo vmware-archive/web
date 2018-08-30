@@ -13,7 +13,7 @@ test.afterEach(async t => {
   t.context.passed(t);
 });
 
-test.always.afterEach(async t => {
+test.afterEach.always(async t => {
   await t.context.finish(t);
 });
 
