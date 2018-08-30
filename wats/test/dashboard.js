@@ -21,6 +21,7 @@ test.always.afterEach(async t => {
   await t.context.finish(t);
 });
 
+
 async function showsPipelineState(t, setup, assertions) {
   await t.context.fly.run('set-pipeline -n -p some-pipeline -c fixtures/states-pipeline.yml');
   await t.context.fly.run('unpause-pipeline -p some-pipeline');
@@ -62,25 +63,20 @@ test('does not show team name when unauthenticated and team has no exposed pipel
 
 test('shows team name with member tag when user is a member of the team', async t => {
   let teamName = await t.context.fly.newTeam('test2');
-  let userWeb = new Web(t.context.url, 'test2', 'test2');
-  let userFly = new Fly(t.context.url, 'test2', 'test2');
 
-  await userFly.setup();
+  let userFly = await t.context.newFly('test2', 'test2');
   await userFly.loginAs(teamName);
   await userFly.run('set-pipeline -n -p some-pipeline -c fixtures/states-pipeline.yml');
 
-  let browser = await puppeteer.launch({
-    headless: false,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
-
-  let page = await browser.newPage()
+  let userWeb = new Web(t.context.url, 'test2', 'test2');
+  await userWeb.expensiveInitThing();
   await userWeb.login(t);
+
   const group = `.dashboard-team-group[data-team-name="${teamName}"] .dashboard-team-tag`;
-  const element = await page.waitFor(group);
+  const element = await userWeb.page.waitFor(group);
   t.truthy(element);
 
-  const tagText = await page.$$eval(group, n => n[0].innerText);
+  const tagText = await userWeb.page.$$eval(group, n => n[0].innerText);
   t.deepEqual(tagText, "MEMBER");
 })
 
@@ -214,5 +210,5 @@ test('links to specific builds', async t => {
 
   const group = `.dashboard-team-group[data-team-name="${t.context.teamName}"]`;
   await t.context.web.clickAndWait(`${group} .node[data-tooltip="passing"] a`, '.build-header');
-  t.regex(await t.context.web.text(/passing #1/));
+  t.regex(await t.context.web.text(), /passing #1/);
 });

@@ -13,6 +13,7 @@ class Suite {
 
     this.fly = new Fly(this.url, this.username, this.password);
     this.web = new Web(this.url, this.username, this.password);
+    this.flys = []
   }
 
   async start(t) {
@@ -35,6 +36,9 @@ class Suite {
 
   async finish(t) {
     await this.fly.cleanup();
+    for (let index = 0; index < this.flys.length; index++) {
+      await this.flys[index].cleanup();
+    }
 
     if (this.web.page && !this.succeeded) {
       await this.web.page.screenshot({path: 'failure.png'});
@@ -43,6 +47,13 @@ class Suite {
     if (this.web.browser) {
       await this.web.browser.close();
     }
+  }
+
+  async newFly(username, password) {
+    let userFly = new Fly(this.url, username, password);
+    await userFly.setup();
+    this.flys = this.flys.push(userFly);
+    return userFly;
   }
 }
 

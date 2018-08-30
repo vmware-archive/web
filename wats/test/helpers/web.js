@@ -13,8 +13,8 @@ class Web {
 
   async expensiveInitThing() {
     this.browser = await puppeteer.launch({
-      headless: false,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
+      //headless: false,
+      args: ['--disable-setuid-sandbox']
     });
 
     this.page = await this.browser.newPage();

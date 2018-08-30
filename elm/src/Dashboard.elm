@@ -169,12 +169,12 @@ update msg model =
             case user of
                 RemoteData.Success user ->
                     ( { model | userState = NewTopBar.UserStateLoggedIn user }
-                    , Debug.log "ACTION: user fetched" Cmd.none
+                    , Cmd.none
                     )
 
                 _ ->
                     ( { model | userState = NewTopBar.UserStateLoggedOut }
-                    , Debug.log "ACTION: user logged out" Cmd.none
+                    , Cmd.none
                     )
 
         PipelinesResponse response ->
