@@ -22,6 +22,7 @@ import Routes
 import Set
 import Task exposing (Task)
 import Time exposing (Time)
+import UserState
 
 
 type alias Ports =
@@ -215,7 +216,7 @@ pipelinesView model pipelines =
 
         sortedPipelinesByTeam =
             case model.topBar.userState of
-                NewTopBar.UserStateLoggedIn _ ->
+                UserState.UserStateLoggedIn _ ->
                     case pipelinesByTeam of
                         [] ->
                             []

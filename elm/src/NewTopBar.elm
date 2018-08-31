@@ -1,12 +1,12 @@
-module NewTopBar exposing
-    ( Model
-    , Msg(FilterMsg, KeyDown, LoggedOut, UserFetched)
-    , UserState(UserStateLoggedIn, UserStateLoggedOut, UserStateUnknown)
-    , fetchUser
-    , init
-    , update
-    , view
-    )
+module NewTopBar
+    exposing
+        ( Model
+        , Msg(FilterMsg, KeyDown, LoggedOut, UserFetched)
+        , fetchUser
+        , init
+        , update
+        , view
+        )
 
 import Array
 import Concourse
@@ -24,6 +24,7 @@ import QueryString
 import RemoteData exposing (RemoteData)
 import Task
 import TopBar exposing (userDisplayName)
+import UserState exposing (UserState(..))
 
 
 type alias Model =
@@ -36,12 +37,6 @@ type alias Model =
     , selectionMade : Bool
     , selection : Int
     }
-
-
-type UserState
-    = UserStateLoggedIn Concourse.User
-    | UserStateLoggedOut
-    | UserStateUnknown
 
 
 type Msg
@@ -127,13 +122,13 @@ update msg model =
                         False ->
                             "/dashboard/hd"
             in
-            ( { model
-                | userState = UserStateLoggedOut
-                , userMenuVisible = False
-                , teams = RemoteData.Loading
-              }
-            , Navigation.newUrl redirectUrl
-            )
+                ( { model
+                    | userState = UserStateLoggedOut
+                    , userMenuVisible = False
+                    , teams = RemoteData.Loading
+                  }
+                , Navigation.newUrl redirectUrl
+                )
 
         LoggedOut (Err err) ->
             flip always (Debug.log "failed to log out" err) <|
@@ -157,14 +152,12 @@ update msg model =
         KeyDown keycode ->
             if not model.showAutocomplete then
                 ( { model | selectionMade = False, selection = 0 }, Cmd.none )
-
             else
                 case keycode of
                     -- enter key
                     13 ->
                         if not model.selectionMade then
                             ( model, Cmd.none )
-
                         else
                             let
                                 options =
@@ -181,7 +174,7 @@ update msg model =
                                         Just item ->
                                             item
                             in
-                            ( { model | selectionMade = False, selection = 0, query = selectedItem }, Cmd.none )
+                                ( { model | selectionMade = False, selection = 0, query = selectedItem }, Cmd.none )
 
                     -- up arrow
                     38 ->
@@ -267,19 +260,19 @@ view model =
                     options =
                         autocompleteOptions model
                 in
-                List.indexedMap
-                    (\index option ->
-                        Html.li
-                            [ classList
-                                [ ( "search-option", True )
-                                , ( "active", model.selectionMade && index == (model.selection - 1) % List.length options )
+                    List.indexedMap
+                        (\index option ->
+                            Html.li
+                                [ classList
+                                    [ ( "search-option", True )
+                                    , ( "active", model.selectionMade && index == (model.selection - 1) % List.length options )
+                                    ]
+                                , onMouseDown (FilterMsg option)
+                                , onMouseOver (SelectMsg index)
                                 ]
-                            , onMouseDown (FilterMsg option)
-                            , onMouseOver (SelectMsg index)
-                            ]
-                            [ Html.text option ]
-                    )
-                    options
+                                [ Html.text option ]
+                        )
+                        options
             ]
         ]
 
