@@ -70,6 +70,13 @@ type alias Model =
     , dropState : Pipeline.DropState
     }
 
+type alias Data =
+    { pipelines : List Concourse.Pipeline
+    , jobs : List Concourse.Job
+    , resources : List Concourse.Resource
+    , version : String
+    }
+
 
 type Msg
     = Noop
@@ -554,6 +561,11 @@ handleKeyPressed key model =
         _ ->
             update ShowFooter model
 
+fetchDataCmd : RemoteData.WebData Data
+    RemoteData.map Data (RemoteData.fromTask Concourse.User.fetchUser)
+        |> RemoteData.andMap (RemoteData.fromTask Concourse.Pipeline.fetchPipelines)
+        |> RemoteData.andMap (RemoteData.fromTask Concourse.Job.fetchAllJobs)
+        |> RemoteData.andMap (RemoteData.fromTask Concourse.Info.fetch)
 
 fetchUser : Cmd Msg
 fetchUser =

@@ -1,14 +1,16 @@
 module Dashboard.Pipeline exposing (Msg(..), DragState(..), DropState(..), pipelineNotSetView, pipelineDropAreaView, pipelineView, pipelineStatus)
 
-import BuildDuration
 import Concourse
 import Concourse.PipelineStatus
+import Duration
 import DashboardHelpers exposing (..)
 import DashboardPreview
 import Date
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (on, onMouseEnter)
+import List.Extra
+import Maybe.Extra
 import Json.Decode
 import Routes
 import StrictEvents exposing (onLeftClick)
@@ -79,7 +81,7 @@ pipelineView dragState now ({ pipeline, jobs, resourceError } as pipelineWithJob
         [ classList
             [ ( "dashboard-pipeline", True )
             , ( "dashboard-paused", pipeline.paused )
-            , ( "dashboard-running", List.any (\job -> job.nextBuild /= Nothing) jobs )
+            , ( "dashboard-running", not <| List.isEmpty <| List.filterMap .nextBuild jobs )
             , ( "dashboard-status-" ++ Concourse.PipelineStatus.show (pipelineStatusFromJobs jobs False), not pipeline.paused )
             , ( "dragging", dragState == Dragging pipeline.teamName index )
             ]
@@ -92,81 +94,107 @@ pipelineView dragState now ({ pipeline, jobs, resourceError } as pipelineWithJob
         [ Html.div [ class "dashboard-pipeline-banner" ] []
         , Html.div
             [ class "dashboard-pipeline-content" ]
-            [ Html.a [ href <| Routes.pipelineRoute pipeline, draggable "false" ]
-                [ Html.div
-                    [ class "dashboard-pipeline-header"
-                    , onMouseEnter <| Tooltip pipeline.name pipeline.teamName
-                    ]
-                    [ Html.div [ class "dashboard-pipeline-name" ]
-                        [ Html.text pipeline.name ]
-                    , Html.div [ classList [ ( "dashboard-resource-error", resourceError ) ] ] []
-                    ]
-                ]
+            [ headerView pipelineWithJobs
             , DashboardPreview.view jobs
-            , Html.div [ class "dashboard-pipeline-footer" ]
-                [ Html.div [ class "dashboard-pipeline-icon" ] []
-                , timeSincePipelineTransitioned now pipelineWithJobs
-                , pauseToggleView pipeline
-                ]
+            , footerView pipelineWithJobs now
             ]
         ]
 
+headerView : PipelineWithJobs -> Html Msg
+headerView ({pipeline, resourceError} as pipelineWithJobs) =
+    Html.a [ href <| Routes.pipelineRoute pipeline, draggable "false" ]
+        [ Html.div
+            [ class "dashboard-pipeline-header"
+            , onMouseEnter <| Tooltip pipeline.name pipeline.teamName
+            ]
+            [ Html.div [ class "dashboard-pipeline-name" ]
+                [ Html.text pipeline.name ]
+            , Html.div [ classList [ ( "dashboard-resource-error", resourceError ) ] ] []
+            ]
+        ]
 
-timeSincePipelineTransitioned : Maybe Time -> PipelineWithJobs -> Html a
-timeSincePipelineTransitioned time ({ jobs } as pipelineWithJobs) =
-    let
-        status =
-            pipelineStatus pipelineWithJobs
+footerView : PipelineWithJobs -> Maybe Time -> Html Msg
+footerView pipelineWithJobs now =
+    Html.div [ class "dashboard-pipeline-footer" ]
+        [ Html.div [ class "dashboard-pipeline-icon" ] []
+        , transitionView now pipelineWithJobs
+        , pauseToggleView pipelineWithJobs.pipeline
+        ]
 
-        transitionedJobs =
-            List.filter
-                (\job ->
-                    not <| xor (status == Concourse.PipelineStatusSucceeded) (Just Concourse.BuildStatusSucceeded == Maybe.map .status job.finishedBuild)
-                )
-                jobs
 
-        transitionedDurations =
-            List.filterMap
-                (\job ->
-                    Maybe.map .duration job.transitionBuild
-                )
-                transitionedJobs
+type alias Event =
+    { succeeded : Bool
+    , time : Time
+    }
 
-        sortedTransitionedDurations =
-            List.sortBy
-                (\duration ->
-                    case duration.startedAt of
-                        Just date ->
-                            Time.inSeconds <| Date.toTime date
 
-                        Nothing ->
-                            0
-                )
-                transitionedDurations
+transitionTime : PipelineWithJobs -> Maybe Time
+transitionTime =
+    .jobs
+        >> List.filterMap jobEvent
+        >> List.sortBy .time
+        >> List.reverse
+        >> List.Extra.groupWhile (equalBy .succeeded)
+        >> List.Extra.getAt 1
+        >> Maybe.map List.head
+        >> Maybe.Extra.join
+        >> Maybe.map .time
 
-        transitionedDuration =
-            if status == Concourse.PipelineStatusSucceeded then
-                List.head << List.reverse <| sortedTransitionedDurations
-            else
-                List.head <| sortedTransitionedDurations
-    in
-        case status of
-            Concourse.PipelineStatusPaused ->
-                Html.div [ class "build-duration" ] [ Html.text "paused" ]
 
-            Concourse.PipelineStatusPending ->
-                Html.div [ class "build-duration" ] [ Html.text "pending" ]
+jobEvent : Concourse.Job -> Maybe Event
+jobEvent job =
+    Maybe.map
+        (Event <| jobSucceeded job)
+        (transitionStart job)
 
-            Concourse.PipelineStatusRunning ->
-                Html.div [ class "build-duration" ] [ Html.text "running" ]
 
-            _ ->
-                case ( time, transitionedDuration ) of
-                    ( Just now, Just duration ) ->
-                        BuildDuration.show duration now
+equalBy : (a -> b) -> a -> a -> Bool
+equalBy f x y =
+    f x == f y
 
-                    _ ->
-                        Html.text ""
+
+jobSucceeded : Concourse.Job -> Bool
+jobSucceeded =
+    .finishedBuild
+        >> Maybe.map (.status >> (==) Concourse.BuildStatusSucceeded)
+        >> Maybe.withDefault False
+
+
+transitionStart : Concourse.Job -> Maybe Time
+transitionStart =
+    .transitionBuild
+        >> Maybe.map (.duration >> .startedAt)
+        >> Maybe.Extra.join
+        >> Maybe.map Date.toTime
+
+
+sinceTransitionText : PipelineWithJobs -> Maybe Time -> String
+sinceTransitionText pipeline =
+    Maybe.map2 Duration.between (transitionTime pipeline)
+        >> Maybe.map Duration.format
+        >> Maybe.withDefault ""
+
+
+statusAgeText : PipelineWithJobs -> Maybe Time -> String
+statusAgeText pipeline =
+    case pipelineStatus pipeline of
+        Concourse.PipelineStatusPaused ->
+            always "paused"
+
+        Concourse.PipelineStatusPending ->
+            always "pending"
+
+        Concourse.PipelineStatusRunning ->
+            always "running"
+
+        _ ->
+            sinceTransitionText pipeline
+
+
+transitionView : Maybe Time -> PipelineWithJobs -> Html a
+transitionView time pipeline =
+    Html.div [ class "build-duration" ]
+        [ Html.text <| statusAgeText pipeline time ]
 
 
 pipelineStatus : PipelineWithJobs -> Concourse.PipelineStatus
