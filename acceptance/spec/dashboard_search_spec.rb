@@ -134,7 +134,7 @@ describe 'dashboard search', type: :feature do
 
     it 'filters the pipelines by negate team' do
       search "team: -#{team_name}"
-      expect(page.find_all('.dashboard-team-name').map(&:text)).to eq [other_team_name, "main"]
+      expect(page.find_all('.dashboard-team-name').map(&:text)).to eq ["main", other_team_name]
 
       clear_search
 
@@ -145,7 +145,7 @@ describe 'dashboard search', type: :feature do
 
     it 'filters the pipelines by negate team, negate pipeline and negate status' do
       search "team: -#{team_name}"
-      expect(page.find_all('.dashboard-team-name').map(&:text)).to eq [other_team_name, "main"]
+      expect(page.find_all('.dashboard-team-name').map(&:text)).to eq ["main", other_team_name]
 
       clear_search
 

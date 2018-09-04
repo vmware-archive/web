@@ -24,9 +24,9 @@ text tag =
             "MEMBER"
 
 
-tag : Concourse.User -> Concourse.Team -> Tag
-tag user team =
-    if List.member team.name user.teams then
+tag : Concourse.User -> String -> Tag
+tag user teamName =
+    if List.member teamName user.teams then
         Member
     else
         Public

@@ -383,13 +383,13 @@ fetchAllJobs : Cmd Msg
 fetchAllJobs =
     Cmd.map JobsResponse <|
         RemoteData.asCmd <|
-            Concourse.Job.fetchAllJobs
+            (Concourse.Job.fetchAllJobs |> Task.map (Maybe.withDefault []))
 
 
 fetchAllResources : Cmd Msg
 fetchAllResources =
     Cmd.map ResourcesResponse <|
-        RemoteData.asCmd Concourse.Resource.fetchAllResources
+        RemoteData.asCmd (Concourse.Resource.fetchAllResources |> Task.map (Maybe.withDefault []))
 
 
 fetchVersion : Cmd Msg
