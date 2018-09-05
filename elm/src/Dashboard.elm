@@ -56,13 +56,6 @@ type alias Flags =
 type alias Model =
     { topBar : NewTopBar.Model
     , data : RemoteData.WebData DashboardData
-    , userState : UserState.UserState
-    , mPipelines : RemoteData.WebData (List Concourse.Pipeline)
-    , pipelines : List Concourse.Pipeline
-    , filteredPipelines : List Concourse.Pipeline
-    , mJobs : RemoteData.WebData (List Concourse.Job)
-    , pipelineJobs : Dict Int (List Concourse.Job)
-    , pipelineResourceErrors : Dict ( String, String ) Bool
     , concourseVersion : String
     , csrfToken : String
     , turbulenceImgSrc : String
@@ -75,23 +68,18 @@ type alias Model =
     }
 
 
+type alias Version =
+    String
+
+
 type DashboardData
-    = Authenticated (List GroupWithTag.GroupWithTag) Concourse.User
-    | Unauthenticated (List Group.Group)
-
-
-type alias Data =
-    { teams : List Concourse.Team
-    , pipelines : List Concourse.Pipeline
-    , jobs : List Concourse.Job
-    , resources : List Concourse.Resource
-    , version : String
-    }
+    = Authenticated (GroupWithTag.Authed Group.APIData)
+    | Unauthenticated Group.APIData
 
 
 type Msg
     = Noop
-    | DataFetched (RemoteData.WebData DashboardData)
+    | APIDataFetched (RemoteData.WebData DashboardData)
     | ClockTick Time.Time
     | AutoRefresh Time
     | ShowFooter
@@ -110,13 +98,6 @@ init ports flags =
     in
         ( { topBar = topBar
           , data = RemoteData.NotAsked
-          , userState = UserState.UserStateUnknown
-          , mPipelines = RemoteData.NotAsked
-          , pipelines = []
-          , filteredPipelines = []
-          , mJobs = RemoteData.NotAsked
-          , pipelineJobs = Dict.empty
-          , pipelineResourceErrors = Dict.empty
           , now = Nothing
           , csrfToken = flags.csrfToken
           , turbulenceImgSrc = flags.turbulencePath
@@ -155,7 +136,7 @@ update msg model =
             Noop ->
                 ( model, Cmd.none )
 
-            DataFetched remoteData ->
+            APIDataFetched remoteData ->
                 ( { model | data = remoteData }
                 , Cmd.none
                 )
@@ -190,16 +171,12 @@ update msg model =
                             NewTopBar.FilterMsg query ->
                                 { model
                                     | topBar = newTopBar
-
-                                    -- , filteredPipelines = filter query model.pipelines model.pipelineJobs
                                 }
 
                             NewTopBar.KeyDown keycode ->
                                 if keycode == 13 then
                                     { model
                                         | topBar = newTopBar
-
-                                        -- , filteredPipelines = filter newTopBar.query model.pipelines model.pipelineJobs
                                     }
                                 else
                                     { model | topBar = newTopBar }
@@ -229,9 +206,8 @@ update msg model =
                             (\pipeline -> { pipeline | paused = not pipeline.paused })
                             pipelines
                 in
-                    ( { model
-                        | filteredPipelines = togglePipelinePause model.filteredPipelines
-                      }
+                    ( model
+                      -- | filteredPipelines = togglePipelinePause model.filteredPipelines
                     , Cmd.none
                     )
 
@@ -293,32 +269,32 @@ update msg model =
                         ( { model | dragState = Pipeline.NotDragging, dropState = Pipeline.NotDropping }, Cmd.none )
 
 
-setGroups : Model -> List Group.Group -> Model
+setGroups : Model -> List (Group.Grouped {}) -> Model
 setGroups model groups =
     case model.data of
         RemoteData.Success dd ->
             case dd of
-                Authenticated _ u ->
-                    { model | data = RemoteData.succeed (Authenticated (GroupWithTag.addTags u groups) u) }
+                Authenticated authed ->
+                    { model | data = RemoteData.succeed (Authenticated (GroupWithTag.addTags apiData.user groups) }
 
-                Unauthenticated _ ->
+                Unauthenticated apiData ->
                     { model | data = RemoteData.succeed (Unauthenticated groups) }
 
         _ ->
             model
 
 
-groupsFromDD : DashboardData -> List Group.Group
-groupsFromDD dd =
-    case dd of
-        Authenticated gwts _ ->
-            gwts |> List.map .group
+groupsFromDD : DashboardData -> List (Group.Grouped {})
+groupsFromDD d =
+    case d of
+        Unauthenticated apiData ->
+            Group.groups apiData
 
-        Unauthenticated gs ->
-            gs
+        Authenticated authed ->
+            GroupWithTag.taggedGroups authed
 
 
-groups : Model -> List Group.Group
+groups : Model -> List (Group.Grouped {})
 groups model =
     model.data |> RemoteData.map groupsFromDD |> RemoteData.withDefault []
 
@@ -388,11 +364,11 @@ dashboardView model =
             let
                 groups =
                     case d of
-                        Authenticated gwts u ->
-                            gwts |> List.map .group
+                        Unauthenticated apiData ->
+                            Group.groups apiData
 
-                        Unauthenticated gs ->
-                            gs
+                        Authenticated authed ->
+                            GroupWithTag.taggedGroups authed
 
                 pipelines =
                     groups |> List.concatMap .pipelines
@@ -479,7 +455,7 @@ footerView model =
             ]
         , Html.div [ class "concourse-info" ]
             [ Html.div [ class "concourse-version" ]
-                [ Html.text "version: v", Html.text model.concourseVersion ]
+                [ Html.text "version: v", model.data |> RemoteData.map (\d -> d.version) |> Html.text ]
             , Html.div [ class "concourse-cli" ]
                 [ Html.text "cli: "
                 , Html.a [ href (Concourse.Cli.downloadUrl "amd64" "darwin"), ariaLabel "Download OS X CLI" ]
@@ -513,11 +489,11 @@ pipelinesView model =
                 |> RemoteData.map
                     (\d ->
                         case d of
-                            Unauthenticated gs ->
-                                gs
+                            Unauthenticated apiData ->
+                                Group.groups apiData
 
-                            Authenticated gwts _ ->
-                                gwts |> List.map .group
+                            Authenticated authed ->
+                                GroupWithTag.taggedGroups authed
                     )
                 |> RemoteData.withDefault []
 
@@ -560,75 +536,14 @@ handleKeyPressed key model =
 
 fetchData : Cmd Msg
 fetchData =
-    remoteData |> Task.mapError (\e -> flip always (Debug.log "e" e) e) |> Task.andThen remoteUser |> RemoteData.asCmd |> Cmd.map DataFetched
+    Group.remoteData > Task.andThen remoteUser |> RemoteData.asCmd |> Cmd.map APIDataFetched
 
 
-allPipelines : Data -> List PipelineWithJobs
-allPipelines data =
-    flip always (Debug.log "data" data) <|
-        (data.pipelines
-            |> List.map
-                (\p ->
-                    { pipeline = p
-                    , jobs =
-                        data.jobs
-                            |> List.filter
-                                (\j ->
-                                    (j.teamName == p.teamName)
-                                        && (j.pipelineName == p.name)
-                                )
-                    , resourceError =
-                        data.resources
-                            |> List.any
-                                (\r ->
-                                    (r.teamName == p.teamName)
-                                        && (r.pipelineName == p.name)
-                                        && r.failingToCheck
-                                )
-                    }
-                )
-        )
-
-
-remoteUser : Data -> Task.Task Http.Error DashboardData
+remoteUser : Group.APIData -> Task.Task Http.Error DashboardData
 remoteUser d =
-    let
-        data =
-            { allPipelines = allPipelines d
-            , teamNames =
-                Set.union
-                    (Set.fromList (List.map .teamName d.pipelines))
-                    (Set.fromList (List.map .name d.teams))
-                    |> Set.toList
-            }
-    in
         Concourse.User.fetchUser
-            |> Task.map
-                (\u ->
-                    Authenticated
-                        (GroupWithTag.groupsWithTags
-                            { user = u
-                            , data = data
-                            }
-                        )
-                        u
-                )
-            |> Task.onError
-                (\e ->
-                    Task.succeed <|
-                        Unauthenticated <|
-                            Group.groups data
-                )
-
-
-remoteData : Task.Task Http.Error Data
-remoteData =
-    Task.map5 Data
-        Concourse.Team.fetchTeams
-        Concourse.Pipeline.fetchPipelines
-        (Concourse.Job.fetchAllJobs |> Task.map (Maybe.withDefault []))
-        (Concourse.Resource.fetchAllResources |> Task.map (Maybe.withDefault []))
-        (Concourse.Info.fetch |> Task.map .version)
+            |> Task.map (Authenticated d)
+            |> Task.onError (always <| Task.succeed <| Unauthenticated d)
 
 
 getCurrentTime : Cmd Msg
@@ -643,12 +558,12 @@ filterTerms =
         >> String.words
 
 
-filter : String -> List Group.Group -> List Group.Group
+filter : String -> List (Group.Grouped {}) -> List (Group.Grouped {})
 filter =
     filterTerms >> flip (List.foldl filterGroupsByTerm)
 
 
-filterPipelinesByTerm : String -> Group.Group -> Group.Group
+filterPipelinesByTerm : String -> (Group.Grouped {}) -> (Group.Grouped {})
 filterPipelinesByTerm term ({ pipelines } as group) =
     let
         searchStatus =
@@ -672,7 +587,7 @@ filterPipelinesByTerm term ({ pipelines } as group) =
         }
 
 
-filterGroupsByTerm : String -> List Group.Group -> List Group.Group
+filterGroupsByTerm : String -> List (Group.Grouped {}) -> List (Group.Grouped {})
 filterGroupsByTerm term groups =
     let
         searchTeams =

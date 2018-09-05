@@ -1,4 +1,4 @@
-module Dashboard.GroupWithTag exposing (GroupWithTag, AuthenticatedContext, groupsWithTags, addTags)
+module Dashboard.GroupWithTag exposing (Authed, addTags, taggedGroups)
 
 import Concourse
 import Dashboard.Group as Group
@@ -6,31 +6,38 @@ import Dashboard.Group.Tag as Tag
 import Ordering exposing (Ordering)
 
 
-type alias GroupWithTag =
-    { group : Group.Group, tag : Tag.Tag }
+type alias Tagged a =
+    { a | tag : Tag.Tag }
 
 
-type alias AuthenticatedContext =
-    { user : Concourse.User
-    , data : Group.Data
-    }
+type alias Authed a =
+    { a | user : Concourse.User }
 
 
-addTags : Concourse.User -> List Group.Group -> List GroupWithTag
+taggedGroups : Authed Group.APIData -> List (Tagged (Group.Grouped {}))
+taggedGroups authed =
+    Group.groups
+        { teams = authed.teams
+        , pipelines = authed.pipelines
+        , jobs = authed.jobs
+        , resources = authed.resources
+        , version = authed.version
+        }
+        |> addTags authed.user
+
+
+addTags : Concourse.User -> List (Group.Grouped {}) -> List (Tagged (Group.Grouped {}))
 addTags user =
-    List.map (\g -> GroupWithTag g <| Tag.tag user g.teamName)
+    List.map
+        (\{ pipelines, teamName } ->
+            { pipelines = pipelines
+            , teamName = teamName
+            , tag = Tag.tag user teamName
+            }
+        )
 
 
-groupsWithTags : AuthenticatedContext -> List GroupWithTag
-groupsWithTags context =
-    List.sortWith groupOrderingWithTag <| List.map2 GroupWithTag (Group.groups context.data) (tags context)
-
-
-groupOrderingWithTag : Ordering GroupWithTag
-groupOrderingWithTag =
-    Ordering.byFieldWith Tag.ordering .tag |> Ordering.breakTiesWith (Ordering.byFieldWith Group.ordering .group)
-
-
-tags : AuthenticatedContext -> List Tag.Tag
-tags context =
-    List.map (Tag.tag context.user) context.data.teamNames
+ordering : Ordering (Tagged (Group.Grouped a))
+ordering =
+    Ordering.byFieldWith Tag.ordering .tag
+        |> Ordering.breakTiesWith Group.ordering
