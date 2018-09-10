@@ -25786,27 +25786,27 @@ var _concourse$atc$Dashboard_Group$remoteData = A6(
 
 var _concourse$atc$Dashboard_Group_Tag$text = function (tag) {
 	var _p0 = tag;
-	if (_p0.ctor === 'Public') {
-		return 'PUBLIC';
+	if (_p0.ctor === 'Exposed') {
+		return 'EXPOSED';
 	} else {
 		return 'MEMBER';
 	}
 };
 var _concourse$atc$Dashboard_Group_Tag$Member = {ctor: 'Member'};
-var _concourse$atc$Dashboard_Group_Tag$Public = {ctor: 'Public'};
+var _concourse$atc$Dashboard_Group_Tag$Exposed = {ctor: 'Exposed'};
 var _concourse$atc$Dashboard_Group_Tag$ordering = _matthewsj$elm_ordering$Ordering$explicit(
 	{
 		ctor: '::',
 		_0: _concourse$atc$Dashboard_Group_Tag$Member,
 		_1: {
 			ctor: '::',
-			_0: _concourse$atc$Dashboard_Group_Tag$Public,
+			_0: _concourse$atc$Dashboard_Group_Tag$Exposed,
 			_1: {ctor: '[]'}
 		}
 	});
 var _concourse$atc$Dashboard_Group_Tag$tag = F2(
 	function (user, teamName) {
-		return A2(_elm_lang$core$List$member, teamName, user.teams) ? _concourse$atc$Dashboard_Group_Tag$Member : _concourse$atc$Dashboard_Group_Tag$Public;
+		return A2(_elm_lang$core$List$member, teamName, user.teams) ? _concourse$atc$Dashboard_Group_Tag$Member : _concourse$atc$Dashboard_Group_Tag$Exposed;
 	});
 
 var _concourse$atc$Dashboard_GroupWithTag$headerView = function (taggedGroup) {
