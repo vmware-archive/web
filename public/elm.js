@@ -25621,7 +25621,18 @@ var _concourse$atc$Dashboard_Group$view = F5(
 						_0: _elm_lang$html$Html_Attributes$class('pin-wrapper'),
 						_1: {ctor: '[]'}
 					},
-					header),
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('dashboard-team-header'),
+								_1: {ctor: '[]'}
+							},
+							header),
+						_1: {ctor: '[]'}
+					}),
 				_1: {
 					ctor: '::',
 					_0: A2(
