@@ -45,6 +45,13 @@ type alias Flags =
     }
 
 
+
+-- TODO the word "State" is a smell. what is this thing really?
+-- it's a glorified Result/Either type of functor, just with multiple
+-- "error" cases. Maybe it makes more sense to use one of those types,
+-- as they are pretty descriptive.
+
+
 type DashboardState
     = NotAsked
     | Turbulence String
@@ -53,9 +60,9 @@ type DashboardState
 
 
 type alias SubState =
-    { csrfToken : String
-    , dragState : Pipeline.DragState
-    , dropState : Pipeline.DropState
+    { csrfToken : String -- static config, i don't even think this thing gets fetched. maybe it comes from a port? try the thunk trick
+    , dragState : Group.DragState -- move to Group? in a sense there is a global dragstate, it's just that group is the only one really affected by it.
+    , dropState : Group.DropState -- ditto, plus maybe the whole drag/drop types will be refactored
     , hideFooter : Bool
     , hideFooterCounter : Time
     , now : Time
@@ -67,7 +74,7 @@ type alias Model =
     { csrfToken : String
     , state : DashboardState
     , topBar : NewTopBar.Model
-    , turbulencePath : String
+    , turbulencePath : String -- this doesn't vary, it's more a prop (in the sense of react) than state. should be a way to use a thunk for the Turbulence case of DashboardState
     , showHelp : Bool
     }
 
@@ -103,6 +110,7 @@ type Msg
     | TopBarMsg NewTopBar.Msg
     | PipelinePauseToggled Concourse.Pipeline (Result Http.Error ())
     | PipelineMsg Pipeline.Msg
+    | GroupMsg Group.Msg
 
 
 init : Ports -> Flags -> ( Model, Cmd Msg )
@@ -144,6 +152,8 @@ update msg model =
             Noop ->
                 ( model, Cmd.none )
 
+            -- TODO this case is a bit long, with a lot of non-value-added whitespace.
+            -- most likely it will be better to use a higher-order function a la Result.map
             APIDataFetched remoteData ->
                 let
                     state =
@@ -174,8 +184,8 @@ update msg model =
                                                 , now = now
                                                 , hideFooter = False
                                                 , hideFooterCounter = 0
-                                                , dragState = Pipeline.NotDragging
-                                                , dropState = Pipeline.NotDropping
+                                                , dragState = Group.NotDragging
+                                                , dropState = Group.NotDropping
                                                 , csrfToken = model.csrfToken
                                                 }
                 in
@@ -213,6 +223,8 @@ update msg model =
                     _ ->
                         ( model, Cmd.none )
 
+            -- TODO pull the topbar logic right in here. right now there are wasted API calls and this crufty
+            -- nonsense going on. however, this feels like a big change and not a big burning fire
             TopBarMsg msg ->
                 let
                     ( newTopBar, newTopBarMsg ) =
@@ -237,41 +249,46 @@ update msg model =
                     togglePipelinePause pipelines =
                         List.Extra.updateIf
                             ((==) pipeline)
+                            -- TODO this lambda could be a utility/helper in the Concourse module
                             (\pipeline -> { pipeline | paused = not pipeline.paused })
                             pipelines
                 in
                     ( model
-                      -- | filteredPipelines = togglePipelinePause model.filteredPipelines
                     , Cmd.none
                     )
 
             PipelinePauseToggled _ (Err _) ->
                 ( model, Cmd.none )
 
-            PipelineMsg (Pipeline.DragStart teamName index) ->
+            GroupMsg (Group.DragStart teamName index) ->
                 case model.state of
                     HasData substate ->
-                        ( { model | state = HasData { substate | dragState = Pipeline.Dragging teamName index } }, Cmd.none )
+                        ( { model | state = HasData { substate | dragState = Group.Dragging teamName index } }, Cmd.none )
 
                     _ ->
                         ( model, Cmd.none )
 
-            PipelineMsg (Pipeline.DragOver teamName index) ->
+            GroupMsg (Group.DragOver teamName index) ->
                 case model.state of
                     HasData substate ->
-                        ( { model | state = HasData { substate | dropState = Pipeline.Dropping index } }, Cmd.none )
+                        ( { model | state = HasData { substate | dropState = Group.Dropping index } }, Cmd.none )
 
                     _ ->
                         ( model, Cmd.none )
+
+            GroupMsg (Group.PipelineMsg msg) ->
+                flip update model <| PipelineMsg msg
 
             PipelineMsg (Pipeline.Tooltip pipelineName teamName) ->
                 ( model, tooltip ( pipelineName, teamName ) )
 
-            PipelineMsg Pipeline.DragEnd ->
+            -- TODO this case is also too long. hopefully some of it can be pulled into utility functions,
+            -- or in general be moved into the Group module
+            GroupMsg Group.DragEnd ->
                 case model.state of
                     HasData substate ->
                         case ( substate.dragState, substate.dropState ) of
-                            ( Pipeline.Dragging teamName dragIndex, Pipeline.Dropping dropIndex ) ->
+                            ( Group.Dragging teamName dragIndex, Group.Dropping dropIndex ) ->
                                 let
                                     shiftPipelines : List Pipeline.PipelineWithJobs -> List Pipeline.PipelineWithJobs
                                     shiftPipelines pipelines =
@@ -304,8 +321,8 @@ update msg model =
 
                                     newSubstate =
                                         { substate
-                                            | dragState = Pipeline.NotDragging
-                                            , dropState = Pipeline.NotDropping
+                                            | dragState = Group.NotDragging
+                                            , dropState = Group.NotDropping
                                         }
 
                                     newModel =
@@ -323,12 +340,18 @@ update msg model =
                                     )
 
                             _ ->
-                                ( { model | state = HasData { substate | dragState = Pipeline.NotDragging, dropState = Pipeline.NotDropping } }
+                                ( { model | state = HasData { substate | dragState = Group.NotDragging, dropState = Group.NotDropping } }
                                 , Cmd.none
                                 )
 
                     _ ->
                         ( model, Cmd.none )
+
+
+
+-- TODO this is pretty hard to reason about. really deeply nested and nasty. doesn't exactly relate
+-- to the hd refactor as hd doesn't have the drag-and-drop feature, but it's a big contributor
+-- to the 'length of this file' tire fire
 
 
 shiftPipelineTo : Pipeline.PipelineWithJobs -> Int -> List Pipeline.PipelineWithJobs -> List Pipeline.PipelineWithJobs
@@ -358,6 +381,10 @@ orderPipelines teamName pipelines csrfToken =
             teamName
             (List.map (.name << .pipeline) <| pipelines)
             csrfToken
+
+
+
+-- TODO this seems obsessed with pipelines. shouldn't be the dashboard's business
 
 
 togglePipelinePaused : Concourse.Pipeline -> Concourse.CSRFToken -> Cmd Msg
@@ -531,7 +558,9 @@ pipelinesView substate showHelp query =
             noResultsView (toString query)
         else
             Html.div [ class "dashboard-content" ] <|
-                (List.map (Html.map PipelineMsg) groupViews ++ [ footerView substate showHelp ])
+                -- TODO woops, this is non SRP/spaghetti. clearly the pipelines shouldn't care about the help,
+                -- and from an HTML semantics perspective they shouldn't be in the same container
+                (List.map (Html.map GroupMsg) groupViews ++ [ footerView substate showHelp ])
 
 
 handleKeyPressed : Char -> Model -> ( Model, Cmd Msg )

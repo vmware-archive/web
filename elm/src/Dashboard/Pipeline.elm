@@ -1,18 +1,14 @@
 module Dashboard.Pipeline
     exposing
         ( Msg(..)
-        , DragState(..)
-        , DropState(..)
         , PipelineWithJobs
         , pipelineNotSetView
-        , pipelineDropAreaView
         , pipelineView
         , pipelineStatus
         , pipelineStatusFromJobs
         )
 
 import Concourse
-import Concourse.PipelineStatus
 import Duration
 import DashboardPreview
 import Date
@@ -21,7 +17,6 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (on, onMouseEnter)
 import List.Extra
 import Maybe.Extra
-import Json.Decode
 import Routes
 import StrictEvents exposing (onLeftClick)
 import Time exposing (Time)
@@ -34,25 +29,8 @@ type alias PipelineWithJobs =
     }
 
 
-type alias PipelineIndex =
-    Int
-
-
-type DragState
-    = NotDragging
-    | Dragging Concourse.TeamName PipelineIndex
-
-
-type DropState
-    = NotDropping
-    | Dropping PipelineIndex
-
-
 type Msg
-    = DragStart String Int
-    | DragOver String Int
-    | DragEnd
-    | Tooltip String String
+    = Tooltip String String
     | TogglePipelinePaused Concourse.Pipeline
 
 
@@ -71,50 +49,12 @@ pipelineNotSetView =
         ]
 
 
-pipelineDropAreaView : DragState -> DropState -> String -> Int -> Html Msg
-pipelineDropAreaView dragState dropState teamName index =
-    let
-        ( active, over ) =
-            case ( dragState, dropState ) of
-                ( Dragging team dragIndex, NotDropping ) ->
-                    ( team == teamName, index == dragIndex )
-
-                ( Dragging team dragIndex, Dropping dropIndex ) ->
-                    ( team == teamName, index == dropIndex )
-
-                _ ->
-                    ( False, False )
-    in
-        Html.div
-            [ classList [ ( "drop-area", True ), ( "active", active ), ( "over", over ), ( "animation", dropState /= NotDropping ) ]
-            , on "dragenter" (Json.Decode.succeed (DragOver teamName index))
-            ]
-            [ Html.text "" ]
-
-
-pipelineView : DragState -> Time -> PipelineWithJobs -> Int -> Html Msg
-pipelineView dragState now ({ pipeline, jobs, resourceError } as pipelineWithJobs) index =
-    Html.div
-        [ classList
-            [ ( "dashboard-pipeline", True )
-            , ( "dashboard-paused", pipeline.paused )
-            , ( "dashboard-running", not <| List.isEmpty <| List.filterMap .nextBuild jobs )
-            , ( "dashboard-status-" ++ Concourse.PipelineStatus.show (pipelineStatusFromJobs jobs False), not pipeline.paused )
-            , ( "dragging", dragState == Dragging pipeline.teamName index )
-            ]
-        , attribute "data-pipeline-name" pipeline.name
-        , attribute "ondragstart" "event.dataTransfer.setData('text/plain', '');"
-        , draggable "true"
-        , on "dragstart" (Json.Decode.succeed (DragStart pipeline.teamName index))
-        , on "dragend" (Json.Decode.succeed DragEnd)
-        ]
-        [ Html.div [ class "dashboard-pipeline-banner" ] []
-        , Html.div
-            [ class "dashboard-pipeline-content" ]
-            [ headerView pipelineWithJobs
-            , DashboardPreview.view jobs
-            , footerView pipelineWithJobs now
-            ]
+pipelineView : Time -> PipelineWithJobs -> Int -> Html Msg
+pipelineView now ({ pipeline, jobs, resourceError } as pipelineWithJobs) index =
+    Html.div [ class "dashboard-pipeline-content" ]
+        [ headerView pipelineWithJobs
+        , DashboardPreview.view jobs
+        , footerView pipelineWithJobs now
         ]
 
 

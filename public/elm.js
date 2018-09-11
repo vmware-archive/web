@@ -24905,15 +24905,6 @@ var _concourse$atc$Dashboard_Pipeline$transitionView = F2(
 				_1: {ctor: '[]'}
 			});
 	});
-var _concourse$atc$Dashboard_Pipeline$Dragging = F2(
-	function (a, b) {
-		return {ctor: 'Dragging', _0: a, _1: b};
-	});
-var _concourse$atc$Dashboard_Pipeline$NotDragging = {ctor: 'NotDragging'};
-var _concourse$atc$Dashboard_Pipeline$Dropping = function (a) {
-	return {ctor: 'Dropping', _0: a};
-};
-var _concourse$atc$Dashboard_Pipeline$NotDropping = {ctor: 'NotDropping'};
 var _concourse$atc$Dashboard_Pipeline$TogglePipelinePaused = function (a) {
 	return {ctor: 'TogglePipelinePaused', _0: a};
 };
@@ -25043,199 +25034,28 @@ var _concourse$atc$Dashboard_Pipeline$headerView = function (_p8) {
 			_1: {ctor: '[]'}
 		});
 };
-var _concourse$atc$Dashboard_Pipeline$DragEnd = {ctor: 'DragEnd'};
-var _concourse$atc$Dashboard_Pipeline$DragOver = F2(
-	function (a, b) {
-		return {ctor: 'DragOver', _0: a, _1: b};
-	});
-var _concourse$atc$Dashboard_Pipeline$pipelineDropAreaView = F4(
-	function (dragState, dropState, teamName, index) {
-		var _p11 = function () {
-			var _p12 = {ctor: '_Tuple2', _0: dragState, _1: dropState};
-			if ((_p12.ctor === '_Tuple2') && (_p12._0.ctor === 'Dragging')) {
-				if (_p12._1.ctor === 'NotDropping') {
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.eq(_p12._0._0, teamName),
-						_1: _elm_lang$core$Native_Utils.eq(index, _p12._0._1)
-					};
-				} else {
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.eq(_p12._0._0, teamName),
-						_1: _elm_lang$core$Native_Utils.eq(index, _p12._1._0)
-					};
-				}
-			} else {
-				return {ctor: '_Tuple2', _0: false, _1: false};
-			}
-		}();
-		var active = _p11._0;
-		var over = _p11._1;
+var _concourse$atc$Dashboard_Pipeline$pipelineView = F3(
+	function (now, _p11, index) {
+		var _p12 = _p11;
+		var _p13 = _p12;
 		return A2(
 			_elm_lang$html$Html$div,
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$classList(
-					{
-						ctor: '::',
-						_0: {ctor: '_Tuple2', _0: 'drop-area', _1: true},
-						_1: {
-							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 'active', _1: active},
-							_1: {
-								ctor: '::',
-								_0: {ctor: '_Tuple2', _0: 'over', _1: over},
-								_1: {
-									ctor: '::',
-									_0: {
-										ctor: '_Tuple2',
-										_0: 'animation',
-										_1: !_elm_lang$core$Native_Utils.eq(dropState, _concourse$atc$Dashboard_Pipeline$NotDropping)
-									},
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html_Events$on,
-						'dragenter',
-						_elm_lang$core$Json_Decode$succeed(
-							A2(_concourse$atc$Dashboard_Pipeline$DragOver, teamName, index))),
-					_1: {ctor: '[]'}
-				}
+				_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-content'),
+				_1: {ctor: '[]'}
 			},
 			{
 				ctor: '::',
-				_0: _elm_lang$html$Html$text(''),
-				_1: {ctor: '[]'}
-			});
-	});
-var _concourse$atc$Dashboard_Pipeline$DragStart = F2(
-	function (a, b) {
-		return {ctor: 'DragStart', _0: a, _1: b};
-	});
-var _concourse$atc$Dashboard_Pipeline$pipelineView = F4(
-	function (dragState, now, _p13, index) {
-		var _p14 = _p13;
-		var _p17 = _p14;
-		var _p16 = _p14.pipeline;
-		var _p15 = _p14.jobs;
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$classList(
-					{
-						ctor: '::',
-						_0: {ctor: '_Tuple2', _0: 'dashboard-pipeline', _1: true},
-						_1: {
-							ctor: '::',
-							_0: {ctor: '_Tuple2', _0: 'dashboard-paused', _1: _p16.paused},
-							_1: {
-								ctor: '::',
-								_0: {
-									ctor: '_Tuple2',
-									_0: 'dashboard-running',
-									_1: !_elm_lang$core$List$isEmpty(
-										A2(
-											_elm_lang$core$List$filterMap,
-											function (_) {
-												return _.nextBuild;
-											},
-											_p15))
-								},
-								_1: {
-									ctor: '::',
-									_0: {
-										ctor: '_Tuple2',
-										_0: A2(
-											_elm_lang$core$Basics_ops['++'],
-											'dashboard-status-',
-											_concourse$atc$Concourse_PipelineStatus$show(
-												A2(_concourse$atc$Dashboard_Pipeline$pipelineStatusFromJobs, _p15, false))),
-										_1: !_p16.paused
-									},
-									_1: {
-										ctor: '::',
-										_0: {
-											ctor: '_Tuple2',
-											_0: 'dragging',
-											_1: _elm_lang$core$Native_Utils.eq(
-												dragState,
-												A2(_concourse$atc$Dashboard_Pipeline$Dragging, _p16.teamName, index))
-										},
-										_1: {ctor: '[]'}
-									}
-								}
-							}
-						}
-					}),
+				_0: _concourse$atc$Dashboard_Pipeline$headerView(_p13),
 				_1: {
 					ctor: '::',
-					_0: A2(_elm_lang$html$Html_Attributes$attribute, 'data-pipeline-name', _p16.name),
+					_0: _concourse$atc$DashboardPreview$view(_p12.jobs),
 					_1: {
 						ctor: '::',
-						_0: A2(_elm_lang$html$Html_Attributes$attribute, 'ondragstart', 'event.dataTransfer.setData(\'text/plain\', \'\');'),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$draggable('true'),
-							_1: {
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html_Events$on,
-									'dragstart',
-									_elm_lang$core$Json_Decode$succeed(
-										A2(_concourse$atc$Dashboard_Pipeline$DragStart, _p16.teamName, index))),
-								_1: {
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html_Events$on,
-										'dragend',
-										_elm_lang$core$Json_Decode$succeed(_concourse$atc$Dashboard_Pipeline$DragEnd)),
-									_1: {ctor: '[]'}
-								}
-							}
-						}
-					}
-				}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-banner'),
+						_0: A2(_concourse$atc$Dashboard_Pipeline$footerView, _p13, now),
 						_1: {ctor: '[]'}
-					},
-					{ctor: '[]'}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-content'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: _concourse$atc$Dashboard_Pipeline$headerView(_p17),
-							_1: {
-								ctor: '::',
-								_0: _concourse$atc$DashboardPreview$view(_p15),
-								_1: {
-									ctor: '::',
-									_0: A2(_concourse$atc$Dashboard_Pipeline$footerView, _p17, now),
-									_1: {ctor: '[]'}
-								}
-							}
-						}),
-					_1: {ctor: '[]'}
+					}
 				}
 			});
 	});
@@ -25422,96 +25242,6 @@ var _concourse$atc$Dashboard_Group$headerView = function (group) {
 		_1: {ctor: '[]'}
 	};
 };
-var _concourse$atc$Dashboard_Group$view = F5(
-	function (header, dragState, dropState, now, group) {
-		var pipelines = _elm_lang$core$List$isEmpty(group.pipelines) ? {
-			ctor: '::',
-			_0: _concourse$atc$Dashboard_Pipeline$pipelineNotSetView,
-			_1: {ctor: '[]'}
-		} : A2(
-			_elm_lang$core$List$append,
-			A2(
-				_elm_lang$core$List$indexedMap,
-				F2(
-					function (i, pipeline) {
-						return A2(
-							_elm_lang$html$Html$div,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('pipeline-wrapper'),
-								_1: {ctor: '[]'}
-							},
-							{
-								ctor: '::',
-								_0: A4(_concourse$atc$Dashboard_Pipeline$pipelineDropAreaView, dragState, dropState, group.teamName, i),
-								_1: {
-									ctor: '::',
-									_0: A4(_concourse$atc$Dashboard_Pipeline$pipelineView, dragState, now, pipeline, i),
-									_1: {ctor: '[]'}
-								}
-							});
-					}),
-				group.pipelines),
-			{
-				ctor: '::',
-				_0: A4(
-					_concourse$atc$Dashboard_Pipeline$pipelineDropAreaView,
-					dragState,
-					dropState,
-					group.teamName,
-					_elm_lang$core$List$length(group.pipelines)),
-				_1: {ctor: '[]'}
-			});
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$id(group.teamName),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('dashboard-team-group'),
-					_1: {
-						ctor: '::',
-						_0: A2(_elm_lang$html$Html_Attributes$attribute, 'data-team-name', group.teamName),
-						_1: {ctor: '[]'}
-					}
-				}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('pin-wrapper'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$div,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('dashboard-team-header'),
-								_1: {ctor: '[]'}
-							},
-							header),
-						_1: {ctor: '[]'}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('dashboard-team-pipelines'),
-							_1: {ctor: '[]'}
-						},
-						pipelines),
-					_1: {ctor: '[]'}
-				}
-			});
-	});
 var _concourse$atc$Dashboard_Group$ordering = _matthewsj$elm_ordering$Ordering$byField(
 	function (_) {
 		return _.teamName;
@@ -25648,6 +25378,280 @@ var _concourse$atc$Dashboard_Group$remoteData = A6(
 			return _.version;
 		},
 		_concourse$atc$Concourse_Info$fetch));
+var _concourse$atc$Dashboard_Group$Dragging = F2(
+	function (a, b) {
+		return {ctor: 'Dragging', _0: a, _1: b};
+	});
+var _concourse$atc$Dashboard_Group$NotDragging = {ctor: 'NotDragging'};
+var _concourse$atc$Dashboard_Group$Dropping = function (a) {
+	return {ctor: 'Dropping', _0: a};
+};
+var _concourse$atc$Dashboard_Group$NotDropping = {ctor: 'NotDropping'};
+var _concourse$atc$Dashboard_Group$PipelineMsg = function (a) {
+	return {ctor: 'PipelineMsg', _0: a};
+};
+var _concourse$atc$Dashboard_Group$DragEnd = {ctor: 'DragEnd'};
+var _concourse$atc$Dashboard_Group$DragOver = F2(
+	function (a, b) {
+		return {ctor: 'DragOver', _0: a, _1: b};
+	});
+var _concourse$atc$Dashboard_Group$pipelineDropAreaView = F4(
+	function (dragState, dropState, teamName, index) {
+		var _p2 = function () {
+			var _p3 = {ctor: '_Tuple2', _0: dragState, _1: dropState};
+			if ((_p3.ctor === '_Tuple2') && (_p3._0.ctor === 'Dragging')) {
+				if (_p3._1.ctor === 'NotDropping') {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.eq(_p3._0._0, teamName),
+						_1: _elm_lang$core$Native_Utils.eq(index, _p3._0._1)
+					};
+				} else {
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.eq(_p3._0._0, teamName),
+						_1: _elm_lang$core$Native_Utils.eq(index, _p3._1._0)
+					};
+				}
+			} else {
+				return {ctor: '_Tuple2', _0: false, _1: false};
+			}
+		}();
+		var active = _p2._0;
+		var over = _p2._1;
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$classList(
+					{
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'drop-area', _1: true},
+						_1: {
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'active', _1: active},
+							_1: {
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'over', _1: over},
+								_1: {
+									ctor: '::',
+									_0: {
+										ctor: '_Tuple2',
+										_0: 'animation',
+										_1: !_elm_lang$core$Native_Utils.eq(dropState, _concourse$atc$Dashboard_Group$NotDropping)
+									},
+									_1: {ctor: '[]'}
+								}
+							}
+						}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html_Events$on,
+						'dragenter',
+						_elm_lang$core$Json_Decode$succeed(
+							A2(_concourse$atc$Dashboard_Group$DragOver, teamName, index))),
+					_1: {ctor: '[]'}
+				}
+			},
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html$text(''),
+				_1: {ctor: '[]'}
+			});
+	});
+var _concourse$atc$Dashboard_Group$DragStart = F2(
+	function (a, b) {
+		return {ctor: 'DragStart', _0: a, _1: b};
+	});
+var _concourse$atc$Dashboard_Group$view = F5(
+	function (header, dragState, dropState, now, group) {
+		var pipelines = _elm_lang$core$List$isEmpty(group.pipelines) ? {
+			ctor: '::',
+			_0: _concourse$atc$Dashboard_Pipeline$pipelineNotSetView,
+			_1: {ctor: '[]'}
+		} : A2(
+			_elm_lang$core$List$append,
+			A2(
+				_elm_lang$core$List$indexedMap,
+				F2(
+					function (i, pipeline) {
+						return A2(
+							_elm_lang$html$Html$div,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('pipeline-wrapper'),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: A4(_concourse$atc$Dashboard_Group$pipelineDropAreaView, dragState, dropState, group.teamName, i),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$div,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$classList(
+												{
+													ctor: '::',
+													_0: {ctor: '_Tuple2', _0: 'dashboard-pipeline', _1: true},
+													_1: {
+														ctor: '::',
+														_0: {ctor: '_Tuple2', _0: 'dashboard-paused', _1: pipeline.pipeline.paused},
+														_1: {
+															ctor: '::',
+															_0: {
+																ctor: '_Tuple2',
+																_0: 'dashboard-running',
+																_1: !_elm_lang$core$List$isEmpty(
+																	A2(
+																		_elm_lang$core$List$filterMap,
+																		function (_) {
+																			return _.nextBuild;
+																		},
+																		pipeline.jobs))
+															},
+															_1: {
+																ctor: '::',
+																_0: {
+																	ctor: '_Tuple2',
+																	_0: A2(
+																		_elm_lang$core$Basics_ops['++'],
+																		'dashboard-status-',
+																		_concourse$atc$Concourse_PipelineStatus$show(
+																			A2(_concourse$atc$Dashboard_Pipeline$pipelineStatusFromJobs, pipeline.jobs, false))),
+																	_1: !pipeline.pipeline.paused
+																},
+																_1: {
+																	ctor: '::',
+																	_0: {
+																		ctor: '_Tuple2',
+																		_0: 'dragging',
+																		_1: _elm_lang$core$Native_Utils.eq(
+																			dragState,
+																			A2(_concourse$atc$Dashboard_Group$Dragging, pipeline.pipeline.teamName, i))
+																	},
+																	_1: {ctor: '[]'}
+																}
+															}
+														}
+													}
+												}),
+											_1: {
+												ctor: '::',
+												_0: A2(_elm_lang$html$Html_Attributes$attribute, 'data-pipeline-name', pipeline.pipeline.name),
+												_1: {
+													ctor: '::',
+													_0: A2(_elm_lang$html$Html_Attributes$attribute, 'ondragstart', 'event.dataTransfer.setData(\'text/plain\', \'\');'),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$draggable('true'),
+														_1: {
+															ctor: '::',
+															_0: A2(
+																_elm_lang$html$Html_Events$on,
+																'dragstart',
+																_elm_lang$core$Json_Decode$succeed(
+																	A2(_concourse$atc$Dashboard_Group$DragStart, pipeline.pipeline.teamName, i))),
+															_1: {
+																ctor: '::',
+																_0: A2(
+																	_elm_lang$html$Html_Events$on,
+																	'dragend',
+																	_elm_lang$core$Json_Decode$succeed(_concourse$atc$Dashboard_Group$DragEnd)),
+																_1: {ctor: '[]'}
+															}
+														}
+													}
+												}
+											}
+										},
+										{
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$div,
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-banner'),
+													_1: {ctor: '[]'}
+												},
+												{ctor: '[]'}),
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$map,
+													_concourse$atc$Dashboard_Group$PipelineMsg,
+													A3(_concourse$atc$Dashboard_Pipeline$pipelineView, now, pipeline, i)),
+												_1: {ctor: '[]'}
+											}
+										}),
+									_1: {ctor: '[]'}
+								}
+							});
+					}),
+				group.pipelines),
+			{
+				ctor: '::',
+				_0: A4(
+					_concourse$atc$Dashboard_Group$pipelineDropAreaView,
+					dragState,
+					dropState,
+					group.teamName,
+					_elm_lang$core$List$length(group.pipelines)),
+				_1: {ctor: '[]'}
+			});
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$id(group.teamName),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('dashboard-team-group'),
+					_1: {
+						ctor: '::',
+						_0: A2(_elm_lang$html$Html_Attributes$attribute, 'data-team-name', group.teamName),
+						_1: {ctor: '[]'}
+					}
+				}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('pin-wrapper'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('dashboard-team-header'),
+								_1: {ctor: '[]'}
+							},
+							header),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('dashboard-team-pipelines'),
+							_1: {ctor: '[]'}
+						},
+						pipelines),
+					_1: {ctor: '[]'}
+				}
+			});
+	});
 
 var _concourse$atc$Dashboard_Group_Tag$text = function (tag) {
 	var _p0 = tag;
@@ -29962,8 +29966,8 @@ var _concourse$atc$Dashboard$Authenticated = function (a) {
 var _concourse$atc$Dashboard$Unauthenticated = function (a) {
 	return {ctor: 'Unauthenticated', _0: a};
 };
-var _concourse$atc$Dashboard$PipelineMsg = function (a) {
-	return {ctor: 'PipelineMsg', _0: a};
+var _concourse$atc$Dashboard$GroupMsg = function (a) {
+	return {ctor: 'GroupMsg', _0: a};
 };
 var _concourse$atc$Dashboard$pipelinesView = F3(
 	function (substate, showHelp, query) {
@@ -30026,7 +30030,7 @@ var _concourse$atc$Dashboard$pipelinesView = F3(
 				_elm_lang$core$Basics_ops['++'],
 				A2(
 					_elm_lang$core$List$map,
-					_elm_lang$html$Html$map(_concourse$atc$Dashboard$PipelineMsg),
+					_elm_lang$html$Html$map(_concourse$atc$Dashboard$GroupMsg),
 					groupViews),
 				{
 					ctor: '::',
@@ -30034,6 +30038,9 @@ var _concourse$atc$Dashboard$pipelinesView = F3(
 					_1: {ctor: '[]'}
 				}));
 	});
+var _concourse$atc$Dashboard$PipelineMsg = function (a) {
+	return {ctor: 'PipelineMsg', _0: a};
+};
 var _concourse$atc$Dashboard$PipelinePauseToggled = F2(
 	function (a, b) {
 		return {ctor: 'PipelinePauseToggled', _0: a, _1: b};
@@ -30299,7 +30306,7 @@ var _concourse$atc$Dashboard$update = F2(
 											},
 											_p31._0._1._1));
 									return _concourse$atc$Dashboard$HasData(
-										{teamData: teamData, now: _p31._0._0, hideFooter: false, hideFooterCounter: 0, dragState: _concourse$atc$Dashboard_Pipeline$NotDragging, dropState: _concourse$atc$Dashboard_Pipeline$NotDropping, csrfToken: model.csrfToken});
+										{teamData: teamData, now: _p31._0._0, hideFooter: false, hideFooterCounter: 0, dragState: _concourse$atc$Dashboard_Group$NotDragging, dropState: _concourse$atc$Dashboard_Group$NotDropping, csrfToken: model.csrfToken});
 								}
 						}
 					}();
@@ -30413,14 +30420,23 @@ var _concourse$atc$Dashboard$update = F2(
 					} else {
 						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 					}
+				case 'PipelineMsg':
+					if (_p30._0.ctor === 'TogglePipelinePaused') {
+						return {
+							ctor: '_Tuple2',
+							_0: model,
+							_1: A2(_concourse$atc$Dashboard$togglePipelinePaused, _p30._0._0, model.csrfToken)
+						};
+					} else {
+						return {
+							ctor: '_Tuple2',
+							_0: model,
+							_1: _concourse$atc$Dashboard$tooltip(
+								{ctor: '_Tuple2', _0: _p30._0._0, _1: _p30._0._1})
+						};
+					}
 				default:
 					switch (_p30._0.ctor) {
-						case 'TogglePipelinePaused':
-							return {
-								ctor: '_Tuple2',
-								_0: model,
-								_1: A2(_concourse$atc$Dashboard$togglePipelinePaused, _p30._0._0, model.csrfToken)
-							};
 						case 'DragStart':
 							var _p41 = model.state;
 							if (_p41.ctor === 'HasData') {
@@ -30433,7 +30449,7 @@ var _concourse$atc$Dashboard$update = F2(
 												_elm_lang$core$Native_Utils.update(
 													_p41._0,
 													{
-														dragState: A2(_concourse$atc$Dashboard_Pipeline$Dragging, _p30._0._0, _p30._0._1)
+														dragState: A2(_concourse$atc$Dashboard_Group$Dragging, _p30._0._0, _p30._0._1)
 													}))
 										}),
 									_1: _elm_lang$core$Platform_Cmd$none
@@ -30453,7 +30469,7 @@ var _concourse$atc$Dashboard$update = F2(
 												_elm_lang$core$Native_Utils.update(
 													_p42._0,
 													{
-														dropState: _concourse$atc$Dashboard_Pipeline$Dropping(_p30._0._1)
+														dropState: _concourse$atc$Dashboard_Group$Dropping(_p30._0._1)
 													}))
 										}),
 									_1: _elm_lang$core$Platform_Cmd$none
@@ -30461,13 +30477,12 @@ var _concourse$atc$Dashboard$update = F2(
 							} else {
 								return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 							}
-						case 'Tooltip':
-							return {
-								ctor: '_Tuple2',
-								_0: model,
-								_1: _concourse$atc$Dashboard$tooltip(
-									{ctor: '_Tuple2', _0: _p30._0._0, _1: _p30._0._1})
-							};
+						case 'PipelineMsg':
+							return A3(
+								_elm_lang$core$Basics$flip,
+								_concourse$atc$Dashboard$update,
+								model,
+								_concourse$atc$Dashboard$PipelineMsg(_p30._0._0));
 						default:
 							var _p43 = model.state;
 							if (_p43.ctor === 'HasData') {
@@ -30479,7 +30494,7 @@ var _concourse$atc$Dashboard$update = F2(
 									var _p50 = _p44._0._1;
 									var newSubstate = _elm_lang$core$Native_Utils.update(
 										_p53,
-										{dragState: _concourse$atc$Dashboard_Pipeline$NotDragging, dropState: _concourse$atc$Dashboard_Pipeline$NotDropping});
+										{dragState: _concourse$atc$Dashboard_Group$NotDragging, dropState: _concourse$atc$Dashboard_Group$NotDropping});
 									var groups = _concourse$atc$Dashboard_Group$groups(
 										_concourse$atc$Dashboard$teamApiData(_p53.teamData));
 									var shiftPipelines = function (pipelines) {
@@ -30593,7 +30608,7 @@ var _concourse$atc$Dashboard$update = F2(
 												state: _concourse$atc$Dashboard$HasData(
 													_elm_lang$core$Native_Utils.update(
 														_p53,
-														{dragState: _concourse$atc$Dashboard_Pipeline$NotDragging, dropState: _concourse$atc$Dashboard_Pipeline$NotDropping}))
+														{dragState: _concourse$atc$Dashboard_Group$NotDragging, dropState: _concourse$atc$Dashboard_Group$NotDropping}))
 											}),
 										_1: _elm_lang$core$Platform_Cmd$none
 									};

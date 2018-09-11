@@ -7,6 +7,10 @@ import Concourse.Pipeline
 import Concourse.PipelineStatus
 import Concourse.Resource
 import Concourse.Team
+<<<<<<< HEAD
+=======
+import DashboardHelpers exposing (PipelineWithJobs, pipelineStatusFromJobs)
+>>>>>>> WIP - moving drag-and-drop logic into Group module
 import Dashboard.Pipeline as Pipeline
 import Html exposing (..)
 import Html.Attributes exposing (..)
@@ -34,6 +38,9 @@ type alias APIData =
     }
 
 
+<<<<<<< HEAD
+allPipelines : APIData -> List Pipeline.PipelineWithJobs
+=======
 type alias PipelineIndex =
     Int
 
@@ -55,7 +62,8 @@ type Msg
     | PipelineMsg Pipeline.Msg
 
 
-allPipelines : APIData -> List Pipeline.PipelineWithJobs
+allPipelines : APIData -> List PipelineWithJobs
+>>>>>>> WIP - moving drag-and-drop logic into Group module
 allPipelines data =
     data.pipelines
         |> List.map
@@ -131,7 +139,11 @@ ordering =
     Ordering.byField .teamName
 
 
-view : List (Html Msg) -> DragState -> DropState -> Time -> Group -> Html Msg
+<<<<<<< HEAD
+view : List (Html Pipeline.Msg) -> Pipeline.DragState -> Pipeline.DropState -> Time -> Group -> Html Pipeline.Msg
+=======
+view : List (Html Msg) -> DragState -> DropState -> Maybe Time -> Group -> Html Msg
+>>>>>>> WIP - moving drag-and-drop logic into Group module
 view header dragState dropState now group =
     let
         pipelines =
@@ -148,7 +160,7 @@ view header dragState dropState now group =
                                         [ ( "dashboard-pipeline", True )
                                         , ( "dashboard-paused", pipeline.pipeline.paused )
                                         , ( "dashboard-running", not <| List.isEmpty <| List.filterMap .nextBuild pipeline.jobs )
-                                        , ( "dashboard-status-" ++ Concourse.PipelineStatus.show (Pipeline.pipelineStatusFromJobs pipeline.jobs False), not pipeline.pipeline.paused )
+                                        , ( "dashboard-status-" ++ Concourse.PipelineStatus.show (pipelineStatusFromJobs pipeline.jobs False), not pipeline.pipeline.paused )
                                         , ( "dragging", dragState == Dragging pipeline.pipeline.teamName i )
                                         ]
                                     , attribute "data-pipeline-name" pipeline.pipeline.name
