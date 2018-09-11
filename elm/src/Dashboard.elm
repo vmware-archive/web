@@ -9,6 +9,7 @@ import Concourse.User
 import Dashboard.Group as Group
 import Dashboard.GroupWithTag as GroupWithTag
 import Dashboard.Pipeline as Pipeline
+import Dict
 import Dom
 import Html exposing (Html)
 import Html.Attributes exposing (attribute, class, classList, draggable, href, id, src)
@@ -17,6 +18,9 @@ import Http
 import Keyboard
 import List.Extra
 import Mouse
+import Monocle.Common
+import Monocle.Lens
+import Monocle.Optional
 import NewTopBar
 import NoPipeline exposing (Msg, view)
 import Regex exposing (HowMany(All), regex, replace)
@@ -76,6 +80,21 @@ type alias Model =
     , topBar : NewTopBar.Model
     , turbulencePath : String -- this doesn't vary, it's more a prop (in the sense of react) than state. should be a way to use a thunk for the Turbulence case of DashboardState
     , showHelp : Bool
+    }
+
+
+type alias Config =
+    { csrfToken : String
+    , turbulencePath : String
+    }
+
+
+type alias Modifier =
+    { showHelp : Bool
+    , dragState : Group.DragState
+    , dropState : Group.DropState
+    , hideFooter : Bool
+    , hideFooterCounter : Time
     }
 
 
@@ -290,34 +309,28 @@ update msg model =
                         case ( substate.dragState, substate.dropState ) of
                             ( Group.Dragging teamName dragIndex, Group.Dropping dropIndex ) ->
                                 let
-                                    shiftPipelines : List Pipeline.PipelineWithJobs -> List Pipeline.PipelineWithJobs
-                                    shiftPipelines pipelines =
-                                        if dragIndex == dropIndex then
-                                            pipelines
-                                        else
-                                            case
-                                                List.head <|
-                                                    List.drop dragIndex <|
-                                                        pipelines
-                                            of
-                                                Nothing ->
-                                                    pipelines
-
-                                                Just pipeline ->
-                                                    shiftPipelineTo pipeline dropIndex pipelines
-
                                     groups =
                                         substate.teamData |> teamApiData |> Group.groups
 
-                                    filteredPipelines =
-                                        groups
-                                            |> List.Extra.find (.teamName >> (==) teamName)
-                                            |> Maybe.map (.pipelines >> shiftPipelines)
+                                    group =
+                                        Monocle.Lens.Lens (\d -> ( Dict.get teamName d, Cmd.none ))
+                                            (\( mGroup, cmd ) d -> ( Maybe.map (\g -> Dict.insert teamName g d) mGroup |> Maybe.withDefault d, cmd ))
+
+                                    -- TODO is this a writer monad?
+                                    updatePipelines : Int -> Int -> ( Group.Group, Cmd Msg ) -> ( Group.Group, Cmd Msg )
+                                    updatePipelines dragIndex dropIndex ( group, cmd ) =
+                                        let
+                                            newGroup =
+                                                Group.shiftPipelines dragIndex dropIndex group
+                                        in
+                                            ( newGroup, orderPipelines newGroup.teamName newGroup.pipelines model.csrfToken )
+
+                                    shiftPipelinesOfGroup =
+                                        Monocle.Optional.composeLens group <|
+                                            Monocle.Lens.Lens (always dropIndex) (updatePipelines dragIndex)
 
                                     newGroups =
-                                        filteredPipelines
-                                            |> Maybe.map (\fps -> groups |> List.Extra.updateIf (.teamName >> (==) teamName) (\g -> { g | pipelines = fps }))
-                                            |> Maybe.withDefault groups
+                                        shiftPipelinesOfGroup.set dropIndex groups
 
                                     newSubstate =
                                         { substate

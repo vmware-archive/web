@@ -1,4 +1,4 @@
-module Dashboard.Group exposing (Msg(..), DragState(..), DropState(..), APIData, Group, groups, apiData, ordering, remoteData, view, pipelineDropAreaView, headerView)
+module Dashboard.Group exposing (Msg(..), DragState(..), DropState(..), APIData, Group, groups, apiData, ordering, remoteData, view, pipelineDropAreaView, headerView, shiftPipelines)
 
 import Concourse
 import Concourse.Info
@@ -8,11 +8,13 @@ import Concourse.PipelineStatus
 import Concourse.Resource
 import Concourse.Team
 import Dashboard.Pipeline as Pipeline
+import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (on)
 import Http
 import Json.Decode
+import List.Extra
 import Ordering exposing (Ordering)
 import Set
 import Task
@@ -80,6 +82,53 @@ allPipelines data =
             )
 
 
+shiftPipelines : Int -> Int -> Group -> Group
+shiftPipelines dragIndex dropIndex group =
+    if dragIndex == dropIndex then
+        group
+    else
+        let
+            pipelines =
+                case
+                    List.head <|
+                        List.drop dragIndex <|
+                            group.pipelines
+                of
+                    Nothing ->
+                        group.pipelines
+
+                    Just pipeline ->
+                        shiftPipelineTo pipeline dropIndex group.pipelines
+        in
+            { group | pipelines = pipelines }
+
+
+
+-- TODO this is pretty hard to reason about. really deeply nested and nasty. doesn't exactly relate
+-- to the hd refactor as hd doesn't have the drag-and-drop feature, but it's a big contributor
+-- to the 'length of this file' tire fire
+
+
+shiftPipelineTo : PipelineWithJobs -> Int -> List PipelineWithJobs -> List PipelineWithJobs
+shiftPipelineTo ({ pipeline } as pipelineWithJobs) position pipelines =
+    case pipelines of
+        [] ->
+            if position < 0 then
+                []
+            else
+                [ pipelineWithJobs ]
+
+        p :: ps ->
+            if p.pipeline.teamName /= pipeline.teamName then
+                p :: shiftPipelineTo pipelineWithJobs position ps
+            else if p.pipeline == pipeline then
+                shiftPipelineTo pipelineWithJobs (position - 1) ps
+            else if position == 0 then
+                pipelineWithJobs :: p :: shiftPipelineTo pipelineWithJobs (position - 1) ps
+            else
+                p :: shiftPipelineTo pipelineWithJobs (position - 1) ps
+
+
 allTeamNames : APIData -> List String
 allTeamNames apiData =
     Set.union
@@ -98,11 +147,16 @@ remoteData =
         (Concourse.Info.fetch |> Task.map .version)
 
 
-groups : APIData -> List Group
+groups : APIData -> Dict.Dict String Group
 groups apiData =
-    (List.map << group)
-        (allPipelines apiData)
-        (allTeamNames apiData)
+    let
+        teamNames =
+            allTeamNames apiData
+    in
+        teamNames
+            |> List.map (group (allPipelines apiData))
+            |> List.Extra.zip teamNames
+            |> Dict.fromList
 
 
 apiData : List Group -> APIData
