@@ -9,7 +9,6 @@ import Concourse.User
 import Dashboard.Group as Group
 import Dashboard.GroupWithTag as GroupWithTag
 import Dashboard.Pipeline as Pipeline
-import Dict
 import Dom
 import Html exposing (Html)
 import Html.Attributes exposing (attribute, class, classList, draggable, href, id, src)
@@ -17,10 +16,11 @@ import Html.Attributes.Aria exposing (ariaLabel)
 import Http
 import Keyboard
 import List.Extra
+import Maybe.Extra
 import Mouse
-import Monocle.Common
-import Monocle.Lens
+import Monocle.Iso
 import Monocle.Optional
+import Monocle.Lens
 import NewTopBar
 import NoPipeline exposing (Msg, view)
 import Regex exposing (HowMany(All), regex, replace)
@@ -306,51 +306,82 @@ update msg model =
             GroupMsg Group.DragEnd ->
                 case model.state of
                     HasData substate ->
+                        -- TODO can we do this part of the context with a lens? some kind of Optional for
+                        -- whether you are dragging at all...
                         case ( substate.dragState, substate.dropState ) of
                             ( Group.Dragging teamName dragIndex, Group.Dropping dropIndex ) ->
                                 let
-                                    groups =
-                                        substate.teamData |> teamApiData |> Group.groups
+                                    toMaybe : Model -> Maybe SubState
+                                    toMaybe m =
+                                        case m.state of
+                                            HasData substate ->
+                                                Just substate
 
-                                    group =
-                                        Monocle.Lens.Lens (\d -> ( Dict.get teamName d, Cmd.none ))
-                                            (\( mGroup, cmd ) d -> ( Maybe.map (\g -> Dict.insert teamName g d) mGroup |> Maybe.withDefault d, cmd ))
+                                            _ ->
+                                                Nothing
 
-                                    -- TODO is this a writer monad?
-                                    updatePipelines : Int -> Int -> ( Group.Group, Cmd Msg ) -> ( Group.Group, Cmd Msg )
-                                    updatePipelines dragIndex dropIndex ( group, cmd ) =
+                                    substateOptional =
+                                        Monocle.Optional.Optional (toMaybe) (\s m -> { m | state = HasData s })
+
+                                    liftMaybe : Monocle.Lens.Lens a b -> Monocle.Lens.Lens (Maybe a) (Maybe b)
+                                    liftMaybe l =
+                                        Monocle.Lens.Lens (Maybe.map l.get) (Maybe.map2 l.set)
+
+                                    dragStateLens =
+                                        Monocle.Lens.Lens .dragState (\ds ss -> { ss | dragState = ds })
+
+                                    dropStateLens =
+                                        Monocle.Lens.Lens .dropState (\ds ss -> { ss | dropState = ds })
+
+                                    teamDataLens =
+                                        Monocle.Lens.Lens .teamData (\td ss -> { ss | teamData = td })
+
+                                    setApiData : Group.APIData -> TeamData -> TeamData
+                                    setApiData apiData teamData =
+                                        case teamData of
+                                            Unauthenticated _ ->
+                                                Unauthenticated { apiData = apiData }
+
+                                            Authenticated { user } ->
+                                                Authenticated { apiData = apiData, user = user }
+
+                                    apiDataLens =
+                                        Monocle.Lens.Lens teamApiData setApiData
+
+                                    groupsLens =
+                                        Monocle.Lens.fromIso <| Monocle.Iso.Iso Group.groups Group.apiData
+
+                                    findGroupOptional =
+                                        let
+                                            predicate =
+                                                .teamName >> (==) teamName
+                                        in
+                                            Monocle.Optional.Optional (List.Extra.find predicate)
+                                                (\g gs -> List.Extra.findIndex predicate gs |> Maybe.map (\i -> List.Extra.setAt i g gs) |> Maybe.Extra.join |> Maybe.withDefault gs)
+
+                                    modifyWithEffect : Monocle.Optional.Optional a b -> (b -> ( b, Cmd msg )) -> a -> ( a, Cmd msg )
+                                    modifyWithEffect l f m =
+                                        l.getOption m |> Maybe.map f |> Maybe.map (Tuple.mapFirst (flip l.set m)) |> Maybe.withDefault ( m, Cmd.none )
+
+                                    superOptional =
+                                        substateOptional
+                                            |> flip Monocle.Optional.composeLens teamDataLens
+                                            |> flip Monocle.Optional.composeLens apiDataLens
+                                            |> flip Monocle.Optional.composeLens groupsLens
+                                            |> flip Monocle.Optional.compose findGroupOptional
+
+                                    updatePipelines : Int -> Int -> Group.Group -> ( Group.Group, Cmd Msg )
+                                    updatePipelines dragIndex dropIndex group =
                                         let
                                             newGroup =
                                                 Group.shiftPipelines dragIndex dropIndex group
                                         in
                                             ( newGroup, orderPipelines newGroup.teamName newGroup.pipelines model.csrfToken )
-
-                                    shiftPipelinesOfGroup =
-                                        Monocle.Optional.composeLens group <|
-                                            Monocle.Lens.Lens (always dropIndex) (updatePipelines dragIndex)
-
-                                    newGroups =
-                                        shiftPipelinesOfGroup.set dropIndex groups
-
-                                    newSubstate =
-                                        { substate
-                                            | dragState = Group.NotDragging
-                                            , dropState = Group.NotDropping
-                                        }
-
-                                    newModel =
-                                        case newSubstate.teamData of
-                                            Unauthenticated { apiData } ->
-                                                HasData { newSubstate | teamData = Unauthenticated { apiData = Group.apiData newGroups } }
-
-                                            Authenticated { apiData, user } ->
-                                                HasData { newSubstate | teamData = Authenticated { apiData = Group.apiData newGroups, user = user } }
                                 in
-                                    ( { model | state = newModel }
-                                    , filteredPipelines
-                                        |> Maybe.map (\ps -> orderPipelines teamName ps model.csrfToken)
-                                        |> Maybe.withDefault reload
-                                    )
+                                    model
+                                        |> (Monocle.Optional.composeLens substateOptional dragStateLens).set Group.NotDragging
+                                        |> (Monocle.Optional.composeLens substateOptional dropStateLens).set Group.NotDropping
+                                        |> modifyWithEffect superOptional (updatePipelines dragIndex dropIndex)
 
                             _ ->
                                 ( { model | state = HasData { substate | dragState = Group.NotDragging, dropState = Group.NotDropping } }

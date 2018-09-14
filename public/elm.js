@@ -8383,6 +8383,534 @@ var _NoRedInk$elm_simple_fuzzy$Simple_Fuzzy$filter = F3(
 			records);
 	});
 
+var _arturopala$elm_monocle$Monocle_Iso$modify = F2(
+	function (iso, f) {
+		return function (_p0) {
+			return iso.reverseGet(
+				f(
+					iso.get(_p0)));
+		};
+	});
+var _arturopala$elm_monocle$Monocle_Iso$Iso = F2(
+	function (a, b) {
+		return {get: a, reverseGet: b};
+	});
+var _arturopala$elm_monocle$Monocle_Iso$reverse = function (iso) {
+	return A2(_arturopala$elm_monocle$Monocle_Iso$Iso, iso.reverseGet, iso.get);
+};
+var _arturopala$elm_monocle$Monocle_Iso$compose = F2(
+	function (outer, inner) {
+		return A2(
+			_arturopala$elm_monocle$Monocle_Iso$Iso,
+			function (_p1) {
+				return inner.get(
+					outer.get(_p1));
+			},
+			function (_p2) {
+				return outer.reverseGet(
+					inner.reverseGet(_p2));
+			});
+	});
+
+var _arturopala$elm_monocle$Monocle_Lens$modifyAndMerge = F3(
+	function (lens, fx, merge) {
+		var mf = function (_p0) {
+			var _p1 = _p0;
+			var _p4 = _p1._0;
+			return function (_p2) {
+				var _p3 = _p2;
+				return {
+					ctor: '_Tuple2',
+					_0: A2(lens.set, _p3._0, _p4),
+					_1: A2(merge, _p1._1, _p3._1)
+				};
+			}(
+				fx(
+					lens.get(_p4)));
+		};
+		return mf;
+	});
+var _arturopala$elm_monocle$Monocle_Lens$modify3 = F4(
+	function (lens1, lens2, lens3, fx) {
+		var mf = function (_p5) {
+			var _p6 = _p5;
+			var _p11 = _p6._2;
+			var _p10 = _p6._1;
+			var _p9 = _p6._0;
+			return function (_p7) {
+				var _p8 = _p7;
+				return {
+					ctor: '_Tuple3',
+					_0: A2(lens1.set, _p8._0, _p9),
+					_1: A2(lens2.set, _p8._1, _p10),
+					_2: A2(lens3.set, _p8._2, _p11)
+				};
+			}(
+				fx(
+					{
+						ctor: '_Tuple3',
+						_0: lens1.get(_p9),
+						_1: lens2.get(_p10),
+						_2: lens3.get(_p11)
+					}));
+		};
+		return mf;
+	});
+var _arturopala$elm_monocle$Monocle_Lens$modify2 = F3(
+	function (lens1, lens2, fx) {
+		var mf = function (_p12) {
+			var _p13 = _p12;
+			var _p17 = _p13._1;
+			var _p16 = _p13._0;
+			return function (_p14) {
+				var _p15 = _p14;
+				return {
+					ctor: '_Tuple2',
+					_0: A2(lens1.set, _p15._0, _p16),
+					_1: A2(lens2.set, _p15._1, _p17)
+				};
+			}(
+				fx(
+					{
+						ctor: '_Tuple2',
+						_0: lens1.get(_p16),
+						_1: lens2.get(_p17)
+					}));
+		};
+		return mf;
+	});
+var _arturopala$elm_monocle$Monocle_Lens$modify = F2(
+	function (lens, f) {
+		var mf = function (a) {
+			return function (b) {
+				return A2(lens.set, b, a);
+			}(
+				f(
+					lens.get(a)));
+		};
+		return mf;
+	});
+var _arturopala$elm_monocle$Monocle_Lens$Lens = F2(
+	function (a, b) {
+		return {get: a, set: b};
+	});
+var _arturopala$elm_monocle$Monocle_Lens$compose = F2(
+	function (outer, inner) {
+		var set = F2(
+			function (c, a) {
+				return function (b) {
+					return A2(outer.set, b, a);
+				}(
+					A2(
+						inner.set,
+						c,
+						outer.get(a)));
+			});
+		return A2(
+			_arturopala$elm_monocle$Monocle_Lens$Lens,
+			function (_p18) {
+				return inner.get(
+					outer.get(_p18));
+			},
+			set);
+	});
+var _arturopala$elm_monocle$Monocle_Lens$fromIso = function (iso) {
+	var set = F2(
+		function (b, _p19) {
+			return iso.reverseGet(b);
+		});
+	return A2(_arturopala$elm_monocle$Monocle_Lens$Lens, iso.get, set);
+};
+var _arturopala$elm_monocle$Monocle_Lens$zip = F2(
+	function (left, right) {
+		var set = F2(
+			function (_p21, _p20) {
+				var _p22 = _p21;
+				var _p23 = _p20;
+				return {
+					ctor: '_Tuple2',
+					_0: A2(left.set, _p22._0, _p23._0),
+					_1: A2(right.set, _p22._1, _p23._1)
+				};
+			});
+		var get = function (_p24) {
+			var _p25 = _p24;
+			return {
+				ctor: '_Tuple2',
+				_0: left.get(_p25._0),
+				_1: right.get(_p25._1)
+			};
+		};
+		return A2(_arturopala$elm_monocle$Monocle_Lens$Lens, get, set);
+	});
+var _arturopala$elm_monocle$Monocle_Lens$tuple = F2(
+	function (left, right) {
+		var set = F2(
+			function (_p26, a) {
+				var _p27 = _p26;
+				return A2(
+					right.set,
+					_p27._1,
+					A2(left.set, _p27._0, a));
+			});
+		var get = function (a) {
+			return {
+				ctor: '_Tuple2',
+				_0: left.get(a),
+				_1: right.get(a)
+			};
+		};
+		return A2(_arturopala$elm_monocle$Monocle_Lens$Lens, get, set);
+	});
+var _arturopala$elm_monocle$Monocle_Lens$tuple3 = F3(
+	function (first, second, third) {
+		var set = F2(
+			function (_p28, a) {
+				var _p29 = _p28;
+				return A2(
+					third.set,
+					_p29._2,
+					A2(
+						second.set,
+						_p29._1,
+						A2(first.set, _p29._0, a)));
+			});
+		var get = function (a) {
+			return {
+				ctor: '_Tuple3',
+				_0: first.get(a),
+				_1: second.get(a),
+				_2: third.get(a)
+			};
+		};
+		return A2(_arturopala$elm_monocle$Monocle_Lens$Lens, get, set);
+	});
+
+var _arturopala$elm_monocle$Monocle_Prism$modifyOption = F2(
+	function (prism, f) {
+		return function (_p0) {
+			return A2(
+				_elm_lang$core$Maybe$map,
+				function (_p1) {
+					return prism.reverseGet(
+						f(_p1));
+				},
+				prism.getOption(_p0));
+		};
+	});
+var _arturopala$elm_monocle$Monocle_Prism$modify = F2(
+	function (prism, f) {
+		var m = function (x) {
+			return A2(
+				_elm_lang$core$Maybe$withDefault,
+				x,
+				A3(_arturopala$elm_monocle$Monocle_Prism$modifyOption, prism, f, x));
+		};
+		return m;
+	});
+var _arturopala$elm_monocle$Monocle_Prism$isMatching = F2(
+	function (prism, a) {
+		var _p2 = prism.getOption(a);
+		if (_p2.ctor === 'Just') {
+			return true;
+		} else {
+			return false;
+		}
+	});
+var _arturopala$elm_monocle$Monocle_Prism$Prism = F2(
+	function (a, b) {
+		return {getOption: a, reverseGet: b};
+	});
+var _arturopala$elm_monocle$Monocle_Prism$compose = F2(
+	function (outer, inner) {
+		var getOption = function (x) {
+			var _p3 = outer.getOption(x);
+			if (_p3.ctor === 'Just') {
+				return inner.getOption(_p3._0);
+			} else {
+				return _elm_lang$core$Maybe$Nothing;
+			}
+		};
+		return A2(
+			_arturopala$elm_monocle$Monocle_Prism$Prism,
+			getOption,
+			function (_p4) {
+				return outer.reverseGet(
+					inner.reverseGet(_p4));
+			});
+	});
+var _arturopala$elm_monocle$Monocle_Prism$composeIso = F2(
+	function (outer, inner) {
+		var getOption = function (x) {
+			var _p5 = outer.getOption(x);
+			if (_p5.ctor === 'Just') {
+				return _elm_lang$core$Maybe$Just(
+					inner.get(_p5._0));
+			} else {
+				return _elm_lang$core$Maybe$Nothing;
+			}
+		};
+		return A2(
+			_arturopala$elm_monocle$Monocle_Prism$Prism,
+			getOption,
+			function (_p6) {
+				return outer.reverseGet(
+					inner.reverseGet(_p6));
+			});
+	});
+var _arturopala$elm_monocle$Monocle_Prism$fromIso = function (iso) {
+	return A2(
+		_arturopala$elm_monocle$Monocle_Prism$Prism,
+		function (_p7) {
+			return _elm_lang$core$Maybe$Just(
+				iso.get(_p7));
+		},
+		iso.reverseGet);
+};
+
+var _arturopala$elm_monocle$Monocle_Optional$modify3 = F4(
+	function (opt1, opt2, opt3, fx) {
+		var mf = function (_p0) {
+			var _p1 = _p0;
+			var _p7 = _p1._2;
+			var _p6 = _p1._1;
+			var _p5 = _p1._0;
+			var _p2 = {
+				ctor: '_Tuple3',
+				_0: opt1.getOption(_p5),
+				_1: opt2.getOption(_p6),
+				_2: opt3.getOption(_p7)
+			};
+			if ((((_p2.ctor === '_Tuple3') && (_p2._0.ctor === 'Just')) && (_p2._1.ctor === 'Just')) && (_p2._2.ctor === 'Just')) {
+				return function (_p3) {
+					var _p4 = _p3;
+					return {
+						ctor: '_Tuple3',
+						_0: A2(opt1.set, _p4._0, _p5),
+						_1: A2(opt2.set, _p4._1, _p6),
+						_2: A2(opt3.set, _p4._2, _p7)
+					};
+				}(
+					fx(
+						{ctor: '_Tuple3', _0: _p2._0._0, _1: _p2._1._0, _2: _p2._2._0}));
+			} else {
+				return {ctor: '_Tuple3', _0: _p5, _1: _p6, _2: _p7};
+			}
+		};
+		return mf;
+	});
+var _arturopala$elm_monocle$Monocle_Optional$modify2 = F3(
+	function (opt1, opt2, fx) {
+		var mf = function (_p8) {
+			var _p9 = _p8;
+			var _p14 = _p9._1;
+			var _p13 = _p9._0;
+			var _p10 = {
+				ctor: '_Tuple2',
+				_0: opt1.getOption(_p13),
+				_1: opt2.getOption(_p14)
+			};
+			if (((_p10.ctor === '_Tuple2') && (_p10._0.ctor === 'Just')) && (_p10._1.ctor === 'Just')) {
+				return function (_p11) {
+					var _p12 = _p11;
+					return {
+						ctor: '_Tuple2',
+						_0: A2(opt1.set, _p12._0, _p13),
+						_1: A2(opt2.set, _p12._1, _p14)
+					};
+				}(
+					fx(
+						{ctor: '_Tuple2', _0: _p10._0._0, _1: _p10._1._0}));
+			} else {
+				return {ctor: '_Tuple2', _0: _p13, _1: _p14};
+			}
+		};
+		return mf;
+	});
+var _arturopala$elm_monocle$Monocle_Optional$modifyOption = F2(
+	function (opt, fx) {
+		var mf = function (a) {
+			return A2(
+				_elm_lang$core$Maybe$map,
+				function (_p15) {
+					return A3(
+						_elm_lang$core$Basics$flip,
+						opt.set,
+						a,
+						fx(_p15));
+				},
+				opt.getOption(a));
+		};
+		return mf;
+	});
+var _arturopala$elm_monocle$Monocle_Optional$modify = F2(
+	function (opt, fx) {
+		var mf = function (a) {
+			return A2(
+				_elm_lang$core$Maybe$withDefault,
+				a,
+				A3(_arturopala$elm_monocle$Monocle_Optional$modifyOption, opt, fx, a));
+		};
+		return mf;
+	});
+var _arturopala$elm_monocle$Monocle_Optional$Optional = F2(
+	function (a, b) {
+		return {getOption: a, set: b};
+	});
+var _arturopala$elm_monocle$Monocle_Optional$compose = F2(
+	function (outer, inner) {
+		var getOption = function (a) {
+			var _p16 = outer.getOption(a);
+			if (_p16.ctor === 'Just') {
+				return inner.getOption(_p16._0);
+			} else {
+				return _elm_lang$core$Maybe$Nothing;
+			}
+		};
+		var set = F2(
+			function (c, a) {
+				return A2(
+					_elm_lang$core$Maybe$withDefault,
+					a,
+					A2(
+						_elm_lang$core$Maybe$map,
+						function (_p17) {
+							return A3(
+								_elm_lang$core$Basics$flip,
+								outer.set,
+								a,
+								A2(inner.set, c, _p17));
+						},
+						outer.getOption(a)));
+			});
+		return A2(_arturopala$elm_monocle$Monocle_Optional$Optional, getOption, set);
+	});
+var _arturopala$elm_monocle$Monocle_Optional$composeLens = F2(
+	function (opt, lens) {
+		var getOption = function (a) {
+			var _p18 = opt.getOption(a);
+			if (_p18.ctor === 'Just') {
+				return _elm_lang$core$Maybe$Just(
+					lens.get(_p18._0));
+			} else {
+				return _elm_lang$core$Maybe$Nothing;
+			}
+		};
+		var set = F2(
+			function (c, a) {
+				return A2(
+					_elm_lang$core$Maybe$withDefault,
+					a,
+					A2(
+						_elm_lang$core$Maybe$map,
+						function (_p19) {
+							return A3(
+								_elm_lang$core$Basics$flip,
+								opt.set,
+								a,
+								A2(lens.set, c, _p19));
+						},
+						opt.getOption(a)));
+			});
+		return A2(_arturopala$elm_monocle$Monocle_Optional$Optional, getOption, set);
+	});
+var _arturopala$elm_monocle$Monocle_Optional$fromPrism = function (prism) {
+	var set = F2(
+		function (b, _p20) {
+			return prism.reverseGet(b);
+		});
+	return A2(_arturopala$elm_monocle$Monocle_Optional$Optional, prism.getOption, set);
+};
+var _arturopala$elm_monocle$Monocle_Optional$fromLens = function (lens) {
+	var getOption = function (a) {
+		return _elm_lang$core$Maybe$Just(
+			lens.get(a));
+	};
+	return A2(_arturopala$elm_monocle$Monocle_Optional$Optional, getOption, lens.set);
+};
+var _arturopala$elm_monocle$Monocle_Optional$zip = F2(
+	function (left, right) {
+		var set = F2(
+			function (_p22, _p21) {
+				var _p23 = _p22;
+				var _p24 = _p21;
+				return {
+					ctor: '_Tuple2',
+					_0: A2(left.set, _p23._0, _p24._0),
+					_1: A2(right.set, _p23._1, _p24._1)
+				};
+			});
+		var getOption = function (_p25) {
+			var _p26 = _p25;
+			return A2(
+				_elm_lang$core$Maybe$andThen,
+				function (c) {
+					return A2(
+						_elm_lang$core$Maybe$map,
+						function (d) {
+							return {ctor: '_Tuple2', _0: c, _1: d};
+						},
+						right.getOption(_p26._1));
+				},
+				left.getOption(_p26._0));
+		};
+		return A2(_arturopala$elm_monocle$Monocle_Optional$Optional, getOption, set);
+	});
+var _arturopala$elm_monocle$Monocle_Optional$tuple = F2(
+	function (left, right) {
+		var set = F2(
+			function (_p27, a) {
+				var _p28 = _p27;
+				return A2(
+					right.set,
+					_p28._1,
+					A2(left.set, _p28._0, a));
+			});
+		var getOption = function (a) {
+			var _p29 = {
+				ctor: '_Tuple2',
+				_0: left.getOption(a),
+				_1: right.getOption(a)
+			};
+			if (((_p29.ctor === '_Tuple2') && (_p29._0.ctor === 'Just')) && (_p29._1.ctor === 'Just')) {
+				return _elm_lang$core$Maybe$Just(
+					{ctor: '_Tuple2', _0: _p29._0._0, _1: _p29._1._0});
+			} else {
+				return _elm_lang$core$Maybe$Nothing;
+			}
+		};
+		return A2(_arturopala$elm_monocle$Monocle_Optional$Optional, getOption, set);
+	});
+var _arturopala$elm_monocle$Monocle_Optional$tuple3 = F3(
+	function (first, second, third) {
+		var set = F2(
+			function (_p30, a) {
+				var _p31 = _p30;
+				return A2(
+					third.set,
+					_p31._2,
+					A2(
+						second.set,
+						_p31._1,
+						A2(first.set, _p31._0, a)));
+			});
+		var getOption = function (a) {
+			var _p32 = {
+				ctor: '_Tuple3',
+				_0: first.getOption(a),
+				_1: second.getOption(a),
+				_2: third.getOption(a)
+			};
+			if ((((_p32.ctor === '_Tuple3') && (_p32._0.ctor === 'Just')) && (_p32._1.ctor === 'Just')) && (_p32._2.ctor === 'Just')) {
+				return _elm_lang$core$Maybe$Just(
+					{ctor: '_Tuple3', _0: _p32._0._0, _1: _p32._1._0, _2: _p32._2._0});
+			} else {
+				return _elm_lang$core$Maybe$Nothing;
+			}
+		};
+		return A2(_arturopala$elm_monocle$Monocle_Optional$Optional, getOption, set);
+	});
+
 var _elm_lang$animation_frame$Native_AnimationFrame = function()
 {
 
@@ -25318,6 +25846,80 @@ var _concourse$atc$Dashboard_Group$allTeamNames = function (apiData) {
 					},
 					apiData.teams))));
 };
+var _concourse$atc$Dashboard_Group$shiftPipelineTo = F3(
+	function (_p1, position, pipelines) {
+		shiftPipelineTo:
+		while (true) {
+			var _p2 = _p1;
+			var _p7 = _p2;
+			var _p6 = _p2.pipeline;
+			var _p3 = pipelines;
+			if (_p3.ctor === '[]') {
+				return (_elm_lang$core$Native_Utils.cmp(position, 0) < 0) ? {ctor: '[]'} : {
+					ctor: '::',
+					_0: _p7,
+					_1: {ctor: '[]'}
+				};
+			} else {
+				var _p5 = _p3._1;
+				var _p4 = _p3._0;
+				if (!_elm_lang$core$Native_Utils.eq(_p4.pipeline.teamName, _p6.teamName)) {
+					return {
+						ctor: '::',
+						_0: _p4,
+						_1: A3(_concourse$atc$Dashboard_Group$shiftPipelineTo, _p7, position, _p5)
+					};
+				} else {
+					if (_elm_lang$core$Native_Utils.eq(_p4.pipeline, _p6)) {
+						var _v2 = _p7,
+							_v3 = position - 1,
+							_v4 = _p5;
+						_p1 = _v2;
+						position = _v3;
+						pipelines = _v4;
+						continue shiftPipelineTo;
+					} else {
+						if (_elm_lang$core$Native_Utils.eq(position, 0)) {
+							return {
+								ctor: '::',
+								_0: _p7,
+								_1: {
+									ctor: '::',
+									_0: _p4,
+									_1: A3(_concourse$atc$Dashboard_Group$shiftPipelineTo, _p7, position - 1, _p5)
+								}
+							};
+						} else {
+							return {
+								ctor: '::',
+								_0: _p4,
+								_1: A3(_concourse$atc$Dashboard_Group$shiftPipelineTo, _p7, position - 1, _p5)
+							};
+						}
+					}
+				}
+			}
+		}
+	});
+var _concourse$atc$Dashboard_Group$shiftPipelines = F3(
+	function (dragIndex, dropIndex, group) {
+		if (_elm_lang$core$Native_Utils.eq(dragIndex, dropIndex)) {
+			return group;
+		} else {
+			var pipelines = function () {
+				var _p8 = _elm_lang$core$List$head(
+					A2(_elm_lang$core$List$drop, dragIndex, group.pipelines));
+				if (_p8.ctor === 'Nothing') {
+					return group.pipelines;
+				} else {
+					return A3(_concourse$atc$Dashboard_Group$shiftPipelineTo, _p8._0, dropIndex, group.pipelines);
+				}
+			}();
+			return _elm_lang$core$Native_Utils.update(
+				group,
+				{pipelines: pipelines});
+		}
+	});
 var _concourse$atc$Dashboard_Group$allPipelines = function (data) {
 	return A2(
 		_elm_lang$core$List$map,
@@ -25341,13 +25943,12 @@ var _concourse$atc$Dashboard_Group$allPipelines = function (data) {
 		data.pipelines);
 };
 var _concourse$atc$Dashboard_Group$groups = function (apiData) {
+	var teamNames = _concourse$atc$Dashboard_Group$allTeamNames(apiData);
 	return A2(
-		function (_p1) {
-			return _elm_lang$core$List$map(
-				_concourse$atc$Dashboard_Group$group(_p1));
-		},
-		_concourse$atc$Dashboard_Group$allPipelines(apiData),
-		_concourse$atc$Dashboard_Group$allTeamNames(apiData));
+		_elm_lang$core$List$map,
+		_concourse$atc$Dashboard_Group$group(
+			_concourse$atc$Dashboard_Group$allPipelines(apiData)),
+		teamNames);
 };
 var _concourse$atc$Dashboard_Group$Group = F2(
 	function (a, b) {
@@ -25397,28 +25998,28 @@ var _concourse$atc$Dashboard_Group$DragOver = F2(
 	});
 var _concourse$atc$Dashboard_Group$pipelineDropAreaView = F4(
 	function (dragState, dropState, teamName, index) {
-		var _p2 = function () {
-			var _p3 = {ctor: '_Tuple2', _0: dragState, _1: dropState};
-			if ((_p3.ctor === '_Tuple2') && (_p3._0.ctor === 'Dragging')) {
-				if (_p3._1.ctor === 'NotDropping') {
+		var _p9 = function () {
+			var _p10 = {ctor: '_Tuple2', _0: dragState, _1: dropState};
+			if ((_p10.ctor === '_Tuple2') && (_p10._0.ctor === 'Dragging')) {
+				if (_p10._1.ctor === 'NotDropping') {
 					return {
 						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.eq(_p3._0._0, teamName),
-						_1: _elm_lang$core$Native_Utils.eq(index, _p3._0._1)
+						_0: _elm_lang$core$Native_Utils.eq(_p10._0._0, teamName),
+						_1: _elm_lang$core$Native_Utils.eq(index, _p10._0._1)
 					};
 				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.eq(_p3._0._0, teamName),
-						_1: _elm_lang$core$Native_Utils.eq(index, _p3._1._0)
+						_0: _elm_lang$core$Native_Utils.eq(_p10._0._0, teamName),
+						_1: _elm_lang$core$Native_Utils.eq(index, _p10._1._0)
 					};
 				}
 			} else {
 				return {ctor: '_Tuple2', _0: false, _1: false};
 			}
 		}();
-		var active = _p2._0;
-		var over = _p2._1;
+		var active = _p9._0;
+		var over = _p9._1;
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -29952,6 +30553,14 @@ var _concourse$atc$Dashboard$Model = F5(
 	function (a, b, c, d, e) {
 		return {csrfToken: a, state: b, topBar: c, turbulencePath: d, showHelp: e};
 	});
+var _concourse$atc$Dashboard$Config = F2(
+	function (a, b) {
+		return {csrfToken: a, turbulencePath: b};
+	});
+var _concourse$atc$Dashboard$Modifier = F5(
+	function (a, b, c, d, e) {
+		return {showHelp: a, dragState: b, dropState: c, hideFooter: d, hideFooterCounter: e};
+	});
 var _concourse$atc$Dashboard$HasData = function (a) {
 	return {ctor: 'HasData', _0: a};
 };
@@ -30486,119 +31095,157 @@ var _concourse$atc$Dashboard$update = F2(
 						default:
 							var _p43 = model.state;
 							if (_p43.ctor === 'HasData') {
-								var _p53 = _p43._0;
-								var _p44 = {ctor: '_Tuple2', _0: _p53.dragState, _1: _p53.dropState};
+								var _p48 = _p43._0;
+								var _p44 = {ctor: '_Tuple2', _0: _p48.dragState, _1: _p48.dropState};
 								if (((_p44.ctor === '_Tuple2') && (_p44._0.ctor === 'Dragging')) && (_p44._1.ctor === 'Dropping')) {
-									var _p52 = _p44._0._0;
-									var _p51 = _p44._1._0;
-									var _p50 = _p44._0._1;
-									var newSubstate = _elm_lang$core$Native_Utils.update(
-										_p53,
-										{dragState: _concourse$atc$Dashboard_Group$NotDragging, dropState: _concourse$atc$Dashboard_Group$NotDropping});
-									var groups = _concourse$atc$Dashboard_Group$groups(
-										_concourse$atc$Dashboard$teamApiData(_p53.teamData));
-									var shiftPipelines = function (pipelines) {
-										if (_elm_lang$core$Native_Utils.eq(_p50, _p51)) {
-											return pipelines;
-										} else {
-											var _p45 = _elm_lang$core$List$head(
-												A2(_elm_lang$core$List$drop, _p50, pipelines));
-											if (_p45.ctor === 'Nothing') {
-												return pipelines;
-											} else {
-												return A3(_concourse$atc$Dashboard$shiftPipelineTo, _p45._0, _p51, pipelines);
-											}
-										}
-									};
-									var filteredPipelines = A2(
-										_elm_lang$core$Maybe$map,
-										function (_p46) {
-											return shiftPipelines(
+									var updatePipelines = F3(
+										function (dragIndex, dropIndex, group) {
+											var newGroup = A3(_concourse$atc$Dashboard_Group$shiftPipelines, dragIndex, dropIndex, group);
+											return {
+												ctor: '_Tuple2',
+												_0: newGroup,
+												_1: A3(_concourse$atc$Dashboard$orderPipelines, newGroup.teamName, newGroup.pipelines, model.csrfToken)
+											};
+										});
+									var modifyWithEffect = F3(
+										function (l, f, m) {
+											return A2(
+												_elm_lang$core$Maybe$withDefault,
+												{ctor: '_Tuple2', _0: m, _1: _elm_lang$core$Platform_Cmd$none},
+												A2(
+													_elm_lang$core$Maybe$map,
+													_elm_lang$core$Tuple$mapFirst(
+														A2(_elm_lang$core$Basics$flip, l.set, m)),
+													A2(
+														_elm_lang$core$Maybe$map,
+														f,
+														l.getOption(m))));
+										});
+									var findGroupOptional = function () {
+										var predicate = function (_p45) {
+											return A2(
+												F2(
+													function (x, y) {
+														return _elm_lang$core$Native_Utils.eq(x, y);
+													}),
+												_p44._0._0,
 												function (_) {
-													return _.pipelines;
-												}(_p46));
-										},
-										A2(
-											_elm_community$list_extra$List_Extra$find,
-											function (_p47) {
-												return A2(
-													F2(
-														function (x, y) {
-															return _elm_lang$core$Native_Utils.eq(x, y);
-														}),
-													_p52,
-													function (_) {
-														return _.teamName;
-													}(_p47));
-											},
-											groups));
-									var newGroups = A2(
-										_elm_lang$core$Maybe$withDefault,
-										groups,
-										A2(
-											_elm_lang$core$Maybe$map,
-											function (fps) {
-												return A3(
-													_elm_community$list_extra$List_Extra$updateIf,
-													function (_p48) {
-														return A2(
-															F2(
-																function (x, y) {
-																	return _elm_lang$core$Native_Utils.eq(x, y);
-																}),
-															_p52,
-															function (_) {
-																return _.teamName;
-															}(_p48));
-													},
-													function (g) {
-														return _elm_lang$core$Native_Utils.update(
-															g,
-															{pipelines: fps});
-													},
-													groups);
-											},
-											filteredPipelines));
-									var newModel = function () {
-										var _p49 = newSubstate.teamData;
-										if (_p49.ctor === 'Unauthenticated') {
-											return _concourse$atc$Dashboard$HasData(
-												_elm_lang$core$Native_Utils.update(
-													newSubstate,
-													{
-														teamData: _concourse$atc$Dashboard$Unauthenticated(
-															{
-																apiData: _concourse$atc$Dashboard_Group$apiData(newGroups)
-															})
-													}));
-										} else {
-											return _concourse$atc$Dashboard$HasData(
-												_elm_lang$core$Native_Utils.update(
-													newSubstate,
-													{
-														teamData: _concourse$atc$Dashboard$Authenticated(
-															{
-																apiData: _concourse$atc$Dashboard_Group$apiData(newGroups),
-																user: _p49._0.user
-															})
-													}));
-										}
+													return _.teamName;
+												}(_p45));
+										};
+										return A2(
+											_arturopala$elm_monocle$Monocle_Optional$Optional,
+											_elm_community$list_extra$List_Extra$find(predicate),
+											F2(
+												function (g, gs) {
+													return A2(
+														_elm_lang$core$Maybe$withDefault,
+														gs,
+														_elm_community$maybe_extra$Maybe_Extra$join(
+															A2(
+																_elm_lang$core$Maybe$map,
+																function (i) {
+																	return A3(_elm_community$list_extra$List_Extra$setAt, i, g, gs);
+																},
+																A2(_elm_community$list_extra$List_Extra$findIndex, predicate, gs))));
+												}));
 									}();
-									return {
-										ctor: '_Tuple2',
-										_0: _elm_lang$core$Native_Utils.update(
-											model,
-											{state: newModel}),
-										_1: A2(
-											_elm_lang$core$Maybe$withDefault,
-											reload,
-											A2(
-												_elm_lang$core$Maybe$map,
-												function (ps) {
-													return A3(_concourse$atc$Dashboard$orderPipelines, _p52, ps, model.csrfToken);
-												},
-												filteredPipelines))
+									var groupsLens = _arturopala$elm_monocle$Monocle_Lens$fromIso(
+										A2(_arturopala$elm_monocle$Monocle_Iso$Iso, _concourse$atc$Dashboard_Group$groups, _concourse$atc$Dashboard_Group$apiData));
+									var setApiData = F2(
+										function (apiData, teamData) {
+											var _p46 = teamData;
+											if (_p46.ctor === 'Unauthenticated') {
+												return _concourse$atc$Dashboard$Unauthenticated(
+													{apiData: apiData});
+											} else {
+												return _concourse$atc$Dashboard$Authenticated(
+													{apiData: apiData, user: _p46._0.user});
+											}
+										});
+									var apiDataLens = A2(_arturopala$elm_monocle$Monocle_Lens$Lens, _concourse$atc$Dashboard$teamApiData, setApiData);
+									var teamDataLens = A2(
+										_arturopala$elm_monocle$Monocle_Lens$Lens,
+										function (_) {
+											return _.teamData;
+										},
+										F2(
+											function (td, ss) {
+												return _elm_lang$core$Native_Utils.update(
+													ss,
+													{teamData: td});
+											}));
+									var dropStateLens = A2(
+										_arturopala$elm_monocle$Monocle_Lens$Lens,
+										function (_) {
+											return _.dropState;
+										},
+										F2(
+											function (ds, ss) {
+												return _elm_lang$core$Native_Utils.update(
+													ss,
+													{dropState: ds});
+											}));
+									var dragStateLens = A2(
+										_arturopala$elm_monocle$Monocle_Lens$Lens,
+										function (_) {
+											return _.dragState;
+										},
+										F2(
+											function (ds, ss) {
+												return _elm_lang$core$Native_Utils.update(
+													ss,
+													{dragState: ds});
+											}));
+									var liftMaybe = function (l) {
+										return A2(
+											_arturopala$elm_monocle$Monocle_Lens$Lens,
+											_elm_lang$core$Maybe$map(l.get),
+											_elm_lang$core$Maybe$map2(l.set));
 									};
+									var toMaybe = function (m) {
+										var _p47 = m.state;
+										if (_p47.ctor === 'HasData') {
+											return _elm_lang$core$Maybe$Just(_p47._0);
+										} else {
+											return _elm_lang$core$Maybe$Nothing;
+										}
+									};
+									var substateOptional = A2(
+										_arturopala$elm_monocle$Monocle_Optional$Optional,
+										toMaybe,
+										F2(
+											function (s, m) {
+												return _elm_lang$core$Native_Utils.update(
+													m,
+													{
+														state: _concourse$atc$Dashboard$HasData(s)
+													});
+											}));
+									var superOptional = A3(
+										_elm_lang$core$Basics$flip,
+										_arturopala$elm_monocle$Monocle_Optional$compose,
+										findGroupOptional,
+										A3(
+											_elm_lang$core$Basics$flip,
+											_arturopala$elm_monocle$Monocle_Optional$composeLens,
+											groupsLens,
+											A3(
+												_elm_lang$core$Basics$flip,
+												_arturopala$elm_monocle$Monocle_Optional$composeLens,
+												apiDataLens,
+												A3(_elm_lang$core$Basics$flip, _arturopala$elm_monocle$Monocle_Optional$composeLens, teamDataLens, substateOptional))));
+									return A3(
+										modifyWithEffect,
+										superOptional,
+										A2(updatePipelines, _p44._0._1, _p44._1._0),
+										A2(
+											A2(_arturopala$elm_monocle$Monocle_Optional$composeLens, substateOptional, dropStateLens).set,
+											_concourse$atc$Dashboard_Group$NotDropping,
+											A2(
+												A2(_arturopala$elm_monocle$Monocle_Optional$composeLens, substateOptional, dragStateLens).set,
+												_concourse$atc$Dashboard_Group$NotDragging,
+												model)));
 								} else {
 									return {
 										ctor: '_Tuple2',
@@ -30607,7 +31254,7 @@ var _concourse$atc$Dashboard$update = F2(
 											{
 												state: _concourse$atc$Dashboard$HasData(
 													_elm_lang$core$Native_Utils.update(
-														_p53,
+														_p48,
 														{dragState: _concourse$atc$Dashboard_Group$NotDragging, dropState: _concourse$atc$Dashboard_Group$NotDropping}))
 											}),
 										_1: _elm_lang$core$Platform_Cmd$none

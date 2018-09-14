@@ -8,13 +8,11 @@ import Concourse.PipelineStatus
 import Concourse.Resource
 import Concourse.Team
 import Dashboard.Pipeline as Pipeline
-import Dict
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (on)
 import Http
 import Json.Decode
-import List.Extra
 import Ordering exposing (Ordering)
 import Set
 import Task
@@ -109,7 +107,7 @@ shiftPipelines dragIndex dropIndex group =
 -- to the 'length of this file' tire fire
 
 
-shiftPipelineTo : PipelineWithJobs -> Int -> List PipelineWithJobs -> List PipelineWithJobs
+shiftPipelineTo : Pipeline.PipelineWithJobs -> Int -> List Pipeline.PipelineWithJobs -> List Pipeline.PipelineWithJobs
 shiftPipelineTo ({ pipeline } as pipelineWithJobs) position pipelines =
     case pipelines of
         [] ->
@@ -147,7 +145,7 @@ remoteData =
         (Concourse.Info.fetch |> Task.map .version)
 
 
-groups : APIData -> Dict.Dict String Group
+groups : APIData -> List Group
 groups apiData =
     let
         teamNames =
@@ -155,8 +153,13 @@ groups apiData =
     in
         teamNames
             |> List.map (group (allPipelines apiData))
-            |> List.Extra.zip teamNames
-            |> Dict.fromList
+
+
+
+-- TODO i'd like for this to be an isomorphism, which would
+-- require adding resource data to the Group type, or making
+-- the APIData type smaller (or, like, not marrying Group to
+-- APIData at all but using a different type)
 
 
 apiData : List Group -> APIData
