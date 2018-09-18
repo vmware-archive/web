@@ -8911,6 +8911,80 @@ var _arturopala$elm_monocle$Monocle_Optional$tuple3 = F3(
 		return A2(_arturopala$elm_monocle$Monocle_Optional$Optional, getOption, set);
 	});
 
+var _arturopala$elm_monocle$Monocle_Common$second = {
+	get: _elm_lang$core$Tuple$second,
+	set: F2(
+		function (b, _p0) {
+			var _p1 = _p0;
+			return {ctor: '_Tuple2', _0: _p1._0, _1: b};
+		})
+};
+var _arturopala$elm_monocle$Monocle_Common$first = {
+	get: _elm_lang$core$Tuple$first,
+	set: F2(
+		function (a, _p2) {
+			var _p3 = _p2;
+			return {ctor: '_Tuple2', _0: a, _1: _p3._1};
+		})
+};
+var _arturopala$elm_monocle$Monocle_Common$id = {
+	get: function (_) {
+		return _.id;
+	},
+	set: F2(
+		function (id, record) {
+			return _elm_lang$core$Native_Utils.update(
+				record,
+				{id: id});
+		})
+};
+var _arturopala$elm_monocle$Monocle_Common$result = {
+	getOption: _elm_lang$core$Result$toMaybe,
+	set: function (_p4) {
+		return _elm_lang$core$Basics$always(
+			_elm_lang$core$Result$Ok(_p4));
+	}
+};
+var _arturopala$elm_monocle$Monocle_Common$dict = function (key) {
+	return {
+		getOption: _elm_lang$core$Dict$get(key),
+		set: _elm_lang$core$Dict$insert(key)
+	};
+};
+var _arturopala$elm_monocle$Monocle_Common$listToArray = A2(_arturopala$elm_monocle$Monocle_Iso$Iso, _elm_lang$core$Array$fromList, _elm_lang$core$Array$toList);
+var _arturopala$elm_monocle$Monocle_Common$array = function (index) {
+	return {
+		getOption: _elm_lang$core$Array$get(index),
+		set: _elm_lang$core$Array$set(index)
+	};
+};
+var _arturopala$elm_monocle$Monocle_Common$maybe = {
+	getOption: _elm_lang$core$Basics$identity,
+	set: function (_p5) {
+		return _elm_lang$core$Basics$always(
+			_elm_lang$core$Maybe$Just(_p5));
+	}
+};
+var _arturopala$elm_monocle$Monocle_Common_ops = _arturopala$elm_monocle$Monocle_Common_ops || {};
+_arturopala$elm_monocle$Monocle_Common_ops['=|>'] = F2(
+	function (a, b) {
+		return A2(
+			_arturopala$elm_monocle$Monocle_Optional$compose,
+			a,
+			_arturopala$elm_monocle$Monocle_Optional$fromLens(b));
+	});
+var _arturopala$elm_monocle$Monocle_Common_ops = _arturopala$elm_monocle$Monocle_Common_ops || {};
+_arturopala$elm_monocle$Monocle_Common_ops['=>'] = _arturopala$elm_monocle$Monocle_Optional$compose;
+var _arturopala$elm_monocle$Monocle_Common$list = function (index) {
+	return A2(
+		_arturopala$elm_monocle$Monocle_Common_ops['=>'],
+		_arturopala$elm_monocle$Monocle_Optional$fromLens(
+			_arturopala$elm_monocle$Monocle_Lens$fromIso(_arturopala$elm_monocle$Monocle_Common$listToArray)),
+		_arturopala$elm_monocle$Monocle_Common$array(index));
+};
+var _arturopala$elm_monocle$Monocle_Common_ops = _arturopala$elm_monocle$Monocle_Common_ops || {};
+_arturopala$elm_monocle$Monocle_Common_ops['<|>'] = _arturopala$elm_monocle$Monocle_Lens$compose;
+
 var _elm_lang$animation_frame$Native_AnimationFrame = function()
 {
 
@@ -25950,6 +26024,61 @@ var _concourse$atc$Dashboard_Group$groups = function (apiData) {
 			_concourse$atc$Dashboard_Group$allPipelines(apiData)),
 		teamNames);
 };
+var _concourse$atc$Dashboard_Group$dropIndex = function (dropState) {
+	var _p9 = dropState;
+	if (_p9.ctor === 'Dropping') {
+		return _elm_lang$core$Maybe$Just(_p9._0);
+	} else {
+		return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _concourse$atc$Dashboard_Group$dragIndex = function (dragState) {
+	var _p10 = dragState;
+	if (_p10.ctor === 'Dragging') {
+		return _elm_lang$core$Maybe$Just(_p10._1);
+	} else {
+		return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _concourse$atc$Dashboard_Group$teamName = function (dragState) {
+	var _p11 = dragState;
+	if (_p11.ctor === 'Dragging') {
+		return _elm_lang$core$Maybe$Just(_p11._0);
+	} else {
+		return _elm_lang$core$Maybe$Nothing;
+	}
+};
+var _concourse$atc$Dashboard_Group$findGroupOptional = function (teamName) {
+	var predicate = function (_p12) {
+		return A2(
+			F2(
+				function (x, y) {
+					return _elm_lang$core$Native_Utils.eq(x, y);
+				}),
+			teamName,
+			function (_) {
+				return _.teamName;
+			}(_p12));
+	};
+	return A2(
+		_arturopala$elm_monocle$Monocle_Optional$Optional,
+		_elm_community$list_extra$List_Extra$find(predicate),
+		F2(
+			function (g, gs) {
+				return A2(
+					_elm_lang$core$Maybe$withDefault,
+					gs,
+					_elm_community$maybe_extra$Maybe_Extra$join(
+						A2(
+							_elm_lang$core$Maybe$map,
+							function (i) {
+								return A3(_elm_community$list_extra$List_Extra$setAt, i, g, gs);
+							},
+							A2(_elm_community$list_extra$List_Extra$findIndex, predicate, gs))));
+			}));
+};
+var _concourse$atc$Dashboard_Group$groupsLens = _arturopala$elm_monocle$Monocle_Lens$fromIso(
+	A2(_arturopala$elm_monocle$Monocle_Iso$Iso, _concourse$atc$Dashboard_Group$groups, _concourse$atc$Dashboard_Group$apiData));
 var _concourse$atc$Dashboard_Group$Group = F2(
 	function (a, b) {
 		return {pipelines: a, teamName: b};
@@ -25984,10 +26113,40 @@ var _concourse$atc$Dashboard_Group$Dragging = F2(
 		return {ctor: 'Dragging', _0: a, _1: b};
 	});
 var _concourse$atc$Dashboard_Group$NotDragging = {ctor: 'NotDragging'};
+var _concourse$atc$Dashboard_Group$setTeamName = F2(
+	function (teamName, dragState) {
+		var _p13 = dragState;
+		if (_p13.ctor === 'Dragging') {
+			return A2(_concourse$atc$Dashboard_Group$Dragging, teamName, _p13._1);
+		} else {
+			return _concourse$atc$Dashboard_Group$NotDragging;
+		}
+	});
+var _concourse$atc$Dashboard_Group$teamNameOptional = A2(_arturopala$elm_monocle$Monocle_Optional$Optional, _concourse$atc$Dashboard_Group$teamName, _concourse$atc$Dashboard_Group$setTeamName);
+var _concourse$atc$Dashboard_Group$setDragIndex = F2(
+	function (dragIndex, dragState) {
+		var _p14 = dragState;
+		if (_p14.ctor === 'Dragging') {
+			return A2(_concourse$atc$Dashboard_Group$Dragging, _p14._0, dragIndex);
+		} else {
+			return _concourse$atc$Dashboard_Group$NotDragging;
+		}
+	});
+var _concourse$atc$Dashboard_Group$dragIndexOptional = A2(_arturopala$elm_monocle$Monocle_Optional$Optional, _concourse$atc$Dashboard_Group$dragIndex, _concourse$atc$Dashboard_Group$setDragIndex);
 var _concourse$atc$Dashboard_Group$Dropping = function (a) {
 	return {ctor: 'Dropping', _0: a};
 };
 var _concourse$atc$Dashboard_Group$NotDropping = {ctor: 'NotDropping'};
+var _concourse$atc$Dashboard_Group$setDropIndex = F2(
+	function (dropIndex, dropState) {
+		var _p15 = dropState;
+		if (_p15.ctor === 'Dropping') {
+			return _concourse$atc$Dashboard_Group$Dropping(dropIndex);
+		} else {
+			return _concourse$atc$Dashboard_Group$NotDropping;
+		}
+	});
+var _concourse$atc$Dashboard_Group$dropIndexOptional = A2(_arturopala$elm_monocle$Monocle_Optional$Optional, _concourse$atc$Dashboard_Group$dropIndex, _concourse$atc$Dashboard_Group$setDropIndex);
 var _concourse$atc$Dashboard_Group$PipelineMsg = function (a) {
 	return {ctor: 'PipelineMsg', _0: a};
 };
@@ -25998,28 +26157,28 @@ var _concourse$atc$Dashboard_Group$DragOver = F2(
 	});
 var _concourse$atc$Dashboard_Group$pipelineDropAreaView = F4(
 	function (dragState, dropState, teamName, index) {
-		var _p9 = function () {
-			var _p10 = {ctor: '_Tuple2', _0: dragState, _1: dropState};
-			if ((_p10.ctor === '_Tuple2') && (_p10._0.ctor === 'Dragging')) {
-				if (_p10._1.ctor === 'NotDropping') {
+		var _p16 = function () {
+			var _p17 = {ctor: '_Tuple2', _0: dragState, _1: dropState};
+			if ((_p17.ctor === '_Tuple2') && (_p17._0.ctor === 'Dragging')) {
+				if (_p17._1.ctor === 'NotDropping') {
 					return {
 						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.eq(_p10._0._0, teamName),
-						_1: _elm_lang$core$Native_Utils.eq(index, _p10._0._1)
+						_0: _elm_lang$core$Native_Utils.eq(_p17._0._0, teamName),
+						_1: _elm_lang$core$Native_Utils.eq(index, _p17._0._1)
 					};
 				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.eq(_p10._0._0, teamName),
-						_1: _elm_lang$core$Native_Utils.eq(index, _p10._1._0)
+						_0: _elm_lang$core$Native_Utils.eq(_p17._0._0, teamName),
+						_1: _elm_lang$core$Native_Utils.eq(index, _p17._1._0)
 					};
 				}
 			} else {
 				return {ctor: '_Tuple2', _0: false, _1: false};
 			}
 		}();
-		var active = _p9._0;
-		var over = _p9._1;
+		var active = _p16._0;
+		var over = _p16._1;
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -26254,6 +26413,44 @@ var _concourse$atc$Dashboard_Group$view = F5(
 			});
 	});
 
+var _concourse$atc$Dashboard_Details$dropStateLens = A2(
+	_arturopala$elm_monocle$Monocle_Lens$Lens,
+	function (_) {
+		return _.dropState;
+	},
+	F2(
+		function (ds, ss) {
+			return _elm_lang$core$Native_Utils.update(
+				ss,
+				{dropState: ds});
+		}));
+var _concourse$atc$Dashboard_Details$dragStateLens = A2(
+	_arturopala$elm_monocle$Monocle_Lens$Lens,
+	function (_) {
+		return _.dragState;
+	},
+	F2(
+		function (ds, ss) {
+			return _elm_lang$core$Native_Utils.update(
+				ss,
+				{dragState: ds});
+		}));
+var _concourse$atc$Dashboard_Details$nowLens = A2(
+	_arturopala$elm_monocle$Monocle_Lens$Lens,
+	function (_) {
+		return _.now;
+	},
+	F2(
+		function (t, ss) {
+			return _elm_lang$core$Native_Utils.update(
+				ss,
+				{now: t});
+		}));
+var _concourse$atc$Dashboard_Details$Details = F3(
+	function (a, b, c) {
+		return {now: a, dragState: b, dropState: c};
+	});
+
 var _concourse$atc$Dashboard_Group_Tag$text = function (tag) {
 	var _p0 = tag;
 	if (_p0.ctor === 'Exposed') {
@@ -26349,6 +26546,170 @@ var _concourse$atc$Dashboard_GroupWithTag$TaggedGroup = F2(
 	function (a, b) {
 		return {group: a, tag: b};
 	});
+
+var _concourse$atc$MonocleHelpers$modifyWithEffect = F3(
+	function (l, f, m) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			{ctor: '_Tuple2', _0: m, _1: _elm_lang$core$Platform_Cmd$none},
+			A2(
+				_elm_lang$core$Maybe$map,
+				_elm_lang$core$Tuple$mapFirst(
+					A2(_elm_lang$core$Basics$flip, l.set, m)),
+				A2(
+					_elm_lang$core$Maybe$map,
+					f,
+					l.getOption(m))));
+	});
+var _concourse$atc$MonocleHelpers_ops = _concourse$atc$MonocleHelpers_ops || {};
+_concourse$atc$MonocleHelpers_ops['>>='] = F2(
+	function (opt, f) {
+		return {
+			getOption: function (a) {
+				return _elm_community$maybe_extra$Maybe_Extra$join(
+					A2(
+						_elm_lang$core$Maybe$map,
+						function (b) {
+							return f(b).getOption(a);
+						},
+						opt.getOption(a)));
+			},
+			set: F2(
+				function (c, a) {
+					return A2(
+						_elm_lang$core$Maybe$withDefault,
+						a,
+						A2(
+							_elm_lang$core$Maybe$map,
+							function (b) {
+								return A2(
+									f(b).set,
+									c,
+									a);
+							},
+							opt.getOption(a)));
+				})
+		};
+	});
+var _concourse$atc$MonocleHelpers_ops = _concourse$atc$MonocleHelpers_ops || {};
+_concourse$atc$MonocleHelpers_ops['<|='] = function (_p0) {
+	return _arturopala$elm_monocle$Monocle_Optional$compose(
+		_arturopala$elm_monocle$Monocle_Optional$fromLens(_p0));
+};
+var _concourse$atc$MonocleHelpers_ops = _concourse$atc$MonocleHelpers_ops || {};
+_concourse$atc$MonocleHelpers_ops['=|>'] = _arturopala$elm_monocle$Monocle_Optional$composeLens;
+
+var _concourse$atc$Dashboard_SubState$apiData = function (teamData) {
+	var _p0 = teamData;
+	if (_p0.ctor === 'Unauthenticated') {
+		return _p0._0.apiData;
+	} else {
+		return _p0._0.apiData;
+	}
+};
+var _concourse$atc$Dashboard_SubState$hideFooterCounterLens = A2(
+	_arturopala$elm_monocle$Monocle_Lens$Lens,
+	function (_) {
+		return _.hideFooterCounter;
+	},
+	F2(
+		function (c, ss) {
+			return _elm_lang$core$Native_Utils.update(
+				ss,
+				{hideFooterCounter: c});
+		}));
+var _concourse$atc$Dashboard_SubState$hideFooterLens = A2(
+	_arturopala$elm_monocle$Monocle_Lens$Lens,
+	function (_) {
+		return _.hideFooter;
+	},
+	F2(
+		function (hf, ss) {
+			return _elm_lang$core$Native_Utils.update(
+				ss,
+				{hideFooter: hf});
+		}));
+var _concourse$atc$Dashboard_SubState$showFooter = function (_p1) {
+	return A2(
+		_concourse$atc$Dashboard_SubState$hideFooterCounterLens.set,
+		0,
+		A2(_concourse$atc$Dashboard_SubState$hideFooterLens.set, false, _p1));
+};
+var _concourse$atc$Dashboard_SubState$updateFooter = function (counter) {
+	return (_elm_lang$core$Native_Utils.cmp(counter + _elm_lang$core$Time$second, 5 * _elm_lang$core$Time$second) > 0) ? _concourse$atc$Dashboard_SubState$hideFooterLens.set(true) : _concourse$atc$Dashboard_SubState$hideFooterCounterLens.set(counter + _elm_lang$core$Time$second);
+};
+var _concourse$atc$Dashboard_SubState$teamDataLens = A2(
+	_arturopala$elm_monocle$Monocle_Lens$Lens,
+	function (_) {
+		return _.teamData;
+	},
+	F2(
+		function (td, ss) {
+			return _elm_lang$core$Native_Utils.update(
+				ss,
+				{teamData: td});
+		}));
+var _concourse$atc$Dashboard_SubState$detailsOptional = A2(
+	_arturopala$elm_monocle$Monocle_Optional$Optional,
+	function (_) {
+		return _.details;
+	},
+	F2(
+		function (d, ss) {
+			return _elm_lang$core$Native_Utils.update(
+				ss,
+				{
+					details: _elm_lang$core$Maybe$Just(d)
+				});
+		}));
+var _concourse$atc$Dashboard_SubState$tick = function (now) {
+	return function (_p2) {
+		return function (ss) {
+			return _concourse$atc$Dashboard_SubState$updateFooter(
+				_concourse$atc$Dashboard_SubState$hideFooterCounterLens.get(ss))(ss);
+		}(
+			A2(
+				A2(_concourse$atc$MonocleHelpers_ops['=|>'], _concourse$atc$Dashboard_SubState$detailsOptional, _concourse$atc$Dashboard_Details$nowLens).set,
+				now,
+				_p2));
+	};
+};
+var _concourse$atc$Dashboard_SubState$SubState = F5(
+	function (a, b, c, d, e) {
+		return {details: a, teamData: b, hideFooter: c, hideFooterCounter: d, csrfToken: e};
+	});
+var _concourse$atc$Dashboard_SubState$Authenticated = function (a) {
+	return {ctor: 'Authenticated', _0: a};
+};
+var _concourse$atc$Dashboard_SubState$Unauthenticated = function (a) {
+	return {ctor: 'Unauthenticated', _0: a};
+};
+var _concourse$atc$Dashboard_SubState$teamData = F2(
+	function (apiData, user) {
+		return A2(
+			_elm_lang$core$Maybe$withDefault,
+			_concourse$atc$Dashboard_SubState$Unauthenticated(
+				{apiData: apiData}),
+			A2(
+				_elm_lang$core$Maybe$map,
+				function (u) {
+					return _concourse$atc$Dashboard_SubState$Authenticated(
+						{apiData: apiData, user: u});
+				},
+				user));
+	});
+var _concourse$atc$Dashboard_SubState$setApiData = F2(
+	function (apiData, teamData) {
+		var _p3 = teamData;
+		if (_p3.ctor === 'Unauthenticated') {
+			return _concourse$atc$Dashboard_SubState$Unauthenticated(
+				{apiData: apiData});
+		} else {
+			return _concourse$atc$Dashboard_SubState$Authenticated(
+				{apiData: apiData, user: _p3._0.user});
+		}
+	});
+var _concourse$atc$Dashboard_SubState$apiDataLens = A2(_arturopala$elm_monocle$Monocle_Lens$Lens, _concourse$atc$Dashboard_SubState$apiData, _concourse$atc$Dashboard_SubState$setApiData);
 
 var _elm_lang$dom$Dom$blur = _elm_lang$dom$Native_Dom.blur;
 var _elm_lang$dom$Dom$focus = _elm_lang$dom$Native_Dom.focus;
@@ -29877,263 +30238,6 @@ var _concourse$atc$Dashboard$turbulenceView = function (path) {
 			_1: {ctor: '[]'}
 		});
 };
-var _concourse$atc$Dashboard$helpView = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$classList(
-				{
-					ctor: '::',
-					_0: {ctor: '_Tuple2', _0: 'keyboard-help', _1: true},
-					_1: {
-						ctor: '::',
-						_0: {ctor: '_Tuple2', _0: 'hidden', _1: !model.showHelp},
-						_1: {ctor: '[]'}
-					}
-				}),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$div,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('help-title'),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text('keyboard shortcuts'),
-					_1: {ctor: '[]'}
-				}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('help-line'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$div,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('keys'),
-								_1: {ctor: '[]'}
-							},
-							{
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$span,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('key'),
-										_1: {ctor: '[]'}
-									},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('/'),
-										_1: {ctor: '[]'}
-									}),
-								_1: {ctor: '[]'}
-							}),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$html$Html$text('search'),
-							_1: {ctor: '[]'}
-						}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('help-line'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('keys'),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$span,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$class('key'),
-											_1: {ctor: '[]'}
-										},
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html$text('?'),
-											_1: {ctor: '[]'}
-										}),
-									_1: {ctor: '[]'}
-								}),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html$text('hide/show help'),
-								_1: {ctor: '[]'}
-							}
-						}),
-					_1: {ctor: '[]'}
-				}
-			}
-		});
-};
-var _concourse$atc$Dashboard$noResultsView = function (query) {
-	var boldedQuery = A2(
-		_elm_lang$html$Html$span,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('monospace-bold'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html$text(query),
-			_1: {ctor: '[]'}
-		});
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('dashboard'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$div,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('dashboard-content '),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('dashboard-team-group'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('pin-wrapper'),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$div,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$class('dashboard-team-name no-results'),
-											_1: {ctor: '[]'}
-										},
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html$text('No results for '),
-											_1: {
-												ctor: '::',
-												_0: boldedQuery,
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$html$Html$text(' matched your search.'),
-													_1: {ctor: '[]'}
-												}
-											}
-										}),
-									_1: {ctor: '[]'}
-								}),
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				}),
-			_1: {ctor: '[]'}
-		});
-};
-var _concourse$atc$Dashboard$shiftPipelineTo = F3(
-	function (_p13, position, pipelines) {
-		shiftPipelineTo:
-		while (true) {
-			var _p14 = _p13;
-			var _p19 = _p14;
-			var _p18 = _p14.pipeline;
-			var _p15 = pipelines;
-			if (_p15.ctor === '[]') {
-				return (_elm_lang$core$Native_Utils.cmp(position, 0) < 0) ? {ctor: '[]'} : {
-					ctor: '::',
-					_0: _p19,
-					_1: {ctor: '[]'}
-				};
-			} else {
-				var _p17 = _p15._1;
-				var _p16 = _p15._0;
-				if (!_elm_lang$core$Native_Utils.eq(_p16.pipeline.teamName, _p18.teamName)) {
-					return {
-						ctor: '::',
-						_0: _p16,
-						_1: A3(_concourse$atc$Dashboard$shiftPipelineTo, _p19, position, _p17)
-					};
-				} else {
-					if (_elm_lang$core$Native_Utils.eq(_p16.pipeline, _p18)) {
-						var _v3 = _p19,
-							_v4 = position - 1,
-							_v5 = _p17;
-						_p13 = _v3;
-						position = _v4;
-						pipelines = _v5;
-						continue shiftPipelineTo;
-					} else {
-						if (_elm_lang$core$Native_Utils.eq(position, 0)) {
-							return {
-								ctor: '::',
-								_0: _p19,
-								_1: {
-									ctor: '::',
-									_0: _p16,
-									_1: A3(_concourse$atc$Dashboard$shiftPipelineTo, _p19, position - 1, _p17)
-								}
-							};
-						} else {
-							return {
-								ctor: '::',
-								_0: _p16,
-								_1: A3(_concourse$atc$Dashboard$shiftPipelineTo, _p19, position - 1, _p17)
-							};
-						}
-					}
-				}
-			}
-		}
-	});
-var _concourse$atc$Dashboard$teamApiData = function (teamData) {
-	var _p20 = teamData;
-	if (_p20.ctor === 'Unauthenticated') {
-		return _p20._0.apiData;
-	} else {
-		return _p20._0.apiData;
-	}
-};
 var _concourse$atc$Dashboard$footerView = F2(
 	function (substate, showHelp) {
 		return A2(
@@ -30422,7 +30526,7 @@ var _concourse$atc$Dashboard$footerView = F2(
 											function (_) {
 												return _.version;
 											}(
-												_concourse$atc$Dashboard$teamApiData(substate.teamData))),
+												_concourse$atc$Dashboard_SubState$apiData(substate.teamData))),
 										_1: {ctor: '[]'}
 									}
 								}),
@@ -30528,6 +30632,318 @@ var _concourse$atc$Dashboard$footerView = F2(
 				}
 			});
 	});
+var _concourse$atc$Dashboard$helpView = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$classList(
+				{
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: 'keyboard-help', _1: true},
+					_1: {
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'hidden', _1: !model.showHelp},
+						_1: {ctor: '[]'}
+					}
+				}),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('help-title'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('keyboard shortcuts'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('help-line'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('keys'),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$span,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class('key'),
+										_1: {ctor: '[]'}
+									},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('/'),
+										_1: {ctor: '[]'}
+									}),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('search'),
+							_1: {ctor: '[]'}
+						}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('help-line'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('keys'),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$span,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('key'),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('?'),
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('hide/show help'),
+								_1: {ctor: '[]'}
+							}
+						}),
+					_1: {ctor: '[]'}
+				}
+			}
+		});
+};
+var _concourse$atc$Dashboard$noResultsView = function (query) {
+	var boldedQuery = A2(
+		_elm_lang$html$Html$span,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('monospace-bold'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text(query),
+			_1: {ctor: '[]'}
+		});
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('dashboard'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('dashboard-content '),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('dashboard-team-group'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('pin-wrapper'),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$div,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('dashboard-team-name no-results'),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('No results for '),
+											_1: {
+												ctor: '::',
+												_0: boldedQuery,
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html$text(' matched your search.'),
+													_1: {ctor: '[]'}
+												}
+											}
+										}),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		});
+};
+var _concourse$atc$Dashboard$shiftPipelineTo = F3(
+	function (_p13, position, pipelines) {
+		shiftPipelineTo:
+		while (true) {
+			var _p14 = _p13;
+			var _p19 = _p14;
+			var _p18 = _p14.pipeline;
+			var _p15 = pipelines;
+			if (_p15.ctor === '[]') {
+				return (_elm_lang$core$Native_Utils.cmp(position, 0) < 0) ? {ctor: '[]'} : {
+					ctor: '::',
+					_0: _p19,
+					_1: {ctor: '[]'}
+				};
+			} else {
+				var _p17 = _p15._1;
+				var _p16 = _p15._0;
+				if (!_elm_lang$core$Native_Utils.eq(_p16.pipeline.teamName, _p18.teamName)) {
+					return {
+						ctor: '::',
+						_0: _p16,
+						_1: A3(_concourse$atc$Dashboard$shiftPipelineTo, _p19, position, _p17)
+					};
+				} else {
+					if (_elm_lang$core$Native_Utils.eq(_p16.pipeline, _p18)) {
+						var _v3 = _p19,
+							_v4 = position - 1,
+							_v5 = _p17;
+						_p13 = _v3;
+						position = _v4;
+						pipelines = _v5;
+						continue shiftPipelineTo;
+					} else {
+						if (_elm_lang$core$Native_Utils.eq(position, 0)) {
+							return {
+								ctor: '::',
+								_0: _p19,
+								_1: {
+									ctor: '::',
+									_0: _p16,
+									_1: A3(_concourse$atc$Dashboard$shiftPipelineTo, _p19, position - 1, _p17)
+								}
+							};
+						} else {
+							return {
+								ctor: '::',
+								_0: _p16,
+								_1: A3(_concourse$atc$Dashboard$shiftPipelineTo, _p19, position - 1, _p17)
+							};
+						}
+					}
+				}
+			}
+		}
+	});
+var _concourse$atc$Dashboard$noop = function (model) {
+	return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+};
+var _concourse$atc$Dashboard$substateLens = A2(
+	_arturopala$elm_monocle$Monocle_Lens$Lens,
+	function (_p20) {
+		return _elm_lang$core$Result$toMaybe(
+			function (_) {
+				return _.state;
+			}(_p20));
+	},
+	F2(
+		function (mss, model) {
+			return A2(
+				_elm_lang$core$Maybe$withDefault,
+				model,
+				A2(
+					_elm_lang$core$Maybe$map,
+					function (ss) {
+						return _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								state: _elm_lang$core$Result$Ok(ss)
+							});
+					},
+					mss));
+		}));
+var _concourse$atc$Dashboard$handle = F3(
+	function (onError, onSuccess, result) {
+		var _p21 = result;
+		if (_p21.ctor === 'Ok') {
+			return onSuccess;
+		} else {
+			return onError;
+		}
+	});
+var _concourse$atc$Dashboard$substateOptional = A2(
+	_arturopala$elm_monocle$Monocle_Optional$Optional,
+	function (_p22) {
+		return _elm_lang$core$Result$toMaybe(
+			function (_) {
+				return _.state;
+			}(_p22));
+	},
+	F2(
+		function (s, m) {
+			return _elm_lang$core$Native_Utils.update(
+				m,
+				{
+					state: _elm_lang$core$Result$Ok(s)
+				});
+		}));
+var _concourse$atc$Dashboard$stateLens = A2(
+	_arturopala$elm_monocle$Monocle_Lens$Lens,
+	function (_) {
+		return _.state;
+	},
+	F2(
+		function (b, a) {
+			return _elm_lang$core$Native_Utils.update(
+				a,
+				{state: b});
+		}));
 var _concourse$atc$Dashboard$pinTeamNames = _elm_lang$core$Native_Platform.outgoingPort(
 	'pinTeamNames',
 	function (v) {
@@ -30545,36 +30961,35 @@ var _concourse$atc$Dashboard$Flags = F3(
 	function (a, b, c) {
 		return {csrfToken: a, turbulencePath: b, search: c};
 	});
-var _concourse$atc$Dashboard$SubState = F7(
-	function (a, b, c, d, e, f, g) {
-		return {csrfToken: a, dragState: b, dropState: c, hideFooter: d, hideFooterCounter: e, now: f, teamData: g};
-	});
 var _concourse$atc$Dashboard$Model = F5(
 	function (a, b, c, d, e) {
 		return {csrfToken: a, state: b, topBar: c, turbulencePath: d, showHelp: e};
 	});
-var _concourse$atc$Dashboard$Config = F2(
-	function (a, b) {
-		return {csrfToken: a, turbulencePath: b};
-	});
-var _concourse$atc$Dashboard$Modifier = F5(
-	function (a, b, c, d, e) {
-		return {showHelp: a, dragState: b, dropState: c, hideFooter: d, hideFooterCounter: e};
-	});
-var _concourse$atc$Dashboard$HasData = function (a) {
-	return {ctor: 'HasData', _0: a};
-};
 var _concourse$atc$Dashboard$NoPipelines = {ctor: 'NoPipelines'};
+var _concourse$atc$Dashboard$substate = F2(
+	function (csrfToken, _p23) {
+		var _p24 = _p23;
+		var _p25 = _p24._1._0;
+		return A2(
+			_elm_lang$core$Result$fromMaybe,
+			_concourse$atc$Dashboard$NoPipelines,
+			A2(
+				_elm_lang$core$Maybe$map,
+				_elm_lang$core$Basics$always(
+					{
+						teamData: A2(_concourse$atc$Dashboard_SubState$teamData, _p25, _p24._1._1),
+						details: _elm_lang$core$Maybe$Just(
+							{now: _p24._0, dragState: _concourse$atc$Dashboard_Group$NotDragging, dropState: _concourse$atc$Dashboard_Group$NotDropping}),
+						hideFooter: false,
+						hideFooterCounter: 0,
+						csrfToken: csrfToken
+					}),
+				_elm_lang$core$List$head(_p25.pipelines)));
+	});
 var _concourse$atc$Dashboard$Turbulence = function (a) {
 	return {ctor: 'Turbulence', _0: a};
 };
 var _concourse$atc$Dashboard$NotAsked = {ctor: 'NotAsked'};
-var _concourse$atc$Dashboard$Authenticated = function (a) {
-	return {ctor: 'Authenticated', _0: a};
-};
-var _concourse$atc$Dashboard$Unauthenticated = function (a) {
-	return {ctor: 'Unauthenticated', _0: a};
-};
 var _concourse$atc$Dashboard$GroupMsg = function (a) {
 	return {ctor: 'GroupMsg', _0: a};
 };
@@ -30584,47 +30999,53 @@ var _concourse$atc$Dashboard$pipelinesView = F3(
 			_concourse$atc$Dashboard$filter,
 			query,
 			_concourse$atc$Dashboard_Group$groups(
-				_concourse$atc$Dashboard$teamApiData(substate.teamData)));
+				_concourse$atc$Dashboard_SubState$apiData(substate.teamData)));
 		var groupsToDisplay = A2(
 			_elm_lang$core$List$all,
 			_elm_lang$core$String$startsWith('team:'),
 			_concourse$atc$Dashboard$filterTerms(query)) ? filteredGroups : A2(
 			_elm_lang$core$List$filter,
-			function (_p21) {
+			function (_p26) {
 				return !_elm_lang$core$List$isEmpty(
 					function (_) {
 						return _.pipelines;
-					}(_p21));
+					}(_p26));
 			},
 			filteredGroups);
 		var groupViews = function () {
-			var _p22 = substate.teamData;
-			if (_p22.ctor === 'Unauthenticated') {
-				return A2(
-					_elm_lang$core$List$map,
-					function (g) {
-						return A5(
-							_concourse$atc$Dashboard_Group$view,
-							_concourse$atc$Dashboard_Group$headerView(g),
-							substate.dragState,
-							substate.dropState,
-							substate.now,
-							g);
-					},
-					groupsToDisplay);
+			var _p27 = substate.details;
+			if (_p27.ctor === 'Just') {
+				var _p29 = _p27._0;
+				var _p28 = substate.teamData;
+				if (_p28.ctor === 'Unauthenticated') {
+					return A2(
+						_elm_lang$core$List$map,
+						function (g) {
+							return A5(
+								_concourse$atc$Dashboard_Group$view,
+								_concourse$atc$Dashboard_Group$headerView(g),
+								_p29.dragState,
+								_p29.dropState,
+								_p29.now,
+								g);
+						},
+						groupsToDisplay);
+				} else {
+					return A2(
+						_elm_lang$core$List$map,
+						function (g) {
+							return A5(
+								_concourse$atc$Dashboard_Group$view,
+								_concourse$atc$Dashboard_GroupWithTag$headerView(g),
+								_p29.dragState,
+								_p29.dropState,
+								_p29.now,
+								g.group);
+						},
+						A2(_concourse$atc$Dashboard_GroupWithTag$addTagsAndSort, _p28._0.user, groupsToDisplay));
+				}
 			} else {
-				return A2(
-					_elm_lang$core$List$map,
-					function (g) {
-						return A5(
-							_concourse$atc$Dashboard_Group$view,
-							_concourse$atc$Dashboard_GroupWithTag$headerView(g),
-							substate.dragState,
-							substate.dropState,
-							substate.now,
-							g.group);
-					},
-					A2(_concourse$atc$Dashboard_GroupWithTag$addTagsAndSort, _p22._0.user, groupsToDisplay));
+				return {ctor: '[]'};
 			}
 		}();
 		return _elm_lang$core$List$isEmpty(groupViews) ? _concourse$atc$Dashboard$noResultsView(
@@ -30688,13 +31109,13 @@ var _concourse$atc$Dashboard$subscriptions = function (model) {
 				_1: {
 					ctor: '::',
 					_0: _elm_lang$mouse$Mouse$moves(
-						function (_p23) {
+						function (_p30) {
 							return _concourse$atc$Dashboard$ShowFooter;
 						}),
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$mouse$Mouse$clicks(
-							function (_p24) {
+							function (_p31) {
 								return _concourse$atc$Dashboard$ShowFooter;
 							}),
 						_1: {
@@ -30729,12 +31150,18 @@ var _concourse$atc$Dashboard$fetchData = A2(
 			A2(_elm_lang$core$Task$andThen, _concourse$atc$Dashboard$remoteUser, _concourse$atc$Dashboard_Group$remoteData))));
 var _concourse$atc$Dashboard$init = F2(
 	function (ports, flags) {
-		var _p25 = A2(_concourse$atc$NewTopBar$init, true, flags.search);
-		var topBar = _p25._0;
-		var topBarMsg = _p25._1;
+		var _p32 = A2(_concourse$atc$NewTopBar$init, true, flags.search);
+		var topBar = _p32._0;
+		var topBarMsg = _p32._1;
 		return {
 			ctor: '_Tuple2',
-			_0: {state: _concourse$atc$Dashboard$NotAsked, topBar: topBar, csrfToken: flags.csrfToken, turbulencePath: flags.turbulencePath, showHelp: false},
+			_0: {
+				state: _elm_lang$core$Result$Err(_concourse$atc$Dashboard$NotAsked),
+				topBar: topBar,
+				csrfToken: flags.csrfToken,
+				turbulencePath: flags.turbulencePath,
+				showHelp: false
+			},
 			_1: _elm_lang$core$Platform_Cmd$batch(
 				{
 					ctor: '::',
@@ -30768,32 +31195,34 @@ var _concourse$atc$Dashboard$orderPipelines = F3(
 				teamName,
 				A2(
 					_elm_lang$core$List$map,
-					function (_p26) {
+					function (_p33) {
 						return function (_) {
 							return _.name;
 						}(
 							function (_) {
 								return _.pipeline;
-							}(_p26));
+							}(_p33));
 					},
 					pipelines),
 				csrfToken));
 	});
 var _concourse$atc$Dashboard$dashboardView = function (model) {
 	var mainContent = function () {
-		var _p27 = model.state;
-		switch (_p27.ctor) {
-			case 'NotAsked':
-				return _elm_lang$html$Html$text('');
-			case 'Turbulence':
-				return _concourse$atc$Dashboard$turbulenceView(_p27._0);
-			case 'NoPipelines':
-				return A2(
-					_elm_lang$html$Html$map,
-					_elm_lang$core$Basics$always(_concourse$atc$Dashboard$Noop),
-					_concourse$atc$NoPipeline$view);
-			default:
-				return A3(_concourse$atc$Dashboard$pipelinesView, _p27._0, model.showHelp, model.topBar.query);
+		var _p34 = model.state;
+		if (_p34.ctor === 'Err') {
+			switch (_p34._0.ctor) {
+				case 'NotAsked':
+					return _elm_lang$html$Html$text('');
+				case 'Turbulence':
+					return _concourse$atc$Dashboard$turbulenceView(_p34._0._0);
+				default:
+					return A2(
+						_elm_lang$html$Html$map,
+						_elm_lang$core$Basics$always(_concourse$atc$Dashboard$Noop),
+						_concourse$atc$NoPipeline$view);
+			}
+		} else {
+			return A3(_concourse$atc$Dashboard$pipelinesView, _p34._0, model.showHelp, model.topBar.query);
 		}
 	}();
 	return A2(
@@ -30836,8 +31265,8 @@ var _concourse$atc$Dashboard$view = function (model) {
 };
 var _concourse$atc$Dashboard$handleKeyPressed = F2(
 	function (key, model) {
-		var _p28 = key;
-		switch (_p28.valueOf()) {
+		var _p35 = key;
+		switch (_p35.valueOf()) {
 			case '/':
 				return {
 					ctor: '_Tuple2',
@@ -30866,131 +31295,76 @@ var _concourse$atc$Dashboard$update = F2(
 			var reload = _elm_lang$core$Platform_Cmd$batch(
 				A2(
 					_elm_lang$core$Basics_ops['++'],
-					function () {
-						var _p29 = model.state;
-						if (_p29.ctor === 'HasData') {
-							return {
-								ctor: '::',
-								_0: _concourse$atc$Dashboard$fetchData,
-								_1: {ctor: '[]'}
-							};
-						} else {
-							return {ctor: '[]'};
-						}
-					}(),
+					A3(
+						_concourse$atc$Dashboard$handle,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _concourse$atc$Dashboard$fetchData,
+							_1: {ctor: '[]'}
+						},
+						model.state),
 					{
 						ctor: '::',
 						_0: A2(_elm_lang$core$Platform_Cmd$map, _concourse$atc$Dashboard$TopBarMsg, _concourse$atc$NewTopBar$fetchUser),
 						_1: {ctor: '[]'}
 					}));
-			var _p30 = msg;
-			switch (_p30.ctor) {
+			var _p36 = msg;
+			switch (_p36.ctor) {
 				case 'Noop':
 					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 				case 'APIDataFetched':
-					var state = function () {
-						var _p31 = _p30._0;
-						switch (_p31.ctor) {
-							case 'NotAsked':
-								return _concourse$atc$Dashboard$NotAsked;
-							case 'Loading':
-								return _concourse$atc$Dashboard$NotAsked;
-							case 'Failure':
-								return _concourse$atc$Dashboard$Turbulence('');
-							default:
-								var _p33 = _p31._0._1._0;
-								var _p32 = _p33.pipelines;
-								if (_p32.ctor === '[]') {
-									return _concourse$atc$Dashboard$NoPipelines;
-								} else {
-									var teamData = A2(
-										_elm_lang$core$Maybe$withDefault,
-										_concourse$atc$Dashboard$Unauthenticated(
-											{apiData: _p33}),
-										A2(
-											_elm_lang$core$Maybe$map,
-											function (u) {
-												return _concourse$atc$Dashboard$Authenticated(
-													{apiData: _p33, user: u});
-											},
-											_p31._0._1._1));
-									return _concourse$atc$Dashboard$HasData(
-										{teamData: teamData, now: _p31._0._0, hideFooter: false, hideFooterCounter: 0, dragState: _concourse$atc$Dashboard_Group$NotDragging, dropState: _concourse$atc$Dashboard_Group$NotDropping, csrfToken: model.csrfToken});
+					return _concourse$atc$Dashboard$noop(
+						A2(
+							_concourse$atc$Dashboard$stateLens.set,
+							function () {
+								var _p37 = _p36._0;
+								switch (_p37.ctor) {
+									case 'NotAsked':
+										return _elm_lang$core$Result$Err(_concourse$atc$Dashboard$NotAsked);
+									case 'Loading':
+										return _elm_lang$core$Result$Err(_concourse$atc$Dashboard$NotAsked);
+									case 'Failure':
+										return _elm_lang$core$Result$Err(
+											_concourse$atc$Dashboard$Turbulence(model.turbulencePath));
+									default:
+										return A2(
+											_concourse$atc$Dashboard$substate,
+											model.csrfToken,
+											{
+												ctor: '_Tuple2',
+												_0: _p37._0._0,
+												_1: {ctor: '_Tuple2', _0: _p37._0._1._0, _1: _p37._0._1._1}
+											});
 								}
-						}
-					}();
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{state: state}),
-						_1: _elm_lang$core$Platform_Cmd$none
-					};
+							}(),
+							model));
 				case 'ClockTick':
-					var _p36 = _p30._0;
-					var _p34 = model.state;
-					if (_p34.ctor === 'HasData') {
-						var _p35 = _p34._0;
-						return (_elm_lang$core$Native_Utils.cmp(_p35.hideFooterCounter + _elm_lang$core$Time$second, 5 * _elm_lang$core$Time$second) > 0) ? {
-							ctor: '_Tuple2',
-							_0: _elm_lang$core$Native_Utils.update(
-								model,
-								{
-									state: _concourse$atc$Dashboard$HasData(
-										_elm_lang$core$Native_Utils.update(
-											_p35,
-											{now: _p36, hideFooter: true}))
-								}),
-							_1: _elm_lang$core$Platform_Cmd$none
-						} : {
-							ctor: '_Tuple2',
-							_0: _elm_lang$core$Native_Utils.update(
-								model,
-								{
-									state: _concourse$atc$Dashboard$HasData(
-										_elm_lang$core$Native_Utils.update(
-											_p35,
-											{now: _p36, hideFooterCounter: _p35.hideFooterCounter + _elm_lang$core$Time$second}))
-								}),
-							_1: _elm_lang$core$Platform_Cmd$none
-						};
-					} else {
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					}
+					return _concourse$atc$Dashboard$noop(
+						A3(
+							_arturopala$elm_monocle$Monocle_Optional$modify,
+							_concourse$atc$Dashboard$substateOptional,
+							_concourse$atc$Dashboard_SubState$tick(_p36._0),
+							model));
 				case 'AutoRefresh':
 					return {ctor: '_Tuple2', _0: model, _1: reload};
 				case 'KeyPressed':
 					return A2(
 						_concourse$atc$Dashboard$handleKeyPressed,
-						_elm_lang$core$Char$fromCode(_p30._0),
+						_elm_lang$core$Char$fromCode(_p36._0),
 						model);
 				case 'KeyDowns':
-					var _v15 = _concourse$atc$Dashboard$TopBarMsg(
-						_concourse$atc$NewTopBar$KeyDown(_p30._0)),
-						_v16 = model;
-					msg = _v15;
-					model = _v16;
+					var _v14 = _concourse$atc$Dashboard$TopBarMsg(
+						_concourse$atc$NewTopBar$KeyDown(_p36._0)),
+						_v15 = model;
+					msg = _v14;
+					model = _v15;
 					continue update;
 				case 'ShowFooter':
-					var _p37 = model.state;
-					if (_p37.ctor === 'HasData') {
-						return {
-							ctor: '_Tuple2',
-							_0: _elm_lang$core$Native_Utils.update(
-								model,
-								{
-									state: _concourse$atc$Dashboard$HasData(
-										_elm_lang$core$Native_Utils.update(
-											_p37._0,
-											{hideFooter: false, hideFooterCounter: 0}))
-								}),
-							_1: _elm_lang$core$Platform_Cmd$none
-						};
-					} else {
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					}
+					return _concourse$atc$Dashboard$noop(
+						A3(_arturopala$elm_monocle$Monocle_Optional$modify, _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$showFooter, model));
 				case 'TopBarMsg':
-					var _p40 = _p30._0;
+					var _p40 = _p36._0;
 					var _p38 = A2(_concourse$atc$NewTopBar$update, _p40, model.topBar);
 					var newTopBar = _p38._0;
 					var newTopBarMsg = _p38._1;
@@ -31010,14 +31384,14 @@ var _concourse$atc$Dashboard$update = F2(
 						_1: newMsg
 					};
 				case 'PipelinePauseToggled':
-					if (_p30._1.ctor === 'Ok') {
+					if (_p36._1.ctor === 'Ok') {
 						var togglePipelinePause = function (pipelines) {
 							return A3(
 								_elm_community$list_extra$List_Extra$updateIf,
 								F2(
 									function (x, y) {
 										return _elm_lang$core$Native_Utils.eq(x, y);
-									})(_p30._0),
+									})(_p36._0),
 								function (pipeline) {
 									return _elm_lang$core$Native_Utils.update(
 										pipeline,
@@ -31030,239 +31404,102 @@ var _concourse$atc$Dashboard$update = F2(
 						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
 					}
 				case 'PipelineMsg':
-					if (_p30._0.ctor === 'TogglePipelinePaused') {
+					if (_p36._0.ctor === 'TogglePipelinePaused') {
 						return {
 							ctor: '_Tuple2',
 							_0: model,
-							_1: A2(_concourse$atc$Dashboard$togglePipelinePaused, _p30._0._0, model.csrfToken)
+							_1: A2(_concourse$atc$Dashboard$togglePipelinePaused, _p36._0._0, model.csrfToken)
 						};
 					} else {
 						return {
 							ctor: '_Tuple2',
 							_0: model,
 							_1: _concourse$atc$Dashboard$tooltip(
-								{ctor: '_Tuple2', _0: _p30._0._0, _1: _p30._0._1})
+								{ctor: '_Tuple2', _0: _p36._0._0, _1: _p36._0._1})
 						};
 					}
 				default:
-					switch (_p30._0.ctor) {
+					switch (_p36._0.ctor) {
 						case 'DragStart':
-							var _p41 = model.state;
-							if (_p41.ctor === 'HasData') {
-								return {
-									ctor: '_Tuple2',
-									_0: _elm_lang$core$Native_Utils.update(
-										model,
-										{
-											state: _concourse$atc$Dashboard$HasData(
-												_elm_lang$core$Native_Utils.update(
-													_p41._0,
-													{
-														dragState: A2(_concourse$atc$Dashboard_Group$Dragging, _p30._0._0, _p30._0._1)
-													}))
-										}),
-									_1: _elm_lang$core$Platform_Cmd$none
-								};
-							} else {
-								return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-							}
+							return _concourse$atc$Dashboard$noop(
+								A3(
+									_arturopala$elm_monocle$Monocle_Optional$modify,
+									A2(_arturopala$elm_monocle$Monocle_Common_ops['=>'], _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$detailsOptional),
+									function (_) {
+										return _.set;
+									}(_concourse$atc$Dashboard_Details$dragStateLens)(
+										A2(_concourse$atc$Dashboard_Group$Dragging, _p36._0._0, _p36._0._1)),
+									model));
 						case 'DragOver':
-							var _p42 = model.state;
-							if (_p42.ctor === 'HasData') {
-								return {
-									ctor: '_Tuple2',
-									_0: _elm_lang$core$Native_Utils.update(
-										model,
-										{
-											state: _concourse$atc$Dashboard$HasData(
-												_elm_lang$core$Native_Utils.update(
-													_p42._0,
-													{
-														dropState: _concourse$atc$Dashboard_Group$Dropping(_p30._0._1)
-													}))
-										}),
-									_1: _elm_lang$core$Platform_Cmd$none
-								};
-							} else {
-								return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-							}
+							return _concourse$atc$Dashboard$noop(
+								A3(
+									_arturopala$elm_monocle$Monocle_Optional$modify,
+									A2(_arturopala$elm_monocle$Monocle_Common_ops['=>'], _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$detailsOptional),
+									function (_) {
+										return _.set;
+									}(_concourse$atc$Dashboard_Details$dropStateLens)(
+										_concourse$atc$Dashboard_Group$Dropping(_p36._0._1)),
+									model));
 						case 'PipelineMsg':
 							return A3(
 								_elm_lang$core$Basics$flip,
 								_concourse$atc$Dashboard$update,
 								model,
-								_concourse$atc$Dashboard$PipelineMsg(_p30._0._0));
+								_concourse$atc$Dashboard$PipelineMsg(_p36._0._0));
 						default:
-							var _p43 = model.state;
-							if (_p43.ctor === 'HasData') {
-								var _p48 = _p43._0;
-								var _p44 = {ctor: '_Tuple2', _0: _p48.dragState, _1: _p48.dropState};
-								if (((_p44.ctor === '_Tuple2') && (_p44._0.ctor === 'Dragging')) && (_p44._1.ctor === 'Dropping')) {
-									var updatePipelines = F3(
-										function (dragIndex, dropIndex, group) {
-											var newGroup = A3(_concourse$atc$Dashboard_Group$shiftPipelines, dragIndex, dropIndex, group);
-											return {
-												ctor: '_Tuple2',
-												_0: newGroup,
-												_1: A3(_concourse$atc$Dashboard$orderPipelines, newGroup.teamName, newGroup.pipelines, model.csrfToken)
-											};
-										});
-									var modifyWithEffect = F3(
-										function (l, f, m) {
-											return A2(
-												_elm_lang$core$Maybe$withDefault,
-												{ctor: '_Tuple2', _0: m, _1: _elm_lang$core$Platform_Cmd$none},
-												A2(
-													_elm_lang$core$Maybe$map,
-													_elm_lang$core$Tuple$mapFirst(
-														A2(_elm_lang$core$Basics$flip, l.set, m)),
-													A2(
-														_elm_lang$core$Maybe$map,
-														f,
-														l.getOption(m))));
-										});
-									var findGroupOptional = function () {
-										var predicate = function (_p45) {
-											return A2(
-												F2(
-													function (x, y) {
-														return _elm_lang$core$Native_Utils.eq(x, y);
-													}),
-												_p44._0._0,
-												function (_) {
-													return _.teamName;
-												}(_p45));
-										};
-										return A2(
-											_arturopala$elm_monocle$Monocle_Optional$Optional,
-											_elm_community$list_extra$List_Extra$find(predicate),
-											F2(
-												function (g, gs) {
-													return A2(
-														_elm_lang$core$Maybe$withDefault,
-														gs,
-														_elm_community$maybe_extra$Maybe_Extra$join(
-															A2(
-																_elm_lang$core$Maybe$map,
-																function (i) {
-																	return A3(_elm_community$list_extra$List_Extra$setAt, i, g, gs);
-																},
-																A2(_elm_community$list_extra$List_Extra$findIndex, predicate, gs))));
-												}));
-									}();
-									var groupsLens = _arturopala$elm_monocle$Monocle_Lens$fromIso(
-										A2(_arturopala$elm_monocle$Monocle_Iso$Iso, _concourse$atc$Dashboard_Group$groups, _concourse$atc$Dashboard_Group$apiData));
-									var setApiData = F2(
-										function (apiData, teamData) {
-											var _p46 = teamData;
-											if (_p46.ctor === 'Unauthenticated') {
-												return _concourse$atc$Dashboard$Unauthenticated(
-													{apiData: apiData});
-											} else {
-												return _concourse$atc$Dashboard$Authenticated(
-													{apiData: apiData, user: _p46._0.user});
-											}
-										});
-									var apiDataLens = A2(_arturopala$elm_monocle$Monocle_Lens$Lens, _concourse$atc$Dashboard$teamApiData, setApiData);
-									var teamDataLens = A2(
-										_arturopala$elm_monocle$Monocle_Lens$Lens,
-										function (_) {
-											return _.teamData;
-										},
-										F2(
-											function (td, ss) {
-												return _elm_lang$core$Native_Utils.update(
-													ss,
-													{teamData: td});
-											}));
-									var dropStateLens = A2(
-										_arturopala$elm_monocle$Monocle_Lens$Lens,
-										function (_) {
-											return _.dropState;
-										},
-										F2(
-											function (ds, ss) {
-												return _elm_lang$core$Native_Utils.update(
-													ss,
-													{dropState: ds});
-											}));
-									var dragStateLens = A2(
-										_arturopala$elm_monocle$Monocle_Lens$Lens,
-										function (_) {
-											return _.dragState;
-										},
-										F2(
-											function (ds, ss) {
-												return _elm_lang$core$Native_Utils.update(
-													ss,
-													{dragState: ds});
-											}));
-									var liftMaybe = function (l) {
-										return A2(
-											_arturopala$elm_monocle$Monocle_Lens$Lens,
-											_elm_lang$core$Maybe$map(l.get),
-											_elm_lang$core$Maybe$map2(l.set));
-									};
-									var toMaybe = function (m) {
-										var _p47 = m.state;
-										if (_p47.ctor === 'HasData') {
-											return _elm_lang$core$Maybe$Just(_p47._0);
-										} else {
-											return _elm_lang$core$Maybe$Nothing;
-										}
-									};
-									var substateOptional = A2(
-										_arturopala$elm_monocle$Monocle_Optional$Optional,
-										toMaybe,
-										F2(
-											function (s, m) {
-												return _elm_lang$core$Native_Utils.update(
-													m,
-													{
-														state: _concourse$atc$Dashboard$HasData(s)
-													});
-											}));
-									var superOptional = A3(
-										_elm_lang$core$Basics$flip,
-										_arturopala$elm_monocle$Monocle_Optional$compose,
-										findGroupOptional,
-										A3(
-											_elm_lang$core$Basics$flip,
-											_arturopala$elm_monocle$Monocle_Optional$composeLens,
-											groupsLens,
-											A3(
-												_elm_lang$core$Basics$flip,
-												_arturopala$elm_monocle$Monocle_Optional$composeLens,
-												apiDataLens,
-												A3(_elm_lang$core$Basics$flip, _arturopala$elm_monocle$Monocle_Optional$composeLens, teamDataLens, substateOptional))));
-									return A3(
-										modifyWithEffect,
-										superOptional,
-										A2(updatePipelines, _p44._0._1, _p44._1._0),
+							var groupOptional = A2(
+								_concourse$atc$MonocleHelpers_ops['>>='],
+								A2(
+									_arturopala$elm_monocle$Monocle_Common_ops['=>'],
+									A2(
+										_concourse$atc$MonocleHelpers_ops['=|>'],
+										A2(_arturopala$elm_monocle$Monocle_Common_ops['=>'], _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$detailsOptional),
+										_concourse$atc$Dashboard_Details$dragStateLens),
+									_concourse$atc$Dashboard_Group$teamNameOptional),
+								function (teamName) {
+									return A2(
+										_arturopala$elm_monocle$Monocle_Common_ops['=>'],
 										A2(
-											A2(_arturopala$elm_monocle$Monocle_Optional$composeLens, substateOptional, dropStateLens).set,
-											_concourse$atc$Dashboard_Group$NotDropping,
+											_concourse$atc$MonocleHelpers_ops['=|>'],
 											A2(
-												A2(_arturopala$elm_monocle$Monocle_Optional$composeLens, substateOptional, dragStateLens).set,
-												_concourse$atc$Dashboard_Group$NotDragging,
-												model)));
-								} else {
+												_concourse$atc$MonocleHelpers_ops['=|>'],
+												A2(_concourse$atc$MonocleHelpers_ops['=|>'], _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$teamDataLens),
+												_concourse$atc$Dashboard_SubState$apiDataLens),
+											_concourse$atc$Dashboard_Group$groupsLens),
+										_concourse$atc$Dashboard_Group$findGroupOptional(teamName));
+								});
+							var dragDropOptional = A2(
+								_arturopala$elm_monocle$Monocle_Common_ops['=>'],
+								A2(_arturopala$elm_monocle$Monocle_Common_ops['=>'], _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$detailsOptional),
+								A2(
+									_arturopala$elm_monocle$Monocle_Optional$tuple,
+									A2(_concourse$atc$MonocleHelpers_ops['<|='], _concourse$atc$Dashboard_Details$dragStateLens, _concourse$atc$Dashboard_Group$dragIndexOptional),
+									A2(_concourse$atc$MonocleHelpers_ops['<|='], _concourse$atc$Dashboard_Details$dropStateLens, _concourse$atc$Dashboard_Group$dropIndexOptional)));
+							var updatePipelines = F2(
+								function (_p41, group) {
+									var _p42 = _p41;
+									var newGroup = A3(_concourse$atc$Dashboard_Group$shiftPipelines, _p42._0, _p42._1, group);
 									return {
 										ctor: '_Tuple2',
-										_0: _elm_lang$core$Native_Utils.update(
-											model,
-											{
-												state: _concourse$atc$Dashboard$HasData(
-													_elm_lang$core$Native_Utils.update(
-														_p48,
-														{dragState: _concourse$atc$Dashboard_Group$NotDragging, dropState: _concourse$atc$Dashboard_Group$NotDropping}))
-											}),
-										_1: _elm_lang$core$Platform_Cmd$none
+										_0: newGroup,
+										_1: A3(_concourse$atc$Dashboard$orderPipelines, newGroup.teamName, newGroup.pipelines, model.csrfToken)
 									};
-								}
-							} else {
-								return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-							}
+								});
+							return A3(
+								_concourse$atc$MonocleHelpers$modifyWithEffect,
+								groupOptional,
+								function (g) {
+									return A2(
+										_elm_lang$core$Maybe$withDefault,
+										{ctor: '_Tuple2', _0: g, _1: _elm_lang$core$Platform_Cmd$none},
+										A2(
+											_elm_lang$core$Maybe$map,
+											function (t) {
+												return A2(updatePipelines, t, g);
+											},
+											dragDropOptional.getOption(model)));
+								},
+								model);
 					}
 			}
 		}

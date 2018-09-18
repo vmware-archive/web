@@ -1,4 +1,4 @@
-module Dashboard.Group exposing (Msg(..), DragState(..), DropState(..), APIData, Group, groups, apiData, ordering, remoteData, view, pipelineDropAreaView, headerView, shiftPipelines)
+module Dashboard.Group exposing (..)
 
 import Concourse
 import Concourse.Info
@@ -13,6 +13,11 @@ import Html.Attributes exposing (..)
 import Html.Events exposing (on)
 import Http
 import Json.Decode
+import List.Extra
+import Maybe.Extra
+import Monocle.Iso
+import Monocle.Optional
+import Monocle.Lens
 import Ordering exposing (Ordering)
 import Set
 import Task
@@ -34,6 +39,21 @@ type alias APIData =
     }
 
 
+groupsLens : Monocle.Lens.Lens APIData (List Group)
+groupsLens =
+    Monocle.Lens.fromIso <| Monocle.Iso.Iso groups apiData
+
+
+findGroupOptional : String -> Monocle.Optional.Optional (List Group) Group
+findGroupOptional teamName =
+    let
+        predicate =
+            .teamName >> (==) teamName
+    in
+        Monocle.Optional.Optional (List.Extra.find predicate)
+            (\g gs -> List.Extra.findIndex predicate gs |> Maybe.map (\i -> List.Extra.setAt i g gs) |> Maybe.Extra.join |> Maybe.withDefault gs)
+
+
 type alias PipelineIndex =
     Int
 
@@ -43,9 +63,84 @@ type DragState
     | Dragging Concourse.TeamName PipelineIndex
 
 
+teamNameOptional : Monocle.Optional.Optional DragState Concourse.TeamName
+teamNameOptional =
+    Monocle.Optional.Optional teamName setTeamName
+
+
+dragIndexOptional : Monocle.Optional.Optional DragState PipelineIndex
+dragIndexOptional =
+    Monocle.Optional.Optional dragIndex setDragIndex
+
+
+dropIndexOptional : Monocle.Optional.Optional DropState PipelineIndex
+dropIndexOptional =
+    Monocle.Optional.Optional dropIndex setDropIndex
+
+
+teamName : DragState -> Maybe Concourse.TeamName
+teamName dragState =
+    case dragState of
+        Dragging teamName _ ->
+            Just teamName
+
+        NotDragging ->
+            Nothing
+
+
+setTeamName : Concourse.TeamName -> DragState -> DragState
+setTeamName teamName dragState =
+    case dragState of
+        Dragging _ dragIndex ->
+            Dragging teamName dragIndex
+
+        NotDragging ->
+            NotDragging
+
+
+dragIndex : DragState -> Maybe PipelineIndex
+dragIndex dragState =
+    case dragState of
+        Dragging _ dragIndex ->
+            Just dragIndex
+
+        NotDragging ->
+            Nothing
+
+
+setDragIndex : PipelineIndex -> DragState -> DragState
+setDragIndex dragIndex dragState =
+    case dragState of
+        Dragging teamName _ ->
+            Dragging teamName dragIndex
+
+        NotDragging ->
+            NotDragging
+
+
 type DropState
     = NotDropping
     | Dropping PipelineIndex
+
+
+dropIndex : DropState -> Maybe PipelineIndex
+dropIndex dropState =
+    case dropState of
+        Dropping dropIndex ->
+            Just dropIndex
+
+        NotDropping ->
+            Nothing
+
+
+setDropIndex : PipelineIndex -> DropState -> DropState
+setDropIndex dropIndex dropState =
+    case dropState of
+        Dropping _ ->
+            Dropping dropIndex
+
+        NotDropping ->
+            NotDropping
 
 
 type Msg

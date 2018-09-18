@@ -6,9 +6,11 @@ import Concourse.Cli
 import Concourse.Pipeline
 import Concourse.PipelineStatus
 import Concourse.User
+import Dashboard.Details as Details
 import Dashboard.Group as Group
 import Dashboard.GroupWithTag as GroupWithTag
 import Dashboard.Pipeline as Pipeline
+import Dashboard.SubState as SubState
 import Dom
 import Html exposing (Html)
 import Html.Attributes exposing (attribute, class, classList, draggable, href, id, src)
@@ -16,11 +18,11 @@ import Html.Attributes.Aria exposing (ariaLabel)
 import Http
 import Keyboard
 import List.Extra
-import Maybe.Extra
 import Mouse
-import Monocle.Iso
+import Monocle.Common exposing ((=>), (<|>))
 import Monocle.Optional
 import Monocle.Lens
+import MonocleHelpers exposing (..)
 import NewTopBar
 import NoPipeline exposing (Msg, view)
 import Regex exposing (HowMany(All), regex, replace)
@@ -42,6 +44,11 @@ port pinTeamNames : () -> Cmd msg
 port tooltip : ( String, String ) -> Cmd msg
 
 
+
+-- TODO all the crsfToken stuff in this file only gets actually used for ordering and toggling pipelines.
+-- honestly it seems like it could live in a completely different module.
+
+
 type alias Flags =
     { csrfToken : String
     , turbulencePath : String
@@ -49,73 +56,29 @@ type alias Flags =
     }
 
 
-
--- TODO the word "State" is a smell. what is this thing really?
--- it's a glorified Result/Either type of functor, just with multiple
--- "error" cases. Maybe it makes more sense to use one of those types,
--- as they are pretty descriptive.
-
-
-type DashboardState
+type DashboardError
     = NotAsked
     | Turbulence String
     | NoPipelines
-    | HasData SubState
-
-
-type alias SubState =
-    { csrfToken : String -- static config, i don't even think this thing gets fetched. maybe it comes from a port? try the thunk trick
-    , dragState : Group.DragState -- move to Group? in a sense there is a global dragstate, it's just that group is the only one really affected by it.
-    , dropState : Group.DropState -- ditto, plus maybe the whole drag/drop types will be refactored
-    , hideFooter : Bool
-    , hideFooterCounter : Time
-    , now : Time
-    , teamData : TeamData
-    }
 
 
 type alias Model =
     { csrfToken : String
-    , state : DashboardState
+    , state : Result DashboardError SubState.SubState
     , topBar : NewTopBar.Model
     , turbulencePath : String -- this doesn't vary, it's more a prop (in the sense of react) than state. should be a way to use a thunk for the Turbulence case of DashboardState
     , showHelp : Bool
     }
 
 
-type alias Config =
-    { csrfToken : String
-    , turbulencePath : String
-    }
+stateLens : Monocle.Lens.Lens Model (Result DashboardError SubState.SubState)
+stateLens =
+    Monocle.Lens.Lens .state (\b a -> { a | state = b })
 
 
-type alias Modifier =
-    { showHelp : Bool
-    , dragState : Group.DragState
-    , dropState : Group.DropState
-    , hideFooter : Bool
-    , hideFooterCounter : Time
-    }
-
-
-type TeamData
-    = Unauthenticated
-        { apiData : Group.APIData
-        }
-    | Authenticated
-        { apiData : Group.APIData
-        , user : Concourse.User
-        }
-
-
-teamApiData : TeamData -> Group.APIData
-teamApiData teamData =
-    case teamData of
-        Unauthenticated { apiData } ->
-            apiData
-
-        Authenticated { apiData } ->
-            apiData
+substateOptional : Monocle.Optional.Optional Model SubState.SubState
+substateOptional =
+    Monocle.Optional.Optional (.state >> Result.toMaybe) (\s m -> { m | state = Ok s })
 
 
 type Msg
@@ -138,7 +101,7 @@ init ports flags =
         ( topBar, topBarMsg ) =
             NewTopBar.init True flags.search
     in
-        ( { state = NotAsked
+        ( { state = Err NotAsked
           , topBar = topBar
           , csrfToken = flags.csrfToken
           , turbulencePath = flags.turbulencePath
@@ -153,75 +116,82 @@ init ports flags =
         )
 
 
+handle : a -> a -> Result e v -> a
+handle onError onSuccess result =
+    case result of
+        Ok _ ->
+            onSuccess
+
+        Err _ ->
+            onError
+
+
+substateLens : Monocle.Lens.Lens Model (Maybe SubState.SubState)
+substateLens =
+    Monocle.Lens.Lens (.state >> Result.toMaybe)
+        (\mss model -> Maybe.map (\ss -> { model | state = Ok ss }) mss |> Maybe.withDefault model)
+
+
+noop : Model -> ( Model, Cmd msg )
+noop model =
+    ( model, Cmd.none )
+
+
+substate : String -> ( Time.Time, ( Group.APIData, Maybe Concourse.User ) ) -> Result DashboardError SubState.SubState
+substate csrfToken ( now, ( apiData, user ) ) =
+    apiData.pipelines
+        |> List.head
+        |> Maybe.map
+            (always
+                { teamData = SubState.teamData apiData user
+                , details =
+                    Just
+                        { now = now
+                        , dragState = Group.NotDragging
+                        , dropState = Group.NotDropping
+                        }
+                , hideFooter = False
+                , hideFooterCounter = 0
+                , csrfToken = csrfToken
+                }
+            )
+        |> Result.fromMaybe (NoPipelines)
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     let
         reload =
             Cmd.batch <|
-                (case model.state of
-                    HasData _ ->
-                        [ fetchData ]
-
-                    _ ->
-                        []
-                )
+                handle [] [ fetchData ] model.state
                     ++ [ Cmd.map TopBarMsg NewTopBar.fetchUser ]
     in
         case msg of
             Noop ->
                 ( model, Cmd.none )
 
-            -- TODO this case is a bit long, with a lot of non-value-added whitespace.
-            -- most likely it will be better to use a higher-order function a la Result.map
             APIDataFetched remoteData ->
-                let
-                    state =
-                        case remoteData of
+                model
+                    |> stateLens.set
+                        (case remoteData of
                             RemoteData.NotAsked ->
-                                NotAsked
+                                Err NotAsked
 
                             RemoteData.Loading ->
-                                NotAsked
+                                Err NotAsked
 
                             RemoteData.Failure _ ->
-                                Turbulence ""
+                                Err (Turbulence model.turbulencePath)
 
                             RemoteData.Success ( now, ( apiData, user ) ) ->
-                                case apiData.pipelines of
-                                    [] ->
-                                        NoPipelines
-
-                                    _ ->
-                                        let
-                                            teamData =
-                                                user
-                                                    |> Maybe.map (\u -> Authenticated { apiData = apiData, user = u })
-                                                    |> Maybe.withDefault (Unauthenticated { apiData = apiData })
-                                        in
-                                            HasData
-                                                { teamData = teamData
-                                                , now = now
-                                                , hideFooter = False
-                                                , hideFooterCounter = 0
-                                                , dragState = Group.NotDragging
-                                                , dropState = Group.NotDropping
-                                                , csrfToken = model.csrfToken
-                                                }
-                in
-                    ( { model | state = state }
-                    , Cmd.none
-                    )
+                                substate model.csrfToken ( now, ( apiData, user ) )
+                        )
+                    |> noop
 
             ClockTick now ->
-                case model.state of
-                    HasData substate ->
-                        if substate.hideFooterCounter + Time.second > 5 * Time.second then
-                            ( { model | state = HasData { substate | now = now, hideFooter = True } }, Cmd.none )
-                        else
-                            ( { model | state = HasData { substate | now = now, hideFooterCounter = substate.hideFooterCounter + Time.second } }, Cmd.none )
-
-                    _ ->
-                        ( model, Cmd.none )
+                model
+                    |> Monocle.Optional.modify substateOptional (SubState.tick now)
+                    |> noop
 
             AutoRefresh _ ->
                 ( model
@@ -235,12 +205,9 @@ update msg model =
                 update (TopBarMsg (NewTopBar.KeyDown keycode)) model
 
             ShowFooter ->
-                case model.state of
-                    HasData substate ->
-                        ( { model | state = HasData { substate | hideFooter = False, hideFooterCounter = 0 } }, Cmd.none )
-
-                    _ ->
-                        ( model, Cmd.none )
+                model
+                    |> Monocle.Optional.modify substateOptional SubState.showFooter
+                    |> noop
 
             -- TODO pull the topbar logic right in here. right now there are wasted API calls and this crufty
             -- nonsense going on. however, this feels like a big change and not a big burning fire
@@ -280,20 +247,14 @@ update msg model =
                 ( model, Cmd.none )
 
             GroupMsg (Group.DragStart teamName index) ->
-                case model.state of
-                    HasData substate ->
-                        ( { model | state = HasData { substate | dragState = Group.Dragging teamName index } }, Cmd.none )
-
-                    _ ->
-                        ( model, Cmd.none )
+                model
+                    |> Monocle.Optional.modify (substateOptional => SubState.detailsOptional) ((Details.dragStateLens |> .set) <| Group.Dragging teamName index)
+                    |> noop
 
             GroupMsg (Group.DragOver teamName index) ->
-                case model.state of
-                    HasData substate ->
-                        ( { model | state = HasData { substate | dropState = Group.Dropping index } }, Cmd.none )
-
-                    _ ->
-                        ( model, Cmd.none )
+                model
+                    |> Monocle.Optional.modify (substateOptional => SubState.detailsOptional) ((Details.dropStateLens |> .set) <| Group.Dropping index)
+                    |> noop
 
             GroupMsg (Group.PipelineMsg msg) ->
                 flip update model <| PipelineMsg msg
@@ -301,95 +262,42 @@ update msg model =
             PipelineMsg (Pipeline.Tooltip pipelineName teamName) ->
                 ( model, tooltip ( pipelineName, teamName ) )
 
-            -- TODO this case is also too long. hopefully some of it can be pulled into utility functions,
-            -- or in general be moved into the Group module
             GroupMsg Group.DragEnd ->
-                case model.state of
-                    HasData substate ->
-                        -- TODO can we do this part of the context with a lens? some kind of Optional for
-                        -- whether you are dragging at all...
-                        case ( substate.dragState, substate.dropState ) of
-                            ( Group.Dragging teamName dragIndex, Group.Dropping dropIndex ) ->
-                                let
-                                    toMaybe : Model -> Maybe SubState
-                                    toMaybe m =
-                                        case m.state of
-                                            HasData substate ->
-                                                Just substate
+                let
+                    updatePipelines : ( Int, Int ) -> Group.Group -> ( Group.Group, Cmd Msg )
+                    updatePipelines ( dragIndex, dropIndex ) group =
+                        let
+                            newGroup =
+                                Group.shiftPipelines dragIndex dropIndex group
+                        in
+                            ( newGroup, orderPipelines newGroup.teamName newGroup.pipelines model.csrfToken )
 
-                                            _ ->
-                                                Nothing
+                    dragDropOptional : Monocle.Optional.Optional Model ( Group.PipelineIndex, Group.PipelineIndex )
+                    dragDropOptional =
+                        substateOptional
+                            => SubState.detailsOptional
+                            => Monocle.Optional.tuple
+                                (Details.dragStateLens <|= Group.dragIndexOptional)
+                                (Details.dropStateLens <|= Group.dropIndexOptional)
 
-                                    substateOptional =
-                                        Monocle.Optional.Optional (toMaybe) (\s m -> { m | state = HasData s })
-
-                                    liftMaybe : Monocle.Lens.Lens a b -> Monocle.Lens.Lens (Maybe a) (Maybe b)
-                                    liftMaybe l =
-                                        Monocle.Lens.Lens (Maybe.map l.get) (Maybe.map2 l.set)
-
-                                    dragStateLens =
-                                        Monocle.Lens.Lens .dragState (\ds ss -> { ss | dragState = ds })
-
-                                    dropStateLens =
-                                        Monocle.Lens.Lens .dropState (\ds ss -> { ss | dropState = ds })
-
-                                    teamDataLens =
-                                        Monocle.Lens.Lens .teamData (\td ss -> { ss | teamData = td })
-
-                                    setApiData : Group.APIData -> TeamData -> TeamData
-                                    setApiData apiData teamData =
-                                        case teamData of
-                                            Unauthenticated _ ->
-                                                Unauthenticated { apiData = apiData }
-
-                                            Authenticated { user } ->
-                                                Authenticated { apiData = apiData, user = user }
-
-                                    apiDataLens =
-                                        Monocle.Lens.Lens teamApiData setApiData
-
-                                    groupsLens =
-                                        Monocle.Lens.fromIso <| Monocle.Iso.Iso Group.groups Group.apiData
-
-                                    findGroupOptional =
-                                        let
-                                            predicate =
-                                                .teamName >> (==) teamName
-                                        in
-                                            Monocle.Optional.Optional (List.Extra.find predicate)
-                                                (\g gs -> List.Extra.findIndex predicate gs |> Maybe.map (\i -> List.Extra.setAt i g gs) |> Maybe.Extra.join |> Maybe.withDefault gs)
-
-                                    modifyWithEffect : Monocle.Optional.Optional a b -> (b -> ( b, Cmd msg )) -> a -> ( a, Cmd msg )
-                                    modifyWithEffect l f m =
-                                        l.getOption m |> Maybe.map f |> Maybe.map (Tuple.mapFirst (flip l.set m)) |> Maybe.withDefault ( m, Cmd.none )
-
-                                    superOptional =
-                                        substateOptional
-                                            |> flip Monocle.Optional.composeLens teamDataLens
-                                            |> flip Monocle.Optional.composeLens apiDataLens
-                                            |> flip Monocle.Optional.composeLens groupsLens
-                                            |> flip Monocle.Optional.compose findGroupOptional
-
-                                    updatePipelines : Int -> Int -> Group.Group -> ( Group.Group, Cmd Msg )
-                                    updatePipelines dragIndex dropIndex group =
-                                        let
-                                            newGroup =
-                                                Group.shiftPipelines dragIndex dropIndex group
-                                        in
-                                            ( newGroup, orderPipelines newGroup.teamName newGroup.pipelines model.csrfToken )
-                                in
-                                    model
-                                        |> (Monocle.Optional.composeLens substateOptional dragStateLens).set Group.NotDragging
-                                        |> (Monocle.Optional.composeLens substateOptional dropStateLens).set Group.NotDropping
-                                        |> modifyWithEffect superOptional (updatePipelines dragIndex dropIndex)
-
-                            _ ->
-                                ( { model | state = HasData { substate | dragState = Group.NotDragging, dropState = Group.NotDropping } }
-                                , Cmd.none
+                    groupOptional : Monocle.Optional.Optional Model Group.Group
+                    groupOptional =
+                        (substateOptional
+                            => SubState.detailsOptional
+                            =|> Details.dragStateLens
+                            => Group.teamNameOptional
+                        )
+                            >>= (\teamName ->
+                                    substateOptional
+                                        =|> SubState.teamDataLens
+                                        =|> SubState.apiDataLens
+                                        =|> Group.groupsLens
+                                        => Group.findGroupOptional teamName
                                 )
-
-                    _ ->
-                        ( model, Cmd.none )
+                in
+                    model
+                        |> modifyWithEffect groupOptional
+                            (\g -> model |> dragDropOptional.getOption |> Maybe.map (\t -> updatePipelines t g) |> Maybe.withDefault ( g, Cmd.none ))
 
 
 
@@ -465,16 +373,16 @@ dashboardView model =
     let
         mainContent =
             case model.state of
-                NotAsked ->
+                Err NotAsked ->
                     Html.text ""
 
-                Turbulence path ->
+                Err (Turbulence path) ->
                     turbulenceView path
 
-                NoPipelines ->
+                Err NoPipelines ->
                     Html.map (always Noop) NoPipeline.view
 
-                HasData substate ->
+                Ok substate ->
                     pipelinesView substate model.showHelp model.topBar.query
     in
         Html.div
@@ -521,7 +429,7 @@ helpView model =
         ]
 
 
-footerView : SubState -> Bool -> Html Msg
+footerView : SubState.SubState -> Bool -> Html Msg
 footerView substate showHelp =
     Html.div
         [ if substate.hideFooter || showHelp then
@@ -552,7 +460,7 @@ footerView substate showHelp =
             ]
         , Html.div [ class "concourse-info" ]
             [ Html.div [ class "concourse-version" ]
-                [ Html.text "version: v", substate.teamData |> teamApiData |> .version |> Html.text ]
+                [ Html.text "version: v", substate.teamData |> SubState.apiData |> .version |> Html.text ]
             , Html.div [ class "concourse-cli" ]
                 [ Html.text "cli: "
                 , Html.a [ href (Concourse.Cli.downloadUrl "amd64" "darwin"), ariaLabel "Download OS X CLI" ]
@@ -578,11 +486,11 @@ turbulenceView path =
         ]
 
 
-pipelinesView : SubState -> Bool -> String -> Html Msg
+pipelinesView : SubState.SubState -> Bool -> String -> Html Msg
 pipelinesView substate showHelp query =
     let
         filteredGroups =
-            substate.teamData |> teamApiData |> Group.groups |> filter query
+            substate.teamData |> SubState.apiData |> Group.groups |> filter query
 
         groupsToDisplay =
             if List.all (String.startsWith "team:") (filterTerms query) then
@@ -591,12 +499,17 @@ pipelinesView substate showHelp query =
                 filteredGroups |> List.filter (.pipelines >> List.isEmpty >> not)
 
         groupViews =
-            case substate.teamData of
-                Unauthenticated _ ->
-                    List.map (\g -> Group.view (Group.headerView g) substate.dragState substate.dropState substate.now g) groupsToDisplay
+            case substate.details of
+                Just details ->
+                    case substate.teamData of
+                        SubState.Unauthenticated _ ->
+                            List.map (\g -> Group.view (Group.headerView g) details.dragState details.dropState details.now g) groupsToDisplay
 
-                Authenticated { user } ->
-                    List.map (\g -> Group.view (GroupWithTag.headerView g) substate.dragState substate.dropState substate.now g.group) (GroupWithTag.addTagsAndSort user groupsToDisplay)
+                        SubState.Authenticated { user } ->
+                            List.map (\g -> Group.view (GroupWithTag.headerView g) details.dragState details.dropState details.now g.group) (GroupWithTag.addTagsAndSort user groupsToDisplay)
+
+                _ ->
+                    []
     in
         if List.isEmpty groupViews then
             noResultsView (toString query)
