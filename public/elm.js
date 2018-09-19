@@ -25507,6 +25507,12 @@ var _concourse$atc$Dashboard_Pipeline$transitionView = F2(
 				_1: {ctor: '[]'}
 			});
 	});
+var _concourse$atc$Dashboard_Pipeline$Summary = function (a) {
+	return {ctor: 'Summary', _0: a};
+};
+var _concourse$atc$Dashboard_Pipeline$Preview = function (a) {
+	return {ctor: 'Preview', _0: a};
+};
 var _concourse$atc$Dashboard_Pipeline$TogglePipelinePaused = function (a) {
 	return {ctor: 'TogglePipelinePaused', _0: a};
 };
@@ -25568,19 +25574,152 @@ var _concourse$atc$Dashboard_Pipeline$footerView = F2(
 				}
 			});
 	});
+var _concourse$atc$Dashboard_Pipeline$TooltipHd = F2(
+	function (a, b) {
+		return {ctor: 'TooltipHd', _0: a, _1: b};
+	});
+var _concourse$atc$Dashboard_Pipeline$hdPipelineView = function (_p8) {
+	var _p9 = _p8;
+	var _p11 = _p9.pipeline;
+	var _p10 = _p9.jobs;
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$classList(
+				{
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: 'dashboard-pipeline', _1: true},
+					_1: {
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'dashboard-paused', _1: _p11.paused},
+						_1: {
+							ctor: '::',
+							_0: {
+								ctor: '_Tuple2',
+								_0: 'dashboard-running',
+								_1: A2(
+									_elm_lang$core$List$any,
+									function (job) {
+										return !_elm_lang$core$Native_Utils.eq(job.nextBuild, _elm_lang$core$Maybe$Nothing);
+									},
+									_p10)
+							},
+							_1: {
+								ctor: '::',
+								_0: {
+									ctor: '_Tuple2',
+									_0: A2(
+										_elm_lang$core$Basics_ops['++'],
+										'dashboard-status-',
+										_concourse$atc$Concourse_PipelineStatus$show(
+											A2(_concourse$atc$Dashboard_Pipeline$pipelineStatusFromJobs, _p10, false))),
+									_1: !_p11.paused
+								},
+								_1: {ctor: '[]'}
+							}
+						}
+					}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(_elm_lang$html$Html_Attributes$attribute, 'data-pipeline-name', _p11.name),
+				_1: {
+					ctor: '::',
+					_0: A2(_elm_lang$html$Html_Attributes$attribute, 'data-team-name', _p11.teamName),
+					_1: {ctor: '[]'}
+				}
+			}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-banner'),
+					_1: {ctor: '[]'}
+				},
+				{ctor: '[]'}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-content'),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html_Events$onMouseEnter(
+								A2(_concourse$atc$Dashboard_Pipeline$TooltipHd, _p11.name, _p11.teamName)),
+							_1: {ctor: '[]'}
+						}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$a,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$href(
+									_concourse$atc$Routes$pipelineRoute(_p11)),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$div,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class('dashboardhd-pipeline-name'),
+										_1: {
+											ctor: '::',
+											_0: A2(_elm_lang$html$Html_Attributes$attribute, 'data-team-name', _p11.teamName),
+											_1: {ctor: '[]'}
+										}
+									},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text(_p11.name),
+										_1: {ctor: '[]'}
+									}),
+								_1: {ctor: '[]'}
+							}),
+						_1: {ctor: '[]'}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$classList(
+								{
+									ctor: '::',
+									_0: {ctor: '_Tuple2', _0: 'dashboard-resource-error', _1: _p9.resourceError},
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						},
+						{ctor: '[]'}),
+					_1: {ctor: '[]'}
+				}
+			}
+		});
+};
 var _concourse$atc$Dashboard_Pipeline$Tooltip = F2(
 	function (a, b) {
 		return {ctor: 'Tooltip', _0: a, _1: b};
 	});
-var _concourse$atc$Dashboard_Pipeline$headerView = function (_p8) {
-	var _p9 = _p8;
-	var _p10 = _p9.pipeline;
+var _concourse$atc$Dashboard_Pipeline$headerView = function (_p12) {
+	var _p13 = _p12;
+	var _p14 = _p13.pipeline;
 	return A2(
 		_elm_lang$html$Html$a,
 		{
 			ctor: '::',
 			_0: _elm_lang$html$Html_Attributes$href(
-				_concourse$atc$Routes$pipelineRoute(_p10)),
+				_concourse$atc$Routes$pipelineRoute(_p14)),
 			_1: {
 				ctor: '::',
 				_0: _elm_lang$html$Html_Attributes$draggable('false'),
@@ -25597,7 +25736,7 @@ var _concourse$atc$Dashboard_Pipeline$headerView = function (_p8) {
 					_1: {
 						ctor: '::',
 						_0: _elm_lang$html$Html_Events$onMouseEnter(
-							A2(_concourse$atc$Dashboard_Pipeline$Tooltip, _p10.name, _p10.teamName)),
+							A2(_concourse$atc$Dashboard_Pipeline$Tooltip, _p14.name, _p14.teamName)),
 						_1: {ctor: '[]'}
 					}
 				},
@@ -25612,7 +25751,7 @@ var _concourse$atc$Dashboard_Pipeline$headerView = function (_p8) {
 						},
 						{
 							ctor: '::',
-							_0: _elm_lang$html$Html$text(_p10.name),
+							_0: _elm_lang$html$Html$text(_p14.name),
 							_1: {ctor: '[]'}
 						}),
 					_1: {
@@ -25624,7 +25763,7 @@ var _concourse$atc$Dashboard_Pipeline$headerView = function (_p8) {
 								_0: _elm_lang$html$Html_Attributes$classList(
 									{
 										ctor: '::',
-										_0: {ctor: '_Tuple2', _0: 'dashboard-resource-error', _1: _p9.resourceError},
+										_0: {ctor: '_Tuple2', _0: 'dashboard-resource-error', _1: _p13.resourceError},
 										_1: {ctor: '[]'}
 									}),
 								_1: {ctor: '[]'}
@@ -25636,10 +25775,10 @@ var _concourse$atc$Dashboard_Pipeline$headerView = function (_p8) {
 			_1: {ctor: '[]'}
 		});
 };
-var _concourse$atc$Dashboard_Pipeline$pipelineView = F3(
-	function (now, _p11, index) {
-		var _p12 = _p11;
-		var _p13 = _p12;
+var _concourse$atc$Dashboard_Pipeline$pipelineView = F2(
+	function (now, _p15) {
+		var _p16 = _p15;
+		var _p17 = _p16;
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -25649,17 +25788,26 @@ var _concourse$atc$Dashboard_Pipeline$pipelineView = F3(
 			},
 			{
 				ctor: '::',
-				_0: _concourse$atc$Dashboard_Pipeline$headerView(_p13),
+				_0: _concourse$atc$Dashboard_Pipeline$headerView(_p17),
 				_1: {
 					ctor: '::',
-					_0: _concourse$atc$DashboardPreview$view(_p12.jobs),
+					_0: _concourse$atc$DashboardPreview$view(_p16.jobs),
 					_1: {
 						ctor: '::',
-						_0: A2(_concourse$atc$Dashboard_Pipeline$footerView, _p13, now),
+						_0: A2(_concourse$atc$Dashboard_Pipeline$footerView, _p17, now),
 						_1: {ctor: '[]'}
 					}
 				}
 			});
+	});
+var _concourse$atc$Dashboard_Pipeline$view = F2(
+	function (now, pipeline) {
+		var _p18 = pipeline;
+		if (_p18.ctor === 'Preview') {
+			return A2(_concourse$atc$Dashboard_Pipeline$pipelineView, now, _p18._0);
+		} else {
+			return _concourse$atc$Dashboard_Pipeline$hdPipelineView(_p18._0);
+		}
 	});
 
 var _matthewsj$elm_ordering$Ordering$greaterThanBy = F3(
@@ -25826,6 +25974,31 @@ var _matthewsj$elm_ordering$Ordering$byRank = F2(
 			_matthewsj$elm_ordering$Ordering$byField(rank));
 	});
 
+var _concourse$atc$Dashboard_Group_Tag$text = function (tag) {
+	var _p0 = tag;
+	if (_p0.ctor === 'Exposed') {
+		return 'EXPOSED';
+	} else {
+		return 'MEMBER';
+	}
+};
+var _concourse$atc$Dashboard_Group_Tag$Member = {ctor: 'Member'};
+var _concourse$atc$Dashboard_Group_Tag$Exposed = {ctor: 'Exposed'};
+var _concourse$atc$Dashboard_Group_Tag$ordering = _matthewsj$elm_ordering$Ordering$explicit(
+	{
+		ctor: '::',
+		_0: _concourse$atc$Dashboard_Group_Tag$Member,
+		_1: {
+			ctor: '::',
+			_0: _concourse$atc$Dashboard_Group_Tag$Exposed,
+			_1: {ctor: '[]'}
+		}
+	});
+var _concourse$atc$Dashboard_Group_Tag$tag = F2(
+	function (user, teamName) {
+		return A2(_elm_lang$core$List$member, teamName, user.teams) ? _concourse$atc$Dashboard_Group_Tag$Member : _concourse$atc$Dashboard_Group_Tag$Exposed;
+	});
+
 var _concourse$atc$Dashboard_Group$headerView = function (group) {
 	return {
 		ctor: '::',
@@ -25844,6 +26017,45 @@ var _concourse$atc$Dashboard_Group$headerView = function (group) {
 		_1: {ctor: '[]'}
 	};
 };
+var _concourse$atc$Dashboard_Group$pipelineNotSetView = A2(
+	_elm_lang$html$Html$div,
+	{
+		ctor: '::',
+		_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline'),
+		_1: {ctor: '[]'}
+	},
+	{
+		ctor: '::',
+		_0: A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$classList(
+					{
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'dashboard-pipeline-content', _1: true},
+						_1: {
+							ctor: '::',
+							_0: {ctor: '_Tuple2', _0: 'no-set', _1: true},
+							_1: {ctor: '[]'}
+						}
+					}),
+				_1: {ctor: '[]'}
+			},
+			{
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$a,
+					{ctor: '[]'},
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html$text('no pipelines set'),
+						_1: {ctor: '[]'}
+					}),
+				_1: {ctor: '[]'}
+			}),
+		_1: {ctor: '[]'}
+	});
 var _concourse$atc$Dashboard_Group$ordering = _matthewsj$elm_ordering$Ordering$byField(
 	function (_) {
 		return _.teamName;
@@ -26079,6 +26291,10 @@ var _concourse$atc$Dashboard_Group$findGroupOptional = function (teamName) {
 };
 var _concourse$atc$Dashboard_Group$groupsLens = _arturopala$elm_monocle$Monocle_Lens$fromIso(
 	A2(_arturopala$elm_monocle$Monocle_Iso$Iso, _concourse$atc$Dashboard_Group$groups, _concourse$atc$Dashboard_Group$apiData));
+var _concourse$atc$Dashboard_Group$NewGroup = F2(
+	function (a, b) {
+		return {header: a, body: b};
+	});
 var _concourse$atc$Dashboard_Group$Group = F2(
 	function (a, b) {
 		return {pipelines: a, teamName: b};
@@ -26108,6 +26324,12 @@ var _concourse$atc$Dashboard_Group$remoteData = A6(
 			return _.version;
 		},
 		_concourse$atc$Concourse_Info$fetch));
+var _concourse$atc$Dashboard_Group$WithoutTag = function (a) {
+	return {ctor: 'WithoutTag', _0: a};
+};
+var _concourse$atc$Dashboard_Group$WithTag = function (a) {
+	return {ctor: 'WithTag', _0: a};
+};
 var _concourse$atc$Dashboard_Group$Dragging = F2(
 	function (a, b) {
 		return {ctor: 'Dragging', _0: a, _1: b};
@@ -26150,6 +26372,58 @@ var _concourse$atc$Dashboard_Group$dropIndexOptional = A2(_arturopala$elm_monocl
 var _concourse$atc$Dashboard_Group$PipelineMsg = function (a) {
 	return {ctor: 'PipelineMsg', _0: a};
 };
+var _concourse$atc$Dashboard_Group$hdView = F3(
+	function (header, teamName, pipelines) {
+		var teamPipelines = _elm_lang$core$List$isEmpty(pipelines) ? {
+			ctor: '::',
+			_0: _concourse$atc$Dashboard_Group$pipelineNotSetView,
+			_1: {ctor: '[]'}
+		} : A2(
+			_elm_lang$core$List$map,
+			function (_p16) {
+				return A2(
+					_elm_lang$html$Html$map,
+					_concourse$atc$Dashboard_Group$PipelineMsg,
+					_concourse$atc$Dashboard_Pipeline$hdPipelineView(_p16));
+			},
+			pipelines);
+		return A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('pipeline-wrapper'),
+				_1: {ctor: '[]'}
+			},
+			function () {
+				var _p17 = teamPipelines;
+				if (_p17.ctor === '[]') {
+					return header;
+				} else {
+					return A2(
+						_elm_lang$core$List$append,
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('dashboard-team-name-wrapper'),
+									_1: {ctor: '[]'}
+								},
+								A2(
+									_elm_lang$core$Basics_ops['++'],
+									header,
+									{
+										ctor: '::',
+										_0: _p17._0,
+										_1: {ctor: '[]'}
+									})),
+							_1: {ctor: '[]'}
+						},
+						_p17._1);
+				}
+			}());
+	});
 var _concourse$atc$Dashboard_Group$DragEnd = {ctor: 'DragEnd'};
 var _concourse$atc$Dashboard_Group$DragOver = F2(
 	function (a, b) {
@@ -26157,28 +26431,28 @@ var _concourse$atc$Dashboard_Group$DragOver = F2(
 	});
 var _concourse$atc$Dashboard_Group$pipelineDropAreaView = F4(
 	function (dragState, dropState, teamName, index) {
-		var _p16 = function () {
-			var _p17 = {ctor: '_Tuple2', _0: dragState, _1: dropState};
-			if ((_p17.ctor === '_Tuple2') && (_p17._0.ctor === 'Dragging')) {
-				if (_p17._1.ctor === 'NotDropping') {
+		var _p18 = function () {
+			var _p19 = {ctor: '_Tuple2', _0: dragState, _1: dropState};
+			if ((_p19.ctor === '_Tuple2') && (_p19._0.ctor === 'Dragging')) {
+				if (_p19._1.ctor === 'NotDropping') {
 					return {
 						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.eq(_p17._0._0, teamName),
-						_1: _elm_lang$core$Native_Utils.eq(index, _p17._0._1)
+						_0: _elm_lang$core$Native_Utils.eq(_p19._0._0, teamName),
+						_1: _elm_lang$core$Native_Utils.eq(index, _p19._0._1)
 					};
 				} else {
 					return {
 						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.eq(_p17._0._0, teamName),
-						_1: _elm_lang$core$Native_Utils.eq(index, _p17._1._0)
+						_0: _elm_lang$core$Native_Utils.eq(_p19._0._0, teamName),
+						_1: _elm_lang$core$Native_Utils.eq(index, _p19._1._0)
 					};
 				}
 			} else {
 				return {ctor: '_Tuple2', _0: false, _1: false};
 			}
 		}();
-		var active = _p16._0;
-		var over = _p16._1;
+		var active = _p18._0;
+		var over = _p18._1;
 		return A2(
 			_elm_lang$html$Html$div,
 			{
@@ -26343,7 +26617,7 @@ var _concourse$atc$Dashboard_Group$view = F5(
 												_0: A2(
 													_elm_lang$html$Html$map,
 													_concourse$atc$Dashboard_Group$PipelineMsg,
-													A3(_concourse$atc$Dashboard_Pipeline$pipelineView, now, pipeline, i)),
+													A2(_concourse$atc$Dashboard_Pipeline$pipelineView, now, pipeline)),
 												_1: {ctor: '[]'}
 											}
 										}),
@@ -26413,6 +26687,11 @@ var _concourse$atc$Dashboard_Group$view = F5(
 			});
 	});
 
+var _concourse$atc$Dashboard_Details$toggleHelp = function (details) {
+	return _elm_lang$core$Native_Utils.update(
+		details,
+		{showHelp: !details.showHelp});
+};
 var _concourse$atc$Dashboard_Details$dropStateLens = A2(
 	_arturopala$elm_monocle$Monocle_Lens$Lens,
 	function (_) {
@@ -26446,34 +26725,9 @@ var _concourse$atc$Dashboard_Details$nowLens = A2(
 				ss,
 				{now: t});
 		}));
-var _concourse$atc$Dashboard_Details$Details = F3(
-	function (a, b, c) {
-		return {now: a, dragState: b, dropState: c};
-	});
-
-var _concourse$atc$Dashboard_Group_Tag$text = function (tag) {
-	var _p0 = tag;
-	if (_p0.ctor === 'Exposed') {
-		return 'EXPOSED';
-	} else {
-		return 'MEMBER';
-	}
-};
-var _concourse$atc$Dashboard_Group_Tag$Member = {ctor: 'Member'};
-var _concourse$atc$Dashboard_Group_Tag$Exposed = {ctor: 'Exposed'};
-var _concourse$atc$Dashboard_Group_Tag$ordering = _matthewsj$elm_ordering$Ordering$explicit(
-	{
-		ctor: '::',
-		_0: _concourse$atc$Dashboard_Group_Tag$Member,
-		_1: {
-			ctor: '::',
-			_0: _concourse$atc$Dashboard_Group_Tag$Exposed,
-			_1: {ctor: '[]'}
-		}
-	});
-var _concourse$atc$Dashboard_Group_Tag$tag = F2(
-	function (user, teamName) {
-		return A2(_elm_lang$core$List$member, teamName, user.teams) ? _concourse$atc$Dashboard_Group_Tag$Member : _concourse$atc$Dashboard_Group_Tag$Exposed;
+var _concourse$atc$Dashboard_Details$Details = F4(
+	function (a, b, c, d) {
+		return {now: a, dragState: b, dropState: c, showHelp: d};
 	});
 
 var _concourse$atc$Dashboard_GroupWithTag$headerView = function (taggedGroup) {
@@ -26649,6 +26903,17 @@ var _concourse$atc$Dashboard_SubState$teamDataLens = A2(
 				ss,
 				{teamData: td});
 		}));
+var _concourse$atc$Dashboard_SubState$detailsLens = A2(
+	_arturopala$elm_monocle$Monocle_Lens$Lens,
+	function (_) {
+		return _.details;
+	},
+	F2(
+		function (d, ss) {
+			return _elm_lang$core$Native_Utils.update(
+				ss,
+				{details: d});
+		}));
 var _concourse$atc$Dashboard_SubState$detailsOptional = A2(
 	_arturopala$elm_monocle$Monocle_Optional$Optional,
 	function (_) {
@@ -26711,11 +26976,138 @@ var _concourse$atc$Dashboard_SubState$setApiData = F2(
 	});
 var _concourse$atc$Dashboard_SubState$apiDataLens = A2(_arturopala$elm_monocle$Monocle_Lens$Lens, _concourse$atc$Dashboard_SubState$apiData, _concourse$atc$Dashboard_SubState$setApiData);
 
-var _elm_lang$dom$Dom$blur = _elm_lang$dom$Native_Dom.blur;
-var _elm_lang$dom$Dom$focus = _elm_lang$dom$Native_Dom.focus;
-var _elm_lang$dom$Dom$NotFound = function (a) {
-	return {ctor: 'NotFound', _0: a};
+var _concourse$atc$DashboardHelpers$resourceErrorsByPipelineIdentifier = function (resources) {
+	return A3(
+		_elm_lang$core$List$foldl,
+		F2(
+			function (resource, byPipelineId) {
+				var resourceCheckError = !_elm_lang$core$String$isEmpty(resource.checkError);
+				var pipelineIdentifier = {ctor: '_Tuple2', _0: resource.teamName, _1: resource.pipelineName};
+				var resourceError = function () {
+					var _p0 = A2(_elm_lang$core$Dict$get, pipelineIdentifier, byPipelineId);
+					if (_p0.ctor === 'Nothing') {
+						return resourceCheckError;
+					} else {
+						return _p0._0 || resourceCheckError;
+					}
+				}();
+				return A3(_elm_lang$core$Dict$insert, pipelineIdentifier, resourceError, byPipelineId);
+			}),
+		_elm_lang$core$Dict$empty,
+		resources);
 };
+var _concourse$atc$DashboardHelpers$classifyJob = F3(
+	function (job, pipelines, pipelineJobs) {
+		var pipelineIdentifier = {ctor: '_Tuple2', _0: job.teamName, _1: job.pipelineName};
+		var mPipeline = A2(_elm_lang$core$Dict$get, pipelineIdentifier, pipelines);
+		var _p1 = mPipeline;
+		if (_p1.ctor === 'Nothing') {
+			return pipelineJobs;
+		} else {
+			var _p2 = _p1._0;
+			var jobs = A2(
+				_elm_lang$core$Maybe$withDefault,
+				{ctor: '[]'},
+				A2(_elm_lang$core$Dict$get, _p2.id, pipelineJobs));
+			return A3(
+				_elm_lang$core$Dict$insert,
+				_p2.id,
+				{ctor: '::', _0: job, _1: jobs},
+				pipelineJobs);
+		}
+	});
+var _concourse$atc$DashboardHelpers$jobsByPipelineId = F2(
+	function (pipelines, jobs) {
+		var pipelinesByIdentifier = A3(
+			_elm_lang$core$List$foldl,
+			F2(
+				function (pipeline, byIdentifier) {
+					return A3(
+						_elm_lang$core$Dict$insert,
+						{ctor: '_Tuple2', _0: pipeline.teamName, _1: pipeline.name},
+						pipeline,
+						byIdentifier);
+				}),
+			_elm_lang$core$Dict$empty,
+			pipelines);
+		return A3(
+			_elm_lang$core$List$foldl,
+			F2(
+				function (job, byPipelineId) {
+					return A3(_concourse$atc$DashboardHelpers$classifyJob, job, pipelinesByIdentifier, byPipelineId);
+				}),
+			_elm_lang$core$Dict$empty,
+			jobs);
+	});
+var _concourse$atc$DashboardHelpers$groupPipelines = F2(
+	function (pipelines, _p3) {
+		var _p4 = _p3;
+		var _p9 = _p4._0;
+		var _p8 = _p4._1;
+		var _p5 = pipelines;
+		if (_p5.ctor === '[]') {
+			return {
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: _p9,
+					_1: {
+						ctor: '::',
+						_0: _p8,
+						_1: {ctor: '[]'}
+					}
+				},
+				_1: {ctor: '[]'}
+			};
+		} else {
+			var _p7 = _p5._1;
+			var _p6 = _p5._0;
+			return _elm_lang$core$Native_Utils.eq(
+				_elm_lang$core$Tuple$first(_p6),
+				_p9) ? {
+				ctor: '::',
+				_0: {
+					ctor: '_Tuple2',
+					_0: _p9,
+					_1: {
+						ctor: '::',
+						_0: _p8,
+						_1: _elm_lang$core$Tuple$second(_p6)
+					}
+				},
+				_1: _p7
+			} : {
+				ctor: '::',
+				_0: _p6,
+				_1: A2(
+					_concourse$atc$DashboardHelpers$groupPipelines,
+					_p7,
+					{ctor: '_Tuple2', _0: _p9, _1: _p8})
+			};
+		}
+	});
+var _concourse$atc$DashboardHelpers$pipelinesWithJobs = F3(
+	function (pipelineJobs, pipelineResourceErrors, pipelines) {
+		return A2(
+			_elm_lang$core$List$map,
+			function (pipeline) {
+				return {
+					pipeline: pipeline,
+					jobs: A2(
+						_elm_lang$core$Maybe$withDefault,
+						{ctor: '[]'},
+						A2(_elm_lang$core$Dict$get, pipeline.id, pipelineJobs)),
+					resourceError: A2(
+						_elm_lang$core$Maybe$withDefault,
+						false,
+						A2(
+							_elm_lang$core$Dict$get,
+							{ctor: '_Tuple2', _0: pipeline.teamName, _1: pipeline.name},
+							pipelineResourceErrors))
+				};
+			},
+			pipelines);
+	});
 
 var _fapian$elm_html_aria$Html_Attributes_Aria$role = _elm_lang$html$Html_Attributes$attribute('role');
 var _fapian$elm_html_aria$Html_Attributes_Aria$ariaSelected = _elm_lang$html$Html_Attributes$attribute('aria-selected');
@@ -26926,6 +27318,12 @@ var _elm_lang$mouse$Mouse$subMap = F2(
 			});
 	});
 _elm_lang$core$Native_Platform.effectManagers['Mouse'] = {pkg: 'elm-lang/mouse', init: _elm_lang$mouse$Mouse$init, onEffects: _elm_lang$mouse$Mouse$onEffects, onSelfMsg: _elm_lang$mouse$Mouse$onSelfMsg, tag: 'sub', subMap: _elm_lang$mouse$Mouse$subMap};
+
+var _elm_lang$dom$Dom$blur = _elm_lang$dom$Native_Dom.blur;
+var _elm_lang$dom$Dom$focus = _elm_lang$dom$Native_Dom.focus;
+var _elm_lang$dom$Dom$NotFound = function (a) {
+	return {ctor: 'NotFound', _0: a};
+};
 
 var _elm_lang$svg$Svg$map = _elm_lang$virtual_dom$VirtualDom$map;
 var _elm_lang$svg$Svg$text = _elm_lang$virtual_dom$VirtualDom$text;
@@ -30065,1579 +30463,6 @@ var _concourse$atc$NoPipeline$view = A2(
 	});
 var _concourse$atc$NoPipeline$Noop = {ctor: 'Noop'};
 
-var _concourse$atc$Dashboard$fuzzySearch = F3(
-	function (map, needle, records) {
-		var negateSearch = A2(_elm_lang$core$String$startsWith, '-', needle);
-		return negateSearch ? A2(
-			_elm_lang$core$List$filter,
-			function (_p0) {
-				return !A2(
-					_NoRedInk$elm_simple_fuzzy$Simple_Fuzzy$match,
-					needle,
-					map(_p0));
-			},
-			records) : A2(
-			_elm_lang$core$List$filter,
-			function (_p1) {
-				return A2(
-					_NoRedInk$elm_simple_fuzzy$Simple_Fuzzy$match,
-					needle,
-					map(_p1));
-			},
-			records);
-	});
-var _concourse$atc$Dashboard$filterPipelinesByTerm = F2(
-	function (term, _p2) {
-		var _p3 = _p2;
-		var _p6 = _p3.pipelines;
-		var searchStatus = A2(_elm_lang$core$String$startsWith, 'status:', term);
-		var statusSearchTerm = searchStatus ? A2(_elm_lang$core$String$dropLeft, 7, term) : term;
-		var filterByStatus = A3(
-			_concourse$atc$Dashboard$fuzzySearch,
-			function (_p4) {
-				return _concourse$atc$Concourse_PipelineStatus$show(
-					_concourse$atc$Dashboard_Pipeline$pipelineStatus(_p4));
-			},
-			statusSearchTerm,
-			_p6);
-		return _elm_lang$core$Native_Utils.update(
-			_p3,
-			{
-				pipelines: searchStatus ? filterByStatus : A3(
-					_concourse$atc$Dashboard$fuzzySearch,
-					function (_p5) {
-						return function (_) {
-							return _.name;
-						}(
-							function (_) {
-								return _.pipeline;
-							}(_p5));
-					},
-					term,
-					_p6)
-			});
-	});
-var _concourse$atc$Dashboard$filterGroupsByTerm = F2(
-	function (term, groups) {
-		var searchTeams = A2(_elm_lang$core$String$startsWith, 'team:', term);
-		var teamSearchTerm = searchTeams ? A2(_elm_lang$core$String$dropLeft, 5, term) : term;
-		return searchTeams ? A3(
-			_concourse$atc$Dashboard$fuzzySearch,
-			function (_) {
-				return _.teamName;
-			},
-			teamSearchTerm,
-			groups) : A2(
-			_elm_lang$core$List$map,
-			_concourse$atc$Dashboard$filterPipelinesByTerm(term),
-			groups);
-	});
-var _concourse$atc$Dashboard$filterTerms = function (_p7) {
-	return A2(
-		_elm_lang$core$List$filter,
-		function (_p8) {
-			return !_elm_lang$core$String$isEmpty(_p8);
-		},
-		_elm_lang$core$String$words(
-			A4(
-				_elm_lang$core$Regex$replace,
-				_elm_lang$core$Regex$All,
-				_elm_lang$core$Regex$regex('status:\\s*'),
-				function (_p9) {
-					return 'status:';
-				},
-				A4(
-					_elm_lang$core$Regex$replace,
-					_elm_lang$core$Regex$All,
-					_elm_lang$core$Regex$regex('team:\\s*'),
-					function (_p10) {
-						return 'team:';
-					},
-					_p7))));
-};
-var _concourse$atc$Dashboard$filter = function (_p11) {
-	return A2(
-		_elm_lang$core$Basics$flip,
-		_elm_lang$core$List$foldl(_concourse$atc$Dashboard$filterGroupsByTerm),
-		_concourse$atc$Dashboard$filterTerms(_p11));
-};
-var _concourse$atc$Dashboard$remoteUser = function (d) {
-	return A2(
-		_elm_lang$core$Task$onError,
-		_elm_lang$core$Basics$always(
-			_elm_lang$core$Task$succeed(
-				{ctor: '_Tuple2', _0: d, _1: _elm_lang$core$Maybe$Nothing})),
-		A2(
-			_elm_lang$core$Task$map,
-			function (_p12) {
-				return A2(
-					F2(
-						function (v0, v1) {
-							return {ctor: '_Tuple2', _0: v0, _1: v1};
-						}),
-					d,
-					_elm_lang$core$Maybe$Just(_p12));
-			},
-			_concourse$atc$Concourse_User$fetchUser));
-};
-var _concourse$atc$Dashboard$turbulenceView = function (path) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('error-message'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$div,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('message'),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$img,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$src(path),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('seatbelt'),
-								_1: {ctor: '[]'}
-							}
-						},
-						{ctor: '[]'}),
-					_1: {
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$p,
-							{ctor: '[]'},
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html$text('experiencing turbulence'),
-								_1: {ctor: '[]'}
-							}),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$p,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('explanation'),
-									_1: {ctor: '[]'}
-								},
-								{ctor: '[]'}),
-							_1: {ctor: '[]'}
-						}
-					}
-				}),
-			_1: {ctor: '[]'}
-		});
-};
-var _concourse$atc$Dashboard$footerView = F2(
-	function (substate, showHelp) {
-		return A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: (substate.hideFooter || showHelp) ? _elm_lang$html$Html_Attributes$class('dashboard-footer hidden') : _elm_lang$html$Html_Attributes$class('dashboard-footer'),
-				_1: {ctor: '[]'}
-			},
-			{
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('dashboard-legend'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$div,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('dashboard-status-pending'),
-								_1: {ctor: '[]'}
-							},
-							{
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$div,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-icon'),
-										_1: {ctor: '[]'}
-									},
-									{ctor: '[]'}),
-								_1: {
-									ctor: '::',
-									_0: _elm_lang$html$Html$text('pending'),
-									_1: {ctor: '[]'}
-								}
-							}),
-						_1: {
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('dashboard-paused'),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$div,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-icon'),
-											_1: {ctor: '[]'}
-										},
-										{ctor: '[]'}),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('paused'),
-										_1: {ctor: '[]'}
-									}
-								}),
-							_1: {
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$div,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('dashboard-running'),
-										_1: {ctor: '[]'}
-									},
-									{
-										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$div,
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-icon'),
-												_1: {ctor: '[]'}
-											},
-											{ctor: '[]'}),
-										_1: {
-											ctor: '::',
-											_0: _elm_lang$html$Html$text('running'),
-											_1: {ctor: '[]'}
-										}
-									}),
-								_1: {
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$div,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$class('dashboard-status-failed'),
-											_1: {ctor: '[]'}
-										},
-										{
-											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$div,
-												{
-													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-icon'),
-													_1: {ctor: '[]'}
-												},
-												{ctor: '[]'}),
-											_1: {
-												ctor: '::',
-												_0: _elm_lang$html$Html$text('failing'),
-												_1: {ctor: '[]'}
-											}
-										}),
-									_1: {
-										ctor: '::',
-										_0: A2(
-											_elm_lang$html$Html$div,
-											{
-												ctor: '::',
-												_0: _elm_lang$html$Html_Attributes$class('dashboard-status-errored'),
-												_1: {ctor: '[]'}
-											},
-											{
-												ctor: '::',
-												_0: A2(
-													_elm_lang$html$Html$div,
-													{
-														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-icon'),
-														_1: {ctor: '[]'}
-													},
-													{ctor: '[]'}),
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$html$Html$text('errored'),
-													_1: {ctor: '[]'}
-												}
-											}),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$div,
-												{
-													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$class('dashboard-status-aborted'),
-													_1: {ctor: '[]'}
-												},
-												{
-													ctor: '::',
-													_0: A2(
-														_elm_lang$html$Html$div,
-														{
-															ctor: '::',
-															_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-icon'),
-															_1: {ctor: '[]'}
-														},
-														{ctor: '[]'}),
-													_1: {
-														ctor: '::',
-														_0: _elm_lang$html$Html$text('aborted'),
-														_1: {ctor: '[]'}
-													}
-												}),
-											_1: {
-												ctor: '::',
-												_0: A2(
-													_elm_lang$html$Html$div,
-													{
-														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$class('dashboard-status-succeeded'),
-														_1: {ctor: '[]'}
-													},
-													{
-														ctor: '::',
-														_0: A2(
-															_elm_lang$html$Html$div,
-															{
-																ctor: '::',
-																_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-icon'),
-																_1: {ctor: '[]'}
-															},
-															{ctor: '[]'}),
-														_1: {
-															ctor: '::',
-															_0: _elm_lang$html$Html$text('succeeded'),
-															_1: {ctor: '[]'}
-														}
-													}),
-												_1: {
-													ctor: '::',
-													_0: A2(
-														_elm_lang$html$Html$div,
-														{
-															ctor: '::',
-															_0: _elm_lang$html$Html_Attributes$class('dashboard-status-separator'),
-															_1: {ctor: '[]'}
-														},
-														{
-															ctor: '::',
-															_0: _elm_lang$html$Html$text('|'),
-															_1: {ctor: '[]'}
-														}),
-													_1: {
-														ctor: '::',
-														_0: A2(
-															_elm_lang$html$Html$div,
-															{
-																ctor: '::',
-																_0: _elm_lang$html$Html_Attributes$class('dashboard-high-density'),
-																_1: {ctor: '[]'}
-															},
-															{
-																ctor: '::',
-																_0: A2(
-																	_elm_lang$html$Html$a,
-																	{
-																		ctor: '::',
-																		_0: _elm_lang$html$Html_Attributes$class('toggle-high-density'),
-																		_1: {
-																			ctor: '::',
-																			_0: _elm_lang$html$Html_Attributes$href(_concourse$atc$Routes$dashboardHdRoute),
-																			_1: {
-																				ctor: '::',
-																				_0: _fapian$elm_html_aria$Html_Attributes_Aria$ariaLabel('Toggle high-density view'),
-																				_1: {ctor: '[]'}
-																			}
-																		}
-																	},
-																	{
-																		ctor: '::',
-																		_0: A2(
-																			_elm_lang$html$Html$div,
-																			{
-																				ctor: '::',
-																				_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-icon hd-off'),
-																				_1: {ctor: '[]'}
-																			},
-																			{ctor: '[]'}),
-																		_1: {
-																			ctor: '::',
-																			_0: _elm_lang$html$Html$text('high-density'),
-																			_1: {ctor: '[]'}
-																		}
-																	}),
-																_1: {ctor: '[]'}
-															}),
-														_1: {ctor: '[]'}
-													}
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('concourse-info'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('concourse-version'),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html$text('version: v'),
-									_1: {
-										ctor: '::',
-										_0: _elm_lang$html$Html$text(
-											function (_) {
-												return _.version;
-											}(
-												_concourse$atc$Dashboard_SubState$apiData(substate.teamData))),
-										_1: {ctor: '[]'}
-									}
-								}),
-							_1: {
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$div,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('concourse-cli'),
-										_1: {ctor: '[]'}
-									},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('cli: '),
-										_1: {
-											ctor: '::',
-											_0: A2(
-												_elm_lang$html$Html$a,
-												{
-													ctor: '::',
-													_0: _elm_lang$html$Html_Attributes$href(
-														A2(_concourse$atc$Concourse_Cli$downloadUrl, 'amd64', 'darwin')),
-													_1: {
-														ctor: '::',
-														_0: _fapian$elm_html_aria$Html_Attributes_Aria$ariaLabel('Download OS X CLI'),
-														_1: {ctor: '[]'}
-													}
-												},
-												{
-													ctor: '::',
-													_0: A2(
-														_elm_lang$html$Html$i,
-														{
-															ctor: '::',
-															_0: _elm_lang$html$Html_Attributes$class('fa fa-apple'),
-															_1: {ctor: '[]'}
-														},
-														{ctor: '[]'}),
-													_1: {ctor: '[]'}
-												}),
-											_1: {
-												ctor: '::',
-												_0: A2(
-													_elm_lang$html$Html$a,
-													{
-														ctor: '::',
-														_0: _elm_lang$html$Html_Attributes$href(
-															A2(_concourse$atc$Concourse_Cli$downloadUrl, 'amd64', 'windows')),
-														_1: {
-															ctor: '::',
-															_0: _fapian$elm_html_aria$Html_Attributes_Aria$ariaLabel('Download Windows CLI'),
-															_1: {ctor: '[]'}
-														}
-													},
-													{
-														ctor: '::',
-														_0: A2(
-															_elm_lang$html$Html$i,
-															{
-																ctor: '::',
-																_0: _elm_lang$html$Html_Attributes$class('fa fa-windows'),
-																_1: {ctor: '[]'}
-															},
-															{ctor: '[]'}),
-														_1: {ctor: '[]'}
-													}),
-												_1: {
-													ctor: '::',
-													_0: A2(
-														_elm_lang$html$Html$a,
-														{
-															ctor: '::',
-															_0: _elm_lang$html$Html_Attributes$href(
-																A2(_concourse$atc$Concourse_Cli$downloadUrl, 'amd64', 'linux')),
-															_1: {
-																ctor: '::',
-																_0: _fapian$elm_html_aria$Html_Attributes_Aria$ariaLabel('Download Linux CLI'),
-																_1: {ctor: '[]'}
-															}
-														},
-														{
-															ctor: '::',
-															_0: A2(
-																_elm_lang$html$Html$i,
-																{
-																	ctor: '::',
-																	_0: _elm_lang$html$Html_Attributes$class('fa fa-linux'),
-																	_1: {ctor: '[]'}
-																},
-																{ctor: '[]'}),
-															_1: {ctor: '[]'}
-														}),
-													_1: {ctor: '[]'}
-												}
-											}
-										}
-									}),
-								_1: {ctor: '[]'}
-							}
-						}),
-					_1: {ctor: '[]'}
-				}
-			});
-	});
-var _concourse$atc$Dashboard$helpView = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$classList(
-				{
-					ctor: '::',
-					_0: {ctor: '_Tuple2', _0: 'keyboard-help', _1: true},
-					_1: {
-						ctor: '::',
-						_0: {ctor: '_Tuple2', _0: 'hidden', _1: !model.showHelp},
-						_1: {ctor: '[]'}
-					}
-				}),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$div,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('help-title'),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html$text('keyboard shortcuts'),
-					_1: {ctor: '[]'}
-				}),
-			_1: {
-				ctor: '::',
-				_0: A2(
-					_elm_lang$html$Html$div,
-					{
-						ctor: '::',
-						_0: _elm_lang$html$Html_Attributes$class('help-line'),
-						_1: {ctor: '[]'}
-					},
-					{
-						ctor: '::',
-						_0: A2(
-							_elm_lang$html$Html$div,
-							{
-								ctor: '::',
-								_0: _elm_lang$html$Html_Attributes$class('keys'),
-								_1: {ctor: '[]'}
-							},
-							{
-								ctor: '::',
-								_0: A2(
-									_elm_lang$html$Html$span,
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html_Attributes$class('key'),
-										_1: {ctor: '[]'}
-									},
-									{
-										ctor: '::',
-										_0: _elm_lang$html$Html$text('/'),
-										_1: {ctor: '[]'}
-									}),
-								_1: {ctor: '[]'}
-							}),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$html$Html$text('search'),
-							_1: {ctor: '[]'}
-						}
-					}),
-				_1: {
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('help-line'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('keys'),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$span,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$class('key'),
-											_1: {ctor: '[]'}
-										},
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html$text('?'),
-											_1: {ctor: '[]'}
-										}),
-									_1: {ctor: '[]'}
-								}),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$html$Html$text('hide/show help'),
-								_1: {ctor: '[]'}
-							}
-						}),
-					_1: {ctor: '[]'}
-				}
-			}
-		});
-};
-var _concourse$atc$Dashboard$noResultsView = function (query) {
-	var boldedQuery = A2(
-		_elm_lang$html$Html$span,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('monospace-bold'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html$text(query),
-			_1: {ctor: '[]'}
-		});
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('dashboard'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$div,
-				{
-					ctor: '::',
-					_0: _elm_lang$html$Html_Attributes$class('dashboard-content '),
-					_1: {ctor: '[]'}
-				},
-				{
-					ctor: '::',
-					_0: A2(
-						_elm_lang$html$Html$div,
-						{
-							ctor: '::',
-							_0: _elm_lang$html$Html_Attributes$class('dashboard-team-group'),
-							_1: {ctor: '[]'}
-						},
-						{
-							ctor: '::',
-							_0: A2(
-								_elm_lang$html$Html$div,
-								{
-									ctor: '::',
-									_0: _elm_lang$html$Html_Attributes$class('pin-wrapper'),
-									_1: {ctor: '[]'}
-								},
-								{
-									ctor: '::',
-									_0: A2(
-										_elm_lang$html$Html$div,
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html_Attributes$class('dashboard-team-name no-results'),
-											_1: {ctor: '[]'}
-										},
-										{
-											ctor: '::',
-											_0: _elm_lang$html$Html$text('No results for '),
-											_1: {
-												ctor: '::',
-												_0: boldedQuery,
-												_1: {
-													ctor: '::',
-													_0: _elm_lang$html$Html$text(' matched your search.'),
-													_1: {ctor: '[]'}
-												}
-											}
-										}),
-									_1: {ctor: '[]'}
-								}),
-							_1: {ctor: '[]'}
-						}),
-					_1: {ctor: '[]'}
-				}),
-			_1: {ctor: '[]'}
-		});
-};
-var _concourse$atc$Dashboard$shiftPipelineTo = F3(
-	function (_p13, position, pipelines) {
-		shiftPipelineTo:
-		while (true) {
-			var _p14 = _p13;
-			var _p19 = _p14;
-			var _p18 = _p14.pipeline;
-			var _p15 = pipelines;
-			if (_p15.ctor === '[]') {
-				return (_elm_lang$core$Native_Utils.cmp(position, 0) < 0) ? {ctor: '[]'} : {
-					ctor: '::',
-					_0: _p19,
-					_1: {ctor: '[]'}
-				};
-			} else {
-				var _p17 = _p15._1;
-				var _p16 = _p15._0;
-				if (!_elm_lang$core$Native_Utils.eq(_p16.pipeline.teamName, _p18.teamName)) {
-					return {
-						ctor: '::',
-						_0: _p16,
-						_1: A3(_concourse$atc$Dashboard$shiftPipelineTo, _p19, position, _p17)
-					};
-				} else {
-					if (_elm_lang$core$Native_Utils.eq(_p16.pipeline, _p18)) {
-						var _v3 = _p19,
-							_v4 = position - 1,
-							_v5 = _p17;
-						_p13 = _v3;
-						position = _v4;
-						pipelines = _v5;
-						continue shiftPipelineTo;
-					} else {
-						if (_elm_lang$core$Native_Utils.eq(position, 0)) {
-							return {
-								ctor: '::',
-								_0: _p19,
-								_1: {
-									ctor: '::',
-									_0: _p16,
-									_1: A3(_concourse$atc$Dashboard$shiftPipelineTo, _p19, position - 1, _p17)
-								}
-							};
-						} else {
-							return {
-								ctor: '::',
-								_0: _p16,
-								_1: A3(_concourse$atc$Dashboard$shiftPipelineTo, _p19, position - 1, _p17)
-							};
-						}
-					}
-				}
-			}
-		}
-	});
-var _concourse$atc$Dashboard$noop = function (model) {
-	return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-};
-var _concourse$atc$Dashboard$substateLens = A2(
-	_arturopala$elm_monocle$Monocle_Lens$Lens,
-	function (_p20) {
-		return _elm_lang$core$Result$toMaybe(
-			function (_) {
-				return _.state;
-			}(_p20));
-	},
-	F2(
-		function (mss, model) {
-			return A2(
-				_elm_lang$core$Maybe$withDefault,
-				model,
-				A2(
-					_elm_lang$core$Maybe$map,
-					function (ss) {
-						return _elm_lang$core$Native_Utils.update(
-							model,
-							{
-								state: _elm_lang$core$Result$Ok(ss)
-							});
-					},
-					mss));
-		}));
-var _concourse$atc$Dashboard$handle = F3(
-	function (onError, onSuccess, result) {
-		var _p21 = result;
-		if (_p21.ctor === 'Ok') {
-			return onSuccess;
-		} else {
-			return onError;
-		}
-	});
-var _concourse$atc$Dashboard$substateOptional = A2(
-	_arturopala$elm_monocle$Monocle_Optional$Optional,
-	function (_p22) {
-		return _elm_lang$core$Result$toMaybe(
-			function (_) {
-				return _.state;
-			}(_p22));
-	},
-	F2(
-		function (s, m) {
-			return _elm_lang$core$Native_Utils.update(
-				m,
-				{
-					state: _elm_lang$core$Result$Ok(s)
-				});
-		}));
-var _concourse$atc$Dashboard$stateLens = A2(
-	_arturopala$elm_monocle$Monocle_Lens$Lens,
-	function (_) {
-		return _.state;
-	},
-	F2(
-		function (b, a) {
-			return _elm_lang$core$Native_Utils.update(
-				a,
-				{state: b});
-		}));
-var _concourse$atc$Dashboard$pinTeamNames = _elm_lang$core$Native_Platform.outgoingPort(
-	'pinTeamNames',
-	function (v) {
-		return null;
-	});
-var _concourse$atc$Dashboard$tooltip = _elm_lang$core$Native_Platform.outgoingPort(
-	'tooltip',
-	function (v) {
-		return [v._0, v._1];
-	});
-var _concourse$atc$Dashboard$Ports = function (a) {
-	return {title: a};
-};
-var _concourse$atc$Dashboard$Flags = F3(
-	function (a, b, c) {
-		return {csrfToken: a, turbulencePath: b, search: c};
-	});
-var _concourse$atc$Dashboard$Model = F5(
-	function (a, b, c, d, e) {
-		return {csrfToken: a, state: b, topBar: c, turbulencePath: d, showHelp: e};
-	});
-var _concourse$atc$Dashboard$NoPipelines = {ctor: 'NoPipelines'};
-var _concourse$atc$Dashboard$substate = F2(
-	function (csrfToken, _p23) {
-		var _p24 = _p23;
-		var _p25 = _p24._1._0;
-		return A2(
-			_elm_lang$core$Result$fromMaybe,
-			_concourse$atc$Dashboard$NoPipelines,
-			A2(
-				_elm_lang$core$Maybe$map,
-				_elm_lang$core$Basics$always(
-					{
-						teamData: A2(_concourse$atc$Dashboard_SubState$teamData, _p25, _p24._1._1),
-						details: _elm_lang$core$Maybe$Just(
-							{now: _p24._0, dragState: _concourse$atc$Dashboard_Group$NotDragging, dropState: _concourse$atc$Dashboard_Group$NotDropping}),
-						hideFooter: false,
-						hideFooterCounter: 0,
-						csrfToken: csrfToken
-					}),
-				_elm_lang$core$List$head(_p25.pipelines)));
-	});
-var _concourse$atc$Dashboard$Turbulence = function (a) {
-	return {ctor: 'Turbulence', _0: a};
-};
-var _concourse$atc$Dashboard$NotAsked = {ctor: 'NotAsked'};
-var _concourse$atc$Dashboard$GroupMsg = function (a) {
-	return {ctor: 'GroupMsg', _0: a};
-};
-var _concourse$atc$Dashboard$pipelinesView = F3(
-	function (substate, showHelp, query) {
-		var filteredGroups = A2(
-			_concourse$atc$Dashboard$filter,
-			query,
-			_concourse$atc$Dashboard_Group$groups(
-				_concourse$atc$Dashboard_SubState$apiData(substate.teamData)));
-		var groupsToDisplay = A2(
-			_elm_lang$core$List$all,
-			_elm_lang$core$String$startsWith('team:'),
-			_concourse$atc$Dashboard$filterTerms(query)) ? filteredGroups : A2(
-			_elm_lang$core$List$filter,
-			function (_p26) {
-				return !_elm_lang$core$List$isEmpty(
-					function (_) {
-						return _.pipelines;
-					}(_p26));
-			},
-			filteredGroups);
-		var groupViews = function () {
-			var _p27 = substate.details;
-			if (_p27.ctor === 'Just') {
-				var _p29 = _p27._0;
-				var _p28 = substate.teamData;
-				if (_p28.ctor === 'Unauthenticated') {
-					return A2(
-						_elm_lang$core$List$map,
-						function (g) {
-							return A5(
-								_concourse$atc$Dashboard_Group$view,
-								_concourse$atc$Dashboard_Group$headerView(g),
-								_p29.dragState,
-								_p29.dropState,
-								_p29.now,
-								g);
-						},
-						groupsToDisplay);
-				} else {
-					return A2(
-						_elm_lang$core$List$map,
-						function (g) {
-							return A5(
-								_concourse$atc$Dashboard_Group$view,
-								_concourse$atc$Dashboard_GroupWithTag$headerView(g),
-								_p29.dragState,
-								_p29.dropState,
-								_p29.now,
-								g.group);
-						},
-						A2(_concourse$atc$Dashboard_GroupWithTag$addTagsAndSort, _p28._0.user, groupsToDisplay));
-				}
-			} else {
-				return {ctor: '[]'};
-			}
-		}();
-		return _elm_lang$core$List$isEmpty(groupViews) ? _concourse$atc$Dashboard$noResultsView(
-			_elm_lang$core$Basics$toString(query)) : A2(
-			_elm_lang$html$Html$div,
-			{
-				ctor: '::',
-				_0: _elm_lang$html$Html_Attributes$class('dashboard-content'),
-				_1: {ctor: '[]'}
-			},
-			A2(
-				_elm_lang$core$Basics_ops['++'],
-				A2(
-					_elm_lang$core$List$map,
-					_elm_lang$html$Html$map(_concourse$atc$Dashboard$GroupMsg),
-					groupViews),
-				{
-					ctor: '::',
-					_0: A2(_concourse$atc$Dashboard$footerView, substate, showHelp),
-					_1: {ctor: '[]'}
-				}));
-	});
-var _concourse$atc$Dashboard$PipelineMsg = function (a) {
-	return {ctor: 'PipelineMsg', _0: a};
-};
-var _concourse$atc$Dashboard$PipelinePauseToggled = F2(
-	function (a, b) {
-		return {ctor: 'PipelinePauseToggled', _0: a, _1: b};
-	});
-var _concourse$atc$Dashboard$togglePipelinePaused = F2(
-	function (pipeline, csrfToken) {
-		return A2(
-			_elm_lang$core$Task$attempt,
-			_concourse$atc$Dashboard$PipelinePauseToggled(pipeline),
-			pipeline.paused ? A3(_concourse$atc$Concourse_Pipeline$unpause, pipeline.teamName, pipeline.name, csrfToken) : A3(_concourse$atc$Concourse_Pipeline$pause, pipeline.teamName, pipeline.name, csrfToken));
-	});
-var _concourse$atc$Dashboard$TopBarMsg = function (a) {
-	return {ctor: 'TopBarMsg', _0: a};
-};
-var _concourse$atc$Dashboard$KeyDowns = function (a) {
-	return {ctor: 'KeyDowns', _0: a};
-};
-var _concourse$atc$Dashboard$KeyPressed = function (a) {
-	return {ctor: 'KeyPressed', _0: a};
-};
-var _concourse$atc$Dashboard$ShowFooter = {ctor: 'ShowFooter'};
-var _concourse$atc$Dashboard$AutoRefresh = function (a) {
-	return {ctor: 'AutoRefresh', _0: a};
-};
-var _concourse$atc$Dashboard$ClockTick = function (a) {
-	return {ctor: 'ClockTick', _0: a};
-};
-var _concourse$atc$Dashboard$subscriptions = function (model) {
-	return _elm_lang$core$Platform_Sub$batch(
-		{
-			ctor: '::',
-			_0: A2(_elm_lang$core$Time$every, _elm_lang$core$Time$second, _concourse$atc$Dashboard$ClockTick),
-			_1: {
-				ctor: '::',
-				_0: A2(_elm_lang$core$Time$every, 5 * _elm_lang$core$Time$second, _concourse$atc$Dashboard$AutoRefresh),
-				_1: {
-					ctor: '::',
-					_0: _elm_lang$mouse$Mouse$moves(
-						function (_p30) {
-							return _concourse$atc$Dashboard$ShowFooter;
-						}),
-					_1: {
-						ctor: '::',
-						_0: _elm_lang$mouse$Mouse$clicks(
-							function (_p31) {
-								return _concourse$atc$Dashboard$ShowFooter;
-							}),
-						_1: {
-							ctor: '::',
-							_0: _elm_lang$keyboard$Keyboard$presses(_concourse$atc$Dashboard$KeyPressed),
-							_1: {
-								ctor: '::',
-								_0: _elm_lang$keyboard$Keyboard$downs(_concourse$atc$Dashboard$KeyDowns),
-								_1: {ctor: '[]'}
-							}
-						}
-					}
-				}
-			}
-		});
-};
-var _concourse$atc$Dashboard$getCurrentTime = A2(_elm_lang$core$Task$perform, _concourse$atc$Dashboard$ClockTick, _elm_lang$core$Time$now);
-var _concourse$atc$Dashboard$APIDataFetched = function (a) {
-	return {ctor: 'APIDataFetched', _0: a};
-};
-var _concourse$atc$Dashboard$fetchData = A2(
-	_elm_lang$core$Platform_Cmd$map,
-	_concourse$atc$Dashboard$APIDataFetched,
-	_krisajenkins$remotedata$RemoteData$asCmd(
-		A3(
-			_elm_lang$core$Task$map2,
-			F2(
-				function (v0, v1) {
-					return {ctor: '_Tuple2', _0: v0, _1: v1};
-				}),
-			_elm_lang$core$Time$now,
-			A2(_elm_lang$core$Task$andThen, _concourse$atc$Dashboard$remoteUser, _concourse$atc$Dashboard_Group$remoteData))));
-var _concourse$atc$Dashboard$init = F2(
-	function (ports, flags) {
-		var _p32 = A2(_concourse$atc$NewTopBar$init, true, flags.search);
-		var topBar = _p32._0;
-		var topBarMsg = _p32._1;
-		return {
-			ctor: '_Tuple2',
-			_0: {
-				state: _elm_lang$core$Result$Err(_concourse$atc$Dashboard$NotAsked),
-				topBar: topBar,
-				csrfToken: flags.csrfToken,
-				turbulencePath: flags.turbulencePath,
-				showHelp: false
-			},
-			_1: _elm_lang$core$Platform_Cmd$batch(
-				{
-					ctor: '::',
-					_0: _concourse$atc$Dashboard$fetchData,
-					_1: {
-						ctor: '::',
-						_0: A2(_elm_lang$core$Platform_Cmd$map, _concourse$atc$Dashboard$TopBarMsg, topBarMsg),
-						_1: {
-							ctor: '::',
-							_0: _concourse$atc$Dashboard$pinTeamNames(
-								{ctor: '_Tuple0'}),
-							_1: {
-								ctor: '::',
-								_0: ports.title(
-									A2(_elm_lang$core$Basics_ops['++'], 'Dashboard', ' - ')),
-								_1: {ctor: '[]'}
-							}
-						}
-					}
-				})
-		};
-	});
-var _concourse$atc$Dashboard$Noop = {ctor: 'Noop'};
-var _concourse$atc$Dashboard$orderPipelines = F3(
-	function (teamName, pipelines, csrfToken) {
-		return A2(
-			_elm_lang$core$Task$attempt,
-			_elm_lang$core$Basics$always(_concourse$atc$Dashboard$Noop),
-			A3(
-				_concourse$atc$Concourse_Pipeline$order,
-				teamName,
-				A2(
-					_elm_lang$core$List$map,
-					function (_p33) {
-						return function (_) {
-							return _.name;
-						}(
-							function (_) {
-								return _.pipeline;
-							}(_p33));
-					},
-					pipelines),
-				csrfToken));
-	});
-var _concourse$atc$Dashboard$dashboardView = function (model) {
-	var mainContent = function () {
-		var _p34 = model.state;
-		if (_p34.ctor === 'Err') {
-			switch (_p34._0.ctor) {
-				case 'NotAsked':
-					return _elm_lang$html$Html$text('');
-				case 'Turbulence':
-					return _concourse$atc$Dashboard$turbulenceView(_p34._0._0);
-				default:
-					return A2(
-						_elm_lang$html$Html$map,
-						_elm_lang$core$Basics$always(_concourse$atc$Dashboard$Noop),
-						_concourse$atc$NoPipeline$view);
-			}
-		} else {
-			return A3(_concourse$atc$Dashboard$pipelinesView, _p34._0, model.showHelp, model.topBar.query);
-		}
-	}();
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('dashboard'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: mainContent,
-			_1: {
-				ctor: '::',
-				_0: _concourse$atc$Dashboard$helpView(model),
-				_1: {ctor: '[]'}
-			}
-		});
-};
-var _concourse$atc$Dashboard$view = function (model) {
-	return A2(
-		_elm_lang$html$Html$div,
-		{
-			ctor: '::',
-			_0: _elm_lang$html$Html_Attributes$class('page'),
-			_1: {ctor: '[]'}
-		},
-		{
-			ctor: '::',
-			_0: A2(
-				_elm_lang$html$Html$map,
-				_concourse$atc$Dashboard$TopBarMsg,
-				_concourse$atc$NewTopBar$view(model.topBar)),
-			_1: {
-				ctor: '::',
-				_0: _concourse$atc$Dashboard$dashboardView(model),
-				_1: {ctor: '[]'}
-			}
-		});
-};
-var _concourse$atc$Dashboard$handleKeyPressed = F2(
-	function (key, model) {
-		var _p35 = key;
-		switch (_p35.valueOf()) {
-			case '/':
-				return {
-					ctor: '_Tuple2',
-					_0: model,
-					_1: A2(
-						_elm_lang$core$Task$attempt,
-						_elm_lang$core$Basics$always(_concourse$atc$Dashboard$Noop),
-						_elm_lang$dom$Dom$focus('search-input-field'))
-				};
-			case '?':
-				return {
-					ctor: '_Tuple2',
-					_0: _elm_lang$core$Native_Utils.update(
-						model,
-						{showHelp: !model.showHelp}),
-					_1: _elm_lang$core$Platform_Cmd$none
-				};
-			default:
-				return A2(_concourse$atc$Dashboard$update, _concourse$atc$Dashboard$ShowFooter, model);
-		}
-	});
-var _concourse$atc$Dashboard$update = F2(
-	function (msg, model) {
-		update:
-		while (true) {
-			var reload = _elm_lang$core$Platform_Cmd$batch(
-				A2(
-					_elm_lang$core$Basics_ops['++'],
-					A3(
-						_concourse$atc$Dashboard$handle,
-						{ctor: '[]'},
-						{
-							ctor: '::',
-							_0: _concourse$atc$Dashboard$fetchData,
-							_1: {ctor: '[]'}
-						},
-						model.state),
-					{
-						ctor: '::',
-						_0: A2(_elm_lang$core$Platform_Cmd$map, _concourse$atc$Dashboard$TopBarMsg, _concourse$atc$NewTopBar$fetchUser),
-						_1: {ctor: '[]'}
-					}));
-			var _p36 = msg;
-			switch (_p36.ctor) {
-				case 'Noop':
-					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-				case 'APIDataFetched':
-					return _concourse$atc$Dashboard$noop(
-						A2(
-							_concourse$atc$Dashboard$stateLens.set,
-							function () {
-								var _p37 = _p36._0;
-								switch (_p37.ctor) {
-									case 'NotAsked':
-										return _elm_lang$core$Result$Err(_concourse$atc$Dashboard$NotAsked);
-									case 'Loading':
-										return _elm_lang$core$Result$Err(_concourse$atc$Dashboard$NotAsked);
-									case 'Failure':
-										return _elm_lang$core$Result$Err(
-											_concourse$atc$Dashboard$Turbulence(model.turbulencePath));
-									default:
-										return A2(
-											_concourse$atc$Dashboard$substate,
-											model.csrfToken,
-											{
-												ctor: '_Tuple2',
-												_0: _p37._0._0,
-												_1: {ctor: '_Tuple2', _0: _p37._0._1._0, _1: _p37._0._1._1}
-											});
-								}
-							}(),
-							model));
-				case 'ClockTick':
-					return _concourse$atc$Dashboard$noop(
-						A3(
-							_arturopala$elm_monocle$Monocle_Optional$modify,
-							_concourse$atc$Dashboard$substateOptional,
-							_concourse$atc$Dashboard_SubState$tick(_p36._0),
-							model));
-				case 'AutoRefresh':
-					return {ctor: '_Tuple2', _0: model, _1: reload};
-				case 'KeyPressed':
-					return A2(
-						_concourse$atc$Dashboard$handleKeyPressed,
-						_elm_lang$core$Char$fromCode(_p36._0),
-						model);
-				case 'KeyDowns':
-					var _v14 = _concourse$atc$Dashboard$TopBarMsg(
-						_concourse$atc$NewTopBar$KeyDown(_p36._0)),
-						_v15 = model;
-					msg = _v14;
-					model = _v15;
-					continue update;
-				case 'ShowFooter':
-					return _concourse$atc$Dashboard$noop(
-						A3(_arturopala$elm_monocle$Monocle_Optional$modify, _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$showFooter, model));
-				case 'TopBarMsg':
-					var _p40 = _p36._0;
-					var _p38 = A2(_concourse$atc$NewTopBar$update, _p40, model.topBar);
-					var newTopBar = _p38._0;
-					var newTopBarMsg = _p38._1;
-					var newMsg = function () {
-						var _p39 = _p40;
-						if ((_p39.ctor === 'LoggedOut') && (_p39._0.ctor === 'Ok')) {
-							return reload;
-						} else {
-							return A2(_elm_lang$core$Platform_Cmd$map, _concourse$atc$Dashboard$TopBarMsg, newTopBarMsg);
-						}
-					}();
-					return {
-						ctor: '_Tuple2',
-						_0: _elm_lang$core$Native_Utils.update(
-							model,
-							{topBar: newTopBar}),
-						_1: newMsg
-					};
-				case 'PipelinePauseToggled':
-					if (_p36._1.ctor === 'Ok') {
-						var togglePipelinePause = function (pipelines) {
-							return A3(
-								_elm_community$list_extra$List_Extra$updateIf,
-								F2(
-									function (x, y) {
-										return _elm_lang$core$Native_Utils.eq(x, y);
-									})(_p36._0),
-								function (pipeline) {
-									return _elm_lang$core$Native_Utils.update(
-										pipeline,
-										{paused: !pipeline.paused});
-								},
-								pipelines);
-						};
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					} else {
-						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
-					}
-				case 'PipelineMsg':
-					if (_p36._0.ctor === 'TogglePipelinePaused') {
-						return {
-							ctor: '_Tuple2',
-							_0: model,
-							_1: A2(_concourse$atc$Dashboard$togglePipelinePaused, _p36._0._0, model.csrfToken)
-						};
-					} else {
-						return {
-							ctor: '_Tuple2',
-							_0: model,
-							_1: _concourse$atc$Dashboard$tooltip(
-								{ctor: '_Tuple2', _0: _p36._0._0, _1: _p36._0._1})
-						};
-					}
-				default:
-					switch (_p36._0.ctor) {
-						case 'DragStart':
-							return _concourse$atc$Dashboard$noop(
-								A3(
-									_arturopala$elm_monocle$Monocle_Optional$modify,
-									A2(_arturopala$elm_monocle$Monocle_Common_ops['=>'], _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$detailsOptional),
-									function (_) {
-										return _.set;
-									}(_concourse$atc$Dashboard_Details$dragStateLens)(
-										A2(_concourse$atc$Dashboard_Group$Dragging, _p36._0._0, _p36._0._1)),
-									model));
-						case 'DragOver':
-							return _concourse$atc$Dashboard$noop(
-								A3(
-									_arturopala$elm_monocle$Monocle_Optional$modify,
-									A2(_arturopala$elm_monocle$Monocle_Common_ops['=>'], _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$detailsOptional),
-									function (_) {
-										return _.set;
-									}(_concourse$atc$Dashboard_Details$dropStateLens)(
-										_concourse$atc$Dashboard_Group$Dropping(_p36._0._1)),
-									model));
-						case 'PipelineMsg':
-							return A3(
-								_elm_lang$core$Basics$flip,
-								_concourse$atc$Dashboard$update,
-								model,
-								_concourse$atc$Dashboard$PipelineMsg(_p36._0._0));
-						default:
-							var groupOptional = A2(
-								_concourse$atc$MonocleHelpers_ops['>>='],
-								A2(
-									_arturopala$elm_monocle$Monocle_Common_ops['=>'],
-									A2(
-										_concourse$atc$MonocleHelpers_ops['=|>'],
-										A2(_arturopala$elm_monocle$Monocle_Common_ops['=>'], _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$detailsOptional),
-										_concourse$atc$Dashboard_Details$dragStateLens),
-									_concourse$atc$Dashboard_Group$teamNameOptional),
-								function (teamName) {
-									return A2(
-										_arturopala$elm_monocle$Monocle_Common_ops['=>'],
-										A2(
-											_concourse$atc$MonocleHelpers_ops['=|>'],
-											A2(
-												_concourse$atc$MonocleHelpers_ops['=|>'],
-												A2(_concourse$atc$MonocleHelpers_ops['=|>'], _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$teamDataLens),
-												_concourse$atc$Dashboard_SubState$apiDataLens),
-											_concourse$atc$Dashboard_Group$groupsLens),
-										_concourse$atc$Dashboard_Group$findGroupOptional(teamName));
-								});
-							var dragDropOptional = A2(
-								_arturopala$elm_monocle$Monocle_Common_ops['=>'],
-								A2(_arturopala$elm_monocle$Monocle_Common_ops['=>'], _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$detailsOptional),
-								A2(
-									_arturopala$elm_monocle$Monocle_Optional$tuple,
-									A2(_concourse$atc$MonocleHelpers_ops['<|='], _concourse$atc$Dashboard_Details$dragStateLens, _concourse$atc$Dashboard_Group$dragIndexOptional),
-									A2(_concourse$atc$MonocleHelpers_ops['<|='], _concourse$atc$Dashboard_Details$dropStateLens, _concourse$atc$Dashboard_Group$dropIndexOptional)));
-							var updatePipelines = F2(
-								function (_p41, group) {
-									var _p42 = _p41;
-									var newGroup = A3(_concourse$atc$Dashboard_Group$shiftPipelines, _p42._0, _p42._1, group);
-									return {
-										ctor: '_Tuple2',
-										_0: newGroup,
-										_1: A3(_concourse$atc$Dashboard$orderPipelines, newGroup.teamName, newGroup.pipelines, model.csrfToken)
-									};
-								});
-							return A3(
-								_concourse$atc$MonocleHelpers$modifyWithEffect,
-								groupOptional,
-								function (g) {
-									return A2(
-										_elm_lang$core$Maybe$withDefault,
-										{ctor: '_Tuple2', _0: g, _1: _elm_lang$core$Platform_Cmd$none},
-										A2(
-											_elm_lang$core$Maybe$map,
-											function (t) {
-												return A2(updatePipelines, t, g);
-											},
-											dragDropOptional.getOption(model)));
-								},
-								model);
-					}
-			}
-		}
-	});
-
-var _concourse$atc$DashboardHelpers$resourceErrorsByPipelineIdentifier = function (resources) {
-	return A3(
-		_elm_lang$core$List$foldl,
-		F2(
-			function (resource, byPipelineId) {
-				var resourceCheckError = !_elm_lang$core$String$isEmpty(resource.checkError);
-				var pipelineIdentifier = {ctor: '_Tuple2', _0: resource.teamName, _1: resource.pipelineName};
-				var resourceError = function () {
-					var _p0 = A2(_elm_lang$core$Dict$get, pipelineIdentifier, byPipelineId);
-					if (_p0.ctor === 'Nothing') {
-						return resourceCheckError;
-					} else {
-						return _p0._0 || resourceCheckError;
-					}
-				}();
-				return A3(_elm_lang$core$Dict$insert, pipelineIdentifier, resourceError, byPipelineId);
-			}),
-		_elm_lang$core$Dict$empty,
-		resources);
-};
-var _concourse$atc$DashboardHelpers$classifyJob = F3(
-	function (job, pipelines, pipelineJobs) {
-		var pipelineIdentifier = {ctor: '_Tuple2', _0: job.teamName, _1: job.pipelineName};
-		var mPipeline = A2(_elm_lang$core$Dict$get, pipelineIdentifier, pipelines);
-		var _p1 = mPipeline;
-		if (_p1.ctor === 'Nothing') {
-			return pipelineJobs;
-		} else {
-			var _p2 = _p1._0;
-			var jobs = A2(
-				_elm_lang$core$Maybe$withDefault,
-				{ctor: '[]'},
-				A2(_elm_lang$core$Dict$get, _p2.id, pipelineJobs));
-			return A3(
-				_elm_lang$core$Dict$insert,
-				_p2.id,
-				{ctor: '::', _0: job, _1: jobs},
-				pipelineJobs);
-		}
-	});
-var _concourse$atc$DashboardHelpers$jobsByPipelineId = F2(
-	function (pipelines, jobs) {
-		var pipelinesByIdentifier = A3(
-			_elm_lang$core$List$foldl,
-			F2(
-				function (pipeline, byIdentifier) {
-					return A3(
-						_elm_lang$core$Dict$insert,
-						{ctor: '_Tuple2', _0: pipeline.teamName, _1: pipeline.name},
-						pipeline,
-						byIdentifier);
-				}),
-			_elm_lang$core$Dict$empty,
-			pipelines);
-		return A3(
-			_elm_lang$core$List$foldl,
-			F2(
-				function (job, byPipelineId) {
-					return A3(_concourse$atc$DashboardHelpers$classifyJob, job, pipelinesByIdentifier, byPipelineId);
-				}),
-			_elm_lang$core$Dict$empty,
-			jobs);
-	});
-var _concourse$atc$DashboardHelpers$groupPipelines = F2(
-	function (pipelines, _p3) {
-		var _p4 = _p3;
-		var _p9 = _p4._0;
-		var _p8 = _p4._1;
-		var _p5 = pipelines;
-		if (_p5.ctor === '[]') {
-			return {
-				ctor: '::',
-				_0: {
-					ctor: '_Tuple2',
-					_0: _p9,
-					_1: {
-						ctor: '::',
-						_0: _p8,
-						_1: {ctor: '[]'}
-					}
-				},
-				_1: {ctor: '[]'}
-			};
-		} else {
-			var _p7 = _p5._1;
-			var _p6 = _p5._0;
-			return _elm_lang$core$Native_Utils.eq(
-				_elm_lang$core$Tuple$first(_p6),
-				_p9) ? {
-				ctor: '::',
-				_0: {
-					ctor: '_Tuple2',
-					_0: _p9,
-					_1: {
-						ctor: '::',
-						_0: _p8,
-						_1: _elm_lang$core$Tuple$second(_p6)
-					}
-				},
-				_1: _p7
-			} : {
-				ctor: '::',
-				_0: _p6,
-				_1: A2(
-					_concourse$atc$DashboardHelpers$groupPipelines,
-					_p7,
-					{ctor: '_Tuple2', _0: _p9, _1: _p8})
-			};
-		}
-	});
-var _concourse$atc$DashboardHelpers$pipelinesWithJobs = F3(
-	function (pipelineJobs, pipelineResourceErrors, pipelines) {
-		return A2(
-			_elm_lang$core$List$map,
-			function (pipeline) {
-				return {
-					pipeline: pipeline,
-					jobs: A2(
-						_elm_lang$core$Maybe$withDefault,
-						{ctor: '[]'},
-						A2(_elm_lang$core$Dict$get, pipeline.id, pipelineJobs)),
-					resourceError: A2(
-						_elm_lang$core$Maybe$withDefault,
-						false,
-						A2(
-							_elm_lang$core$Dict$get,
-							{ctor: '_Tuple2', _0: pipeline.teamName, _1: pipeline.name},
-							pipelineResourceErrors))
-				};
-			},
-			pipelines);
-	});
-
 var _concourse$atc$DashboardHd$pipelineNotSetView = A2(
 	_elm_lang$html$Html$div,
 	{
@@ -32785,6 +31610,1615 @@ var _concourse$atc$DashboardHd$view = function (model) {
 			}
 		});
 };
+
+var _concourse$atc$Dashboard$fuzzySearch = F3(
+	function (map, needle, records) {
+		var negateSearch = A2(_elm_lang$core$String$startsWith, '-', needle);
+		return negateSearch ? A2(
+			_elm_lang$core$List$filter,
+			function (_p0) {
+				return !A2(
+					_NoRedInk$elm_simple_fuzzy$Simple_Fuzzy$match,
+					needle,
+					map(_p0));
+			},
+			records) : A2(
+			_elm_lang$core$List$filter,
+			function (_p1) {
+				return A2(
+					_NoRedInk$elm_simple_fuzzy$Simple_Fuzzy$match,
+					needle,
+					map(_p1));
+			},
+			records);
+	});
+var _concourse$atc$Dashboard$filterPipelinesByTerm = F2(
+	function (term, _p2) {
+		var _p3 = _p2;
+		var _p6 = _p3.pipelines;
+		var searchStatus = A2(_elm_lang$core$String$startsWith, 'status:', term);
+		var statusSearchTerm = searchStatus ? A2(_elm_lang$core$String$dropLeft, 7, term) : term;
+		var filterByStatus = A3(
+			_concourse$atc$Dashboard$fuzzySearch,
+			function (_p4) {
+				return _concourse$atc$Concourse_PipelineStatus$show(
+					_concourse$atc$Dashboard_Pipeline$pipelineStatus(_p4));
+			},
+			statusSearchTerm,
+			_p6);
+		return _elm_lang$core$Native_Utils.update(
+			_p3,
+			{
+				pipelines: searchStatus ? filterByStatus : A3(
+					_concourse$atc$Dashboard$fuzzySearch,
+					function (_p5) {
+						return function (_) {
+							return _.name;
+						}(
+							function (_) {
+								return _.pipeline;
+							}(_p5));
+					},
+					term,
+					_p6)
+			});
+	});
+var _concourse$atc$Dashboard$filterGroupsByTerm = F2(
+	function (term, groups) {
+		var searchTeams = A2(_elm_lang$core$String$startsWith, 'team:', term);
+		var teamSearchTerm = searchTeams ? A2(_elm_lang$core$String$dropLeft, 5, term) : term;
+		return searchTeams ? A3(
+			_concourse$atc$Dashboard$fuzzySearch,
+			function (_) {
+				return _.teamName;
+			},
+			teamSearchTerm,
+			groups) : A2(
+			_elm_lang$core$List$map,
+			_concourse$atc$Dashboard$filterPipelinesByTerm(term),
+			groups);
+	});
+var _concourse$atc$Dashboard$filterTerms = function (_p7) {
+	return A2(
+		_elm_lang$core$List$filter,
+		function (_p8) {
+			return !_elm_lang$core$String$isEmpty(_p8);
+		},
+		_elm_lang$core$String$words(
+			A4(
+				_elm_lang$core$Regex$replace,
+				_elm_lang$core$Regex$All,
+				_elm_lang$core$Regex$regex('status:\\s*'),
+				function (_p9) {
+					return 'status:';
+				},
+				A4(
+					_elm_lang$core$Regex$replace,
+					_elm_lang$core$Regex$All,
+					_elm_lang$core$Regex$regex('team:\\s*'),
+					function (_p10) {
+						return 'team:';
+					},
+					_p7))));
+};
+var _concourse$atc$Dashboard$filter = function (_p11) {
+	return A2(
+		_elm_lang$core$Basics$flip,
+		_elm_lang$core$List$foldl(_concourse$atc$Dashboard$filterGroupsByTerm),
+		_concourse$atc$Dashboard$filterTerms(_p11));
+};
+var _concourse$atc$Dashboard$remoteUser = function (d) {
+	return A2(
+		_elm_lang$core$Task$onError,
+		_elm_lang$core$Basics$always(
+			_elm_lang$core$Task$succeed(
+				{ctor: '_Tuple2', _0: d, _1: _elm_lang$core$Maybe$Nothing})),
+		A2(
+			_elm_lang$core$Task$map,
+			function (_p12) {
+				return A2(
+					F2(
+						function (v0, v1) {
+							return {ctor: '_Tuple2', _0: v0, _1: v1};
+						}),
+					d,
+					_elm_lang$core$Maybe$Just(_p12));
+			},
+			_concourse$atc$Concourse_User$fetchUser));
+};
+var _concourse$atc$Dashboard$turbulenceView = function (path) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('error-message'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('message'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$img,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$src(path),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('seatbelt'),
+								_1: {ctor: '[]'}
+							}
+						},
+						{ctor: '[]'}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$p,
+							{ctor: '[]'},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('experiencing turbulence'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$p,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('explanation'),
+									_1: {ctor: '[]'}
+								},
+								{ctor: '[]'}),
+							_1: {ctor: '[]'}
+						}
+					}
+				}),
+			_1: {ctor: '[]'}
+		});
+};
+var _concourse$atc$Dashboard$toggleView = function (highDensity) {
+	var route = highDensity ? _concourse$atc$Routes$dashboardRoute : _concourse$atc$Routes$dashboardHdRoute;
+	var hdClass = highDensity ? 'hd-on' : 'hd-off';
+	return A2(
+		_elm_lang$html$Html$a,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('toggle-high-density'),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$href(route),
+				_1: {
+					ctor: '::',
+					_0: _fapian$elm_html_aria$Html_Attributes_Aria$ariaLabel('Toggle high-density view'),
+					_1: {ctor: '[]'}
+				}
+			}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class(
+						A2(_elm_lang$core$Basics_ops['++'], 'dashboard-pipeline-icon ', hdClass)),
+					_1: {ctor: '[]'}
+				},
+				{ctor: '[]'}),
+			_1: {
+				ctor: '::',
+				_0: _elm_lang$html$Html$text('high-density'),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _concourse$atc$Dashboard$footerView = function (substate) {
+	var showHelp = A2(
+		_elm_lang$core$Maybe$withDefault,
+		false,
+		A2(
+			_elm_lang$core$Maybe$map,
+			function (_) {
+				return _.showHelp;
+			},
+			substate.details));
+	return A2(
+		_elm_lang$html$Html$div,
+		{ctor: '[]'},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: (substate.hideFooter || showHelp) ? _elm_lang$html$Html_Attributes$class('dashboard-footer hidden') : _elm_lang$html$Html_Attributes$class('dashboard-footer'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('dashboard-legend'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('dashboard-status-pending'),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$div,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-icon'),
+											_1: {ctor: '[]'}
+										},
+										{ctor: '[]'}),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('pending'),
+										_1: {ctor: '[]'}
+									}
+								}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$div,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class('dashboard-paused'),
+										_1: {ctor: '[]'}
+									},
+									{
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$div,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-icon'),
+												_1: {ctor: '[]'}
+											},
+											{ctor: '[]'}),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('paused'),
+											_1: {ctor: '[]'}
+										}
+									}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$div,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('dashboard-running'),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$div,
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-icon'),
+													_1: {ctor: '[]'}
+												},
+												{ctor: '[]'}),
+											_1: {
+												ctor: '::',
+												_0: _elm_lang$html$Html$text('running'),
+												_1: {ctor: '[]'}
+											}
+										}),
+									_1: {
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$div,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$class('dashboard-status-failed'),
+												_1: {ctor: '[]'}
+											},
+											{
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$div,
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-icon'),
+														_1: {ctor: '[]'}
+													},
+													{ctor: '[]'}),
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html$text('failing'),
+													_1: {ctor: '[]'}
+												}
+											}),
+										_1: {
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$div,
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$class('dashboard-status-errored'),
+													_1: {ctor: '[]'}
+												},
+												{
+													ctor: '::',
+													_0: A2(
+														_elm_lang$html$Html$div,
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-icon'),
+															_1: {ctor: '[]'}
+														},
+														{ctor: '[]'}),
+													_1: {
+														ctor: '::',
+														_0: _elm_lang$html$Html$text('errored'),
+														_1: {ctor: '[]'}
+													}
+												}),
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$div,
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$class('dashboard-status-aborted'),
+														_1: {ctor: '[]'}
+													},
+													{
+														ctor: '::',
+														_0: A2(
+															_elm_lang$html$Html$div,
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-icon'),
+																_1: {ctor: '[]'}
+															},
+															{ctor: '[]'}),
+														_1: {
+															ctor: '::',
+															_0: _elm_lang$html$Html$text('aborted'),
+															_1: {ctor: '[]'}
+														}
+													}),
+												_1: {
+													ctor: '::',
+													_0: A2(
+														_elm_lang$html$Html$div,
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html_Attributes$class('dashboard-status-succeeded'),
+															_1: {ctor: '[]'}
+														},
+														{
+															ctor: '::',
+															_0: A2(
+																_elm_lang$html$Html$div,
+																{
+																	ctor: '::',
+																	_0: _elm_lang$html$Html_Attributes$class('dashboard-pipeline-icon'),
+																	_1: {ctor: '[]'}
+																},
+																{ctor: '[]'}),
+															_1: {
+																ctor: '::',
+																_0: _elm_lang$html$Html$text('succeeded'),
+																_1: {ctor: '[]'}
+															}
+														}),
+													_1: {
+														ctor: '::',
+														_0: A2(
+															_elm_lang$html$Html$div,
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html_Attributes$class('dashboard-status-separator'),
+																_1: {ctor: '[]'}
+															},
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html$text('|'),
+																_1: {ctor: '[]'}
+															}),
+														_1: {
+															ctor: '::',
+															_0: A2(
+																_elm_lang$html$Html$div,
+																{
+																	ctor: '::',
+																	_0: _elm_lang$html$Html_Attributes$class('dashboard-high-density'),
+																	_1: {ctor: '[]'}
+																},
+																{
+																	ctor: '::',
+																	_0: _concourse$atc$Dashboard$toggleView(
+																		!_elm_community$maybe_extra$Maybe_Extra$isJust(substate.details)),
+																	_1: {ctor: '[]'}
+																}),
+															_1: {ctor: '[]'}
+														}
+													}
+												}
+											}
+										}
+									}
+								}
+							}
+						}),
+					_1: {
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('concourse-info'),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$div,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class('concourse-version'),
+										_1: {ctor: '[]'}
+									},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('version: v'),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html$text(
+												function (_) {
+													return _.version;
+												}(
+													_concourse$atc$Dashboard_SubState$apiData(substate.teamData))),
+											_1: {ctor: '[]'}
+										}
+									}),
+								_1: {
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$div,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('concourse-cli'),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('cli: '),
+											_1: {
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$a,
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$href(
+															A2(_concourse$atc$Concourse_Cli$downloadUrl, 'amd64', 'darwin')),
+														_1: {
+															ctor: '::',
+															_0: _fapian$elm_html_aria$Html_Attributes_Aria$ariaLabel('Download OS X CLI'),
+															_1: {ctor: '[]'}
+														}
+													},
+													{
+														ctor: '::',
+														_0: A2(
+															_elm_lang$html$Html$i,
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html_Attributes$class('fa fa-apple'),
+																_1: {ctor: '[]'}
+															},
+															{ctor: '[]'}),
+														_1: {ctor: '[]'}
+													}),
+												_1: {
+													ctor: '::',
+													_0: A2(
+														_elm_lang$html$Html$a,
+														{
+															ctor: '::',
+															_0: _elm_lang$html$Html_Attributes$href(
+																A2(_concourse$atc$Concourse_Cli$downloadUrl, 'amd64', 'windows')),
+															_1: {
+																ctor: '::',
+																_0: _fapian$elm_html_aria$Html_Attributes_Aria$ariaLabel('Download Windows CLI'),
+																_1: {ctor: '[]'}
+															}
+														},
+														{
+															ctor: '::',
+															_0: A2(
+																_elm_lang$html$Html$i,
+																{
+																	ctor: '::',
+																	_0: _elm_lang$html$Html_Attributes$class('fa fa-windows'),
+																	_1: {ctor: '[]'}
+																},
+																{ctor: '[]'}),
+															_1: {ctor: '[]'}
+														}),
+													_1: {
+														ctor: '::',
+														_0: A2(
+															_elm_lang$html$Html$a,
+															{
+																ctor: '::',
+																_0: _elm_lang$html$Html_Attributes$href(
+																	A2(_concourse$atc$Concourse_Cli$downloadUrl, 'amd64', 'linux')),
+																_1: {
+																	ctor: '::',
+																	_0: _fapian$elm_html_aria$Html_Attributes_Aria$ariaLabel('Download Linux CLI'),
+																	_1: {ctor: '[]'}
+																}
+															},
+															{
+																ctor: '::',
+																_0: A2(
+																	_elm_lang$html$Html$i,
+																	{
+																		ctor: '::',
+																		_0: _elm_lang$html$Html_Attributes$class('fa fa-linux'),
+																		_1: {ctor: '[]'}
+																	},
+																	{ctor: '[]'}),
+																_1: {ctor: '[]'}
+															}),
+														_1: {ctor: '[]'}
+													}
+												}
+											}
+										}),
+									_1: {ctor: '[]'}
+								}
+							}),
+						_1: {ctor: '[]'}
+					}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$classList(
+							{
+								ctor: '::',
+								_0: {ctor: '_Tuple2', _0: 'keyboard-help', _1: true},
+								_1: {
+									ctor: '::',
+									_0: {ctor: '_Tuple2', _0: 'hidden', _1: !showHelp},
+									_1: {ctor: '[]'}
+								}
+							}),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('help-title'),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('keyboard shortcuts'),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('help-line'),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$div,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('keys'),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: A2(
+												_elm_lang$html$Html$span,
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html_Attributes$class('key'),
+													_1: {ctor: '[]'}
+												},
+												{
+													ctor: '::',
+													_0: _elm_lang$html$Html$text('/'),
+													_1: {ctor: '[]'}
+												}),
+											_1: {ctor: '[]'}
+										}),
+									_1: {
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('search'),
+										_1: {ctor: '[]'}
+									}
+								}),
+							_1: {
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$div,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class('help-line'),
+										_1: {ctor: '[]'}
+									},
+									{
+										ctor: '::',
+										_0: A2(
+											_elm_lang$html$Html$div,
+											{
+												ctor: '::',
+												_0: _elm_lang$html$Html_Attributes$class('keys'),
+												_1: {ctor: '[]'}
+											},
+											{
+												ctor: '::',
+												_0: A2(
+													_elm_lang$html$Html$span,
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html_Attributes$class('key'),
+														_1: {ctor: '[]'}
+													},
+													{
+														ctor: '::',
+														_0: _elm_lang$html$Html$text('?'),
+														_1: {ctor: '[]'}
+													}),
+												_1: {ctor: '[]'}
+											}),
+										_1: {
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('hide/show help'),
+											_1: {ctor: '[]'}
+										}
+									}),
+								_1: {ctor: '[]'}
+							}
+						}
+					}),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _concourse$atc$Dashboard$helpView = function (details) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$classList(
+				{
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: 'keyboard-help', _1: true},
+					_1: {
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'hidden', _1: !details.showHelp},
+						_1: {ctor: '[]'}
+					}
+				}),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('help-title'),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html$text('keyboard shortcuts'),
+					_1: {ctor: '[]'}
+				}),
+			_1: {
+				ctor: '::',
+				_0: A2(
+					_elm_lang$html$Html$div,
+					{
+						ctor: '::',
+						_0: _elm_lang$html$Html_Attributes$class('help-line'),
+						_1: {ctor: '[]'}
+					},
+					{
+						ctor: '::',
+						_0: A2(
+							_elm_lang$html$Html$div,
+							{
+								ctor: '::',
+								_0: _elm_lang$html$Html_Attributes$class('keys'),
+								_1: {ctor: '[]'}
+							},
+							{
+								ctor: '::',
+								_0: A2(
+									_elm_lang$html$Html$span,
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html_Attributes$class('key'),
+										_1: {ctor: '[]'}
+									},
+									{
+										ctor: '::',
+										_0: _elm_lang$html$Html$text('/'),
+										_1: {ctor: '[]'}
+									}),
+								_1: {ctor: '[]'}
+							}),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$html$Html$text('search'),
+							_1: {ctor: '[]'}
+						}
+					}),
+				_1: {
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('help-line'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('keys'),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$span,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('key'),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('?'),
+											_1: {ctor: '[]'}
+										}),
+									_1: {ctor: '[]'}
+								}),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$html$Html$text('hide/show help'),
+								_1: {ctor: '[]'}
+							}
+						}),
+					_1: {ctor: '[]'}
+				}
+			}
+		});
+};
+var _concourse$atc$Dashboard$noResultsView = function (query) {
+	var boldedQuery = A2(
+		_elm_lang$html$Html$span,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('monospace-bold'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html$text(query),
+			_1: {ctor: '[]'}
+		});
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('dashboard'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$div,
+				{
+					ctor: '::',
+					_0: _elm_lang$html$Html_Attributes$class('dashboard-content '),
+					_1: {ctor: '[]'}
+				},
+				{
+					ctor: '::',
+					_0: A2(
+						_elm_lang$html$Html$div,
+						{
+							ctor: '::',
+							_0: _elm_lang$html$Html_Attributes$class('dashboard-team-group'),
+							_1: {ctor: '[]'}
+						},
+						{
+							ctor: '::',
+							_0: A2(
+								_elm_lang$html$Html$div,
+								{
+									ctor: '::',
+									_0: _elm_lang$html$Html_Attributes$class('pin-wrapper'),
+									_1: {ctor: '[]'}
+								},
+								{
+									ctor: '::',
+									_0: A2(
+										_elm_lang$html$Html$div,
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html_Attributes$class('dashboard-team-name no-results'),
+											_1: {ctor: '[]'}
+										},
+										{
+											ctor: '::',
+											_0: _elm_lang$html$Html$text('No results for '),
+											_1: {
+												ctor: '::',
+												_0: boldedQuery,
+												_1: {
+													ctor: '::',
+													_0: _elm_lang$html$Html$text(' matched your search.'),
+													_1: {ctor: '[]'}
+												}
+											}
+										}),
+									_1: {ctor: '[]'}
+								}),
+							_1: {ctor: '[]'}
+						}),
+					_1: {ctor: '[]'}
+				}),
+			_1: {ctor: '[]'}
+		});
+};
+var _concourse$atc$Dashboard$noop = function (model) {
+	return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+};
+var _concourse$atc$Dashboard$substateLens = A2(
+	_arturopala$elm_monocle$Monocle_Lens$Lens,
+	function (_p13) {
+		return _elm_lang$core$Result$toMaybe(
+			function (_) {
+				return _.state;
+			}(_p13));
+	},
+	F2(
+		function (mss, model) {
+			return A2(
+				_elm_lang$core$Maybe$withDefault,
+				model,
+				A2(
+					_elm_lang$core$Maybe$map,
+					function (ss) {
+						return _elm_lang$core$Native_Utils.update(
+							model,
+							{
+								state: _elm_lang$core$Result$Ok(ss)
+							});
+					},
+					mss));
+		}));
+var _concourse$atc$Dashboard$handle = F3(
+	function (onError, onSuccess, result) {
+		var _p14 = result;
+		if (_p14.ctor === 'Ok') {
+			return onSuccess;
+		} else {
+			return onError;
+		}
+	});
+var _concourse$atc$Dashboard$substateOptional = A2(
+	_arturopala$elm_monocle$Monocle_Optional$Optional,
+	function (_p15) {
+		return _elm_lang$core$Result$toMaybe(
+			function (_) {
+				return _.state;
+			}(_p15));
+	},
+	F2(
+		function (s, m) {
+			return _elm_lang$core$Native_Utils.update(
+				m,
+				{
+					state: _elm_lang$core$Result$Ok(s)
+				});
+		}));
+var _concourse$atc$Dashboard$stateLens = A2(
+	_arturopala$elm_monocle$Monocle_Lens$Lens,
+	function (_) {
+		return _.state;
+	},
+	F2(
+		function (b, a) {
+			return _elm_lang$core$Native_Utils.update(
+				a,
+				{state: b});
+		}));
+var _concourse$atc$Dashboard$pinTeamNames = _elm_lang$core$Native_Platform.outgoingPort(
+	'pinTeamNames',
+	function (v) {
+		return null;
+	});
+var _concourse$atc$Dashboard$tooltip = _elm_lang$core$Native_Platform.outgoingPort(
+	'tooltip',
+	function (v) {
+		return [v._0, v._1];
+	});
+var _concourse$atc$Dashboard$Ports = function (a) {
+	return {title: a};
+};
+var _concourse$atc$Dashboard$Flags = F4(
+	function (a, b, c, d) {
+		return {csrfToken: a, turbulencePath: b, search: c, highDensity: d};
+	});
+var _concourse$atc$Dashboard$Model = F5(
+	function (a, b, c, d, e) {
+		return {csrfToken: a, state: b, topBar: c, turbulencePath: d, highDensity: e};
+	});
+var _concourse$atc$Dashboard$NoPipelines = {ctor: 'NoPipelines'};
+var _concourse$atc$Dashboard$substate = F3(
+	function (csrfToken, highDensity, _p16) {
+		var _p17 = _p16;
+		var _p18 = _p17._1._0;
+		return A2(
+			_elm_lang$core$Result$fromMaybe,
+			_concourse$atc$Dashboard$NoPipelines,
+			A2(
+				_elm_lang$core$Maybe$map,
+				_elm_lang$core$Basics$always(
+					{
+						teamData: A2(_concourse$atc$Dashboard_SubState$teamData, _p18, _p17._1._1),
+						details: highDensity ? _elm_lang$core$Maybe$Nothing : _elm_lang$core$Maybe$Just(
+							{now: _p17._0, dragState: _concourse$atc$Dashboard_Group$NotDragging, dropState: _concourse$atc$Dashboard_Group$NotDropping, showHelp: false}),
+						hideFooter: false,
+						hideFooterCounter: 0,
+						csrfToken: csrfToken
+					}),
+				_elm_lang$core$List$head(_p18.pipelines)));
+	});
+var _concourse$atc$Dashboard$Turbulence = function (a) {
+	return {ctor: 'Turbulence', _0: a};
+};
+var _concourse$atc$Dashboard$NotAsked = {ctor: 'NotAsked'};
+var _concourse$atc$Dashboard$GroupMsg = function (a) {
+	return {ctor: 'GroupMsg', _0: a};
+};
+var _concourse$atc$Dashboard$pipelinesView = F2(
+	function (substate, query) {
+		var highDensity = !_elm_community$maybe_extra$Maybe_Extra$isJust(substate.details);
+		var filteredGroups = A2(
+			_concourse$atc$Dashboard$filter,
+			query,
+			_concourse$atc$Dashboard_Group$groups(
+				_concourse$atc$Dashboard_SubState$apiData(substate.teamData)));
+		var groupsToDisplay = A2(
+			_elm_lang$core$List$all,
+			_elm_lang$core$String$startsWith('team:'),
+			_concourse$atc$Dashboard$filterTerms(query)) ? filteredGroups : A2(
+			_elm_lang$core$List$filter,
+			function (_p19) {
+				return !_elm_lang$core$List$isEmpty(
+					function (_) {
+						return _.pipelines;
+					}(_p19));
+			},
+			filteredGroups);
+		var groupViews = function () {
+			var _p20 = substate.details;
+			if (_p20.ctor === 'Just') {
+				var _p22 = _p20._0;
+				var _p21 = substate.teamData;
+				if (_p21.ctor === 'Unauthenticated') {
+					return A2(
+						_elm_lang$core$List$map,
+						function (g) {
+							return A5(
+								_concourse$atc$Dashboard_Group$view,
+								_concourse$atc$Dashboard_Group$headerView(g),
+								_p22.dragState,
+								_p22.dropState,
+								_p22.now,
+								g);
+						},
+						groupsToDisplay);
+				} else {
+					return A2(
+						_elm_lang$core$List$map,
+						function (g) {
+							return A5(
+								_concourse$atc$Dashboard_Group$view,
+								_concourse$atc$Dashboard_GroupWithTag$headerView(g),
+								_p22.dragState,
+								_p22.dropState,
+								_p22.now,
+								g.group);
+						},
+						A2(_concourse$atc$Dashboard_GroupWithTag$addTagsAndSort, _p21._0.user, groupsToDisplay));
+				}
+			} else {
+				var _p23 = substate.teamData;
+				if (_p23.ctor === 'Unauthenticated') {
+					return A2(
+						_elm_lang$core$List$map,
+						function (g) {
+							return A3(
+								_concourse$atc$Dashboard_Group$hdView,
+								_concourse$atc$Dashboard_Group$headerView(g),
+								g.teamName,
+								g.pipelines);
+						},
+						groupsToDisplay);
+				} else {
+					return A2(
+						_elm_lang$core$List$map,
+						function (g) {
+							return A3(
+								_concourse$atc$Dashboard_Group$hdView,
+								_concourse$atc$Dashboard_GroupWithTag$headerView(g),
+								g.group.teamName,
+								g.group.pipelines);
+						},
+						A2(_concourse$atc$Dashboard_GroupWithTag$addTagsAndSort, _p23._0.user, groupsToDisplay));
+				}
+			}
+		}();
+		return _elm_lang$core$List$isEmpty(groupViews) ? _concourse$atc$Dashboard$noResultsView(
+			_elm_lang$core$Basics$toString(query)) : A2(
+			_elm_lang$html$Html$div,
+			{
+				ctor: '::',
+				_0: _elm_lang$html$Html_Attributes$class('dashboard-content'),
+				_1: {ctor: '[]'}
+			},
+			A2(
+				_elm_lang$core$List$map,
+				_elm_lang$html$Html$map(_concourse$atc$Dashboard$GroupMsg),
+				groupViews));
+	});
+var _concourse$atc$Dashboard$PipelineMsg = function (a) {
+	return {ctor: 'PipelineMsg', _0: a};
+};
+var _concourse$atc$Dashboard$PipelinePauseToggled = F2(
+	function (a, b) {
+		return {ctor: 'PipelinePauseToggled', _0: a, _1: b};
+	});
+var _concourse$atc$Dashboard$togglePipelinePaused = F2(
+	function (pipeline, csrfToken) {
+		return A2(
+			_elm_lang$core$Task$attempt,
+			_concourse$atc$Dashboard$PipelinePauseToggled(pipeline),
+			pipeline.paused ? A3(_concourse$atc$Concourse_Pipeline$unpause, pipeline.teamName, pipeline.name, csrfToken) : A3(_concourse$atc$Concourse_Pipeline$pause, pipeline.teamName, pipeline.name, csrfToken));
+	});
+var _concourse$atc$Dashboard$TopBarMsg = function (a) {
+	return {ctor: 'TopBarMsg', _0: a};
+};
+var _concourse$atc$Dashboard$KeyDowns = function (a) {
+	return {ctor: 'KeyDowns', _0: a};
+};
+var _concourse$atc$Dashboard$KeyPressed = function (a) {
+	return {ctor: 'KeyPressed', _0: a};
+};
+var _concourse$atc$Dashboard$ShowFooter = {ctor: 'ShowFooter'};
+var _concourse$atc$Dashboard$AutoRefresh = function (a) {
+	return {ctor: 'AutoRefresh', _0: a};
+};
+var _concourse$atc$Dashboard$ClockTick = function (a) {
+	return {ctor: 'ClockTick', _0: a};
+};
+var _concourse$atc$Dashboard$subscriptions = function (model) {
+	return _elm_lang$core$Platform_Sub$batch(
+		{
+			ctor: '::',
+			_0: A2(_elm_lang$core$Time$every, _elm_lang$core$Time$second, _concourse$atc$Dashboard$ClockTick),
+			_1: {
+				ctor: '::',
+				_0: A2(_elm_lang$core$Time$every, 5 * _elm_lang$core$Time$second, _concourse$atc$Dashboard$AutoRefresh),
+				_1: {
+					ctor: '::',
+					_0: _elm_lang$mouse$Mouse$moves(
+						function (_p24) {
+							return _concourse$atc$Dashboard$ShowFooter;
+						}),
+					_1: {
+						ctor: '::',
+						_0: _elm_lang$mouse$Mouse$clicks(
+							function (_p25) {
+								return _concourse$atc$Dashboard$ShowFooter;
+							}),
+						_1: {
+							ctor: '::',
+							_0: _elm_lang$keyboard$Keyboard$presses(_concourse$atc$Dashboard$KeyPressed),
+							_1: {
+								ctor: '::',
+								_0: _elm_lang$keyboard$Keyboard$downs(_concourse$atc$Dashboard$KeyDowns),
+								_1: {ctor: '[]'}
+							}
+						}
+					}
+				}
+			}
+		});
+};
+var _concourse$atc$Dashboard$getCurrentTime = A2(_elm_lang$core$Task$perform, _concourse$atc$Dashboard$ClockTick, _elm_lang$core$Time$now);
+var _concourse$atc$Dashboard$APIDataFetched = function (a) {
+	return {ctor: 'APIDataFetched', _0: a};
+};
+var _concourse$atc$Dashboard$fetchData = A2(
+	_elm_lang$core$Platform_Cmd$map,
+	_concourse$atc$Dashboard$APIDataFetched,
+	_krisajenkins$remotedata$RemoteData$asCmd(
+		A3(
+			_elm_lang$core$Task$map2,
+			F2(
+				function (v0, v1) {
+					return {ctor: '_Tuple2', _0: v0, _1: v1};
+				}),
+			_elm_lang$core$Time$now,
+			A2(_elm_lang$core$Task$andThen, _concourse$atc$Dashboard$remoteUser, _concourse$atc$Dashboard_Group$remoteData))));
+var _concourse$atc$Dashboard$init = F2(
+	function (ports, flags) {
+		var _p26 = A2(_concourse$atc$NewTopBar$init, !flags.highDensity, flags.search);
+		var topBar = _p26._0;
+		var topBarMsg = _p26._1;
+		return {
+			ctor: '_Tuple2',
+			_0: {
+				state: _elm_lang$core$Result$Err(_concourse$atc$Dashboard$NotAsked),
+				topBar: topBar,
+				csrfToken: flags.csrfToken,
+				turbulencePath: flags.turbulencePath,
+				highDensity: flags.highDensity
+			},
+			_1: _elm_lang$core$Platform_Cmd$batch(
+				{
+					ctor: '::',
+					_0: _concourse$atc$Dashboard$fetchData,
+					_1: {
+						ctor: '::',
+						_0: A2(_elm_lang$core$Platform_Cmd$map, _concourse$atc$Dashboard$TopBarMsg, topBarMsg),
+						_1: {
+							ctor: '::',
+							_0: _concourse$atc$Dashboard$pinTeamNames(
+								{ctor: '_Tuple0'}),
+							_1: {
+								ctor: '::',
+								_0: ports.title(
+									A2(_elm_lang$core$Basics_ops['++'], 'Dashboard', ' - ')),
+								_1: {ctor: '[]'}
+							}
+						}
+					}
+				})
+		};
+	});
+var _concourse$atc$Dashboard$Noop = {ctor: 'Noop'};
+var _concourse$atc$Dashboard$orderPipelines = F3(
+	function (teamName, pipelines, csrfToken) {
+		return A2(
+			_elm_lang$core$Task$attempt,
+			_elm_lang$core$Basics$always(_concourse$atc$Dashboard$Noop),
+			A3(
+				_concourse$atc$Concourse_Pipeline$order,
+				teamName,
+				A2(
+					_elm_lang$core$List$map,
+					function (_p27) {
+						return function (_) {
+							return _.name;
+						}(
+							function (_) {
+								return _.pipeline;
+							}(_p27));
+					},
+					pipelines),
+				csrfToken));
+	});
+var _concourse$atc$Dashboard$dashboardView = function (model) {
+	var mainContent = function () {
+		var _p28 = model.state;
+		if (_p28.ctor === 'Err') {
+			switch (_p28._0.ctor) {
+				case 'NotAsked':
+					return _elm_lang$html$Html$text('');
+				case 'Turbulence':
+					return _concourse$atc$Dashboard$turbulenceView(_p28._0._0);
+				default:
+					return A2(
+						_elm_lang$html$Html$map,
+						_elm_lang$core$Basics$always(_concourse$atc$Dashboard$Noop),
+						_concourse$atc$NoPipeline$view);
+			}
+		} else {
+			var _p29 = _p28._0;
+			return A2(
+				_elm_lang$html$Html$div,
+				{ctor: '[]'},
+				{
+					ctor: '::',
+					_0: A2(_concourse$atc$Dashboard$pipelinesView, _p29, model.topBar.query),
+					_1: {
+						ctor: '::',
+						_0: _concourse$atc$Dashboard$footerView(_p29),
+						_1: {ctor: '[]'}
+					}
+				});
+		}
+	}();
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$classList(
+				{
+					ctor: '::',
+					_0: {ctor: '_Tuple2', _0: 'dashboard', _1: true},
+					_1: {
+						ctor: '::',
+						_0: {ctor: '_Tuple2', _0: 'dashboard-hd', _1: model.highDensity},
+						_1: {ctor: '[]'}
+					}
+				}),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: mainContent,
+			_1: {ctor: '[]'}
+		});
+};
+var _concourse$atc$Dashboard$view = function (model) {
+	return A2(
+		_elm_lang$html$Html$div,
+		{
+			ctor: '::',
+			_0: _elm_lang$html$Html_Attributes$class('page'),
+			_1: {ctor: '[]'}
+		},
+		{
+			ctor: '::',
+			_0: A2(
+				_elm_lang$html$Html$map,
+				_concourse$atc$Dashboard$TopBarMsg,
+				_concourse$atc$NewTopBar$view(model.topBar)),
+			_1: {
+				ctor: '::',
+				_0: _concourse$atc$Dashboard$dashboardView(model),
+				_1: {ctor: '[]'}
+			}
+		});
+};
+var _concourse$atc$Dashboard$handleKeyPressed = F2(
+	function (key, model) {
+		var _p30 = key;
+		switch (_p30.valueOf()) {
+			case '/':
+				return {
+					ctor: '_Tuple2',
+					_0: model,
+					_1: A2(
+						_elm_lang$core$Task$attempt,
+						_elm_lang$core$Basics$always(_concourse$atc$Dashboard$Noop),
+						_elm_lang$dom$Dom$focus('search-input-field'))
+				};
+			case '?':
+				return _concourse$atc$Dashboard$noop(
+					A3(
+						_arturopala$elm_monocle$Monocle_Optional$modify,
+						A2(_arturopala$elm_monocle$Monocle_Common_ops['=>'], _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$detailsOptional),
+						_concourse$atc$Dashboard_Details$toggleHelp,
+						model));
+			default:
+				return A2(_concourse$atc$Dashboard$update, _concourse$atc$Dashboard$ShowFooter, model);
+		}
+	});
+var _concourse$atc$Dashboard$update = F2(
+	function (msg, model) {
+		update:
+		while (true) {
+			var reload = _elm_lang$core$Platform_Cmd$batch(
+				A2(
+					_elm_lang$core$Basics_ops['++'],
+					A3(
+						_concourse$atc$Dashboard$handle,
+						{ctor: '[]'},
+						{
+							ctor: '::',
+							_0: _concourse$atc$Dashboard$fetchData,
+							_1: {ctor: '[]'}
+						},
+						model.state),
+					{
+						ctor: '::',
+						_0: A2(_elm_lang$core$Platform_Cmd$map, _concourse$atc$Dashboard$TopBarMsg, _concourse$atc$NewTopBar$fetchUser),
+						_1: {ctor: '[]'}
+					}));
+			var _p31 = msg;
+			switch (_p31.ctor) {
+				case 'Noop':
+					return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+				case 'APIDataFetched':
+					return _concourse$atc$Dashboard$noop(
+						function () {
+							var _p32 = _p31._0;
+							switch (_p32.ctor) {
+								case 'NotAsked':
+									return A2(
+										_concourse$atc$Dashboard$stateLens.set,
+										_elm_lang$core$Result$Err(_concourse$atc$Dashboard$NotAsked),
+										model);
+								case 'Loading':
+									return A2(
+										_concourse$atc$Dashboard$stateLens.set,
+										_elm_lang$core$Result$Err(_concourse$atc$Dashboard$NotAsked),
+										model);
+								case 'Failure':
+									return A2(
+										_concourse$atc$Dashboard$stateLens.set,
+										_elm_lang$core$Result$Err(
+											_concourse$atc$Dashboard$Turbulence(model.turbulencePath)),
+										model);
+								default:
+									var _p37 = _p32._0._1._1;
+									var _p36 = _p32._0._0;
+									var _p35 = _p32._0._1._0;
+									return A3(
+										_arturopala$elm_monocle$Monocle_Lens$modify,
+										_concourse$atc$Dashboard$stateLens,
+										function (_p33) {
+											return A2(
+												_elm_lang$core$Result$withDefault,
+												A3(
+													_concourse$atc$Dashboard$substate,
+													model.csrfToken,
+													model.highDensity,
+													{
+														ctor: '_Tuple2',
+														_0: _p36,
+														_1: {ctor: '_Tuple2', _0: _p35, _1: _p37}
+													}),
+												A2(
+													_elm_lang$core$Result$map,
+													function (_p34) {
+														return _elm_lang$core$Result$Ok(
+															A3(
+																function (_) {
+																	return _.set;
+																},
+																A2(_concourse$atc$MonocleHelpers_ops['=|>'], _concourse$atc$Dashboard_SubState$detailsOptional, _concourse$atc$Dashboard_Details$nowLens),
+																_p36,
+																A3(
+																	function (_) {
+																		return _.set;
+																	},
+																	_concourse$atc$Dashboard_SubState$teamDataLens,
+																	A2(_concourse$atc$Dashboard_SubState$teamData, _p35, _p37),
+																	_p34)));
+													},
+													_p33));
+										},
+										model);
+							}
+						}());
+				case 'ClockTick':
+					return _concourse$atc$Dashboard$noop(
+						A3(
+							_arturopala$elm_monocle$Monocle_Optional$modify,
+							_concourse$atc$Dashboard$substateOptional,
+							_concourse$atc$Dashboard_SubState$tick(_p31._0),
+							model));
+				case 'AutoRefresh':
+					return {ctor: '_Tuple2', _0: model, _1: reload};
+				case 'KeyPressed':
+					return A2(
+						_concourse$atc$Dashboard$handleKeyPressed,
+						_elm_lang$core$Char$fromCode(_p31._0),
+						model);
+				case 'KeyDowns':
+					var _v10 = _concourse$atc$Dashboard$TopBarMsg(
+						_concourse$atc$NewTopBar$KeyDown(_p31._0)),
+						_v11 = model;
+					msg = _v10;
+					model = _v11;
+					continue update;
+				case 'ShowFooter':
+					return _concourse$atc$Dashboard$noop(
+						A3(_arturopala$elm_monocle$Monocle_Optional$modify, _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$showFooter, model));
+				case 'TopBarMsg':
+					var _p40 = _p31._0;
+					var _p38 = A2(_concourse$atc$NewTopBar$update, _p40, model.topBar);
+					var newTopBar = _p38._0;
+					var newTopBarMsg = _p38._1;
+					var newMsg = function () {
+						var _p39 = _p40;
+						if ((_p39.ctor === 'LoggedOut') && (_p39._0.ctor === 'Ok')) {
+							return reload;
+						} else {
+							return A2(_elm_lang$core$Platform_Cmd$map, _concourse$atc$Dashboard$TopBarMsg, newTopBarMsg);
+						}
+					}();
+					return {
+						ctor: '_Tuple2',
+						_0: _elm_lang$core$Native_Utils.update(
+							model,
+							{topBar: newTopBar}),
+						_1: newMsg
+					};
+				case 'PipelinePauseToggled':
+					if (_p31._1.ctor === 'Ok') {
+						var togglePipelinePause = function (pipelines) {
+							return A3(
+								_elm_community$list_extra$List_Extra$updateIf,
+								F2(
+									function (x, y) {
+										return _elm_lang$core$Native_Utils.eq(x, y);
+									})(_p31._0),
+								function (pipeline) {
+									return _elm_lang$core$Native_Utils.update(
+										pipeline,
+										{paused: !pipeline.paused});
+								},
+								pipelines);
+						};
+						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					} else {
+						return {ctor: '_Tuple2', _0: model, _1: _elm_lang$core$Platform_Cmd$none};
+					}
+				case 'PipelineMsg':
+					switch (_p31._0.ctor) {
+						case 'TogglePipelinePaused':
+							return {
+								ctor: '_Tuple2',
+								_0: model,
+								_1: A2(_concourse$atc$Dashboard$togglePipelinePaused, _p31._0._0, model.csrfToken)
+							};
+						case 'TooltipHd':
+							return {
+								ctor: '_Tuple2',
+								_0: model,
+								_1: _concourse$atc$DashboardHd$tooltipHd(
+									{ctor: '_Tuple2', _0: _p31._0._0, _1: _p31._0._1})
+							};
+						default:
+							return {
+								ctor: '_Tuple2',
+								_0: model,
+								_1: _concourse$atc$Dashboard$tooltip(
+									{ctor: '_Tuple2', _0: _p31._0._0, _1: _p31._0._1})
+							};
+					}
+				default:
+					switch (_p31._0.ctor) {
+						case 'DragStart':
+							return _concourse$atc$Dashboard$noop(
+								A3(
+									_arturopala$elm_monocle$Monocle_Optional$modify,
+									A2(_arturopala$elm_monocle$Monocle_Common_ops['=>'], _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$detailsOptional),
+									function (_) {
+										return _.set;
+									}(_concourse$atc$Dashboard_Details$dragStateLens)(
+										A2(_concourse$atc$Dashboard_Group$Dragging, _p31._0._0, _p31._0._1)),
+									model));
+						case 'DragOver':
+							return _concourse$atc$Dashboard$noop(
+								A3(
+									_arturopala$elm_monocle$Monocle_Optional$modify,
+									A2(_arturopala$elm_monocle$Monocle_Common_ops['=>'], _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$detailsOptional),
+									function (_) {
+										return _.set;
+									}(_concourse$atc$Dashboard_Details$dropStateLens)(
+										_concourse$atc$Dashboard_Group$Dropping(_p31._0._1)),
+									model));
+						case 'PipelineMsg':
+							return A3(
+								_elm_lang$core$Basics$flip,
+								_concourse$atc$Dashboard$update,
+								model,
+								_concourse$atc$Dashboard$PipelineMsg(_p31._0._0));
+						default:
+							var groupOptional = A2(
+								_concourse$atc$MonocleHelpers_ops['>>='],
+								A2(
+									_arturopala$elm_monocle$Monocle_Common_ops['=>'],
+									A2(
+										_concourse$atc$MonocleHelpers_ops['=|>'],
+										A2(_arturopala$elm_monocle$Monocle_Common_ops['=>'], _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$detailsOptional),
+										_concourse$atc$Dashboard_Details$dragStateLens),
+									_concourse$atc$Dashboard_Group$teamNameOptional),
+								function (teamName) {
+									return A2(
+										_arturopala$elm_monocle$Monocle_Common_ops['=>'],
+										A2(
+											_concourse$atc$MonocleHelpers_ops['=|>'],
+											A2(
+												_concourse$atc$MonocleHelpers_ops['=|>'],
+												A2(_concourse$atc$MonocleHelpers_ops['=|>'], _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$teamDataLens),
+												_concourse$atc$Dashboard_SubState$apiDataLens),
+											_concourse$atc$Dashboard_Group$groupsLens),
+										_concourse$atc$Dashboard_Group$findGroupOptional(teamName));
+								});
+							var dragDropOptional = A2(
+								_concourse$atc$MonocleHelpers_ops['=|>'],
+								A2(_arturopala$elm_monocle$Monocle_Common_ops['=>'], _concourse$atc$Dashboard$substateOptional, _concourse$atc$Dashboard_SubState$detailsOptional),
+								A2(_arturopala$elm_monocle$Monocle_Lens$tuple, _concourse$atc$Dashboard_Details$dragStateLens, _concourse$atc$Dashboard_Details$dropStateLens));
+							var dragDropIndexOptional = A2(
+								_arturopala$elm_monocle$Monocle_Common_ops['=>'],
+								dragDropOptional,
+								A2(_arturopala$elm_monocle$Monocle_Optional$zip, _concourse$atc$Dashboard_Group$dragIndexOptional, _concourse$atc$Dashboard_Group$dropIndexOptional));
+							var bigOptional = A2(_arturopala$elm_monocle$Monocle_Optional$tuple, dragDropIndexOptional, groupOptional);
+							var updatePipelines = F2(
+								function (_p41, group) {
+									var _p42 = _p41;
+									var newGroup = A3(_concourse$atc$Dashboard_Group$shiftPipelines, _p42._0, _p42._1, group);
+									return {
+										ctor: '_Tuple2',
+										_0: newGroup,
+										_1: A3(_concourse$atc$Dashboard$orderPipelines, newGroup.teamName, newGroup.pipelines, model.csrfToken)
+									};
+								});
+							return A2(
+								_elm_lang$core$Tuple$mapFirst,
+								dragDropOptional.set(
+									{ctor: '_Tuple2', _0: _concourse$atc$Dashboard_Group$NotDragging, _1: _concourse$atc$Dashboard_Group$NotDropping}),
+								A3(
+									_concourse$atc$MonocleHelpers$modifyWithEffect,
+									bigOptional,
+									function (_p43) {
+										var _p44 = _p43;
+										var _p46 = _p44._0;
+										var _p45 = A2(updatePipelines, _p46, _p44._1);
+										var newG = _p45._0;
+										var msg = _p45._1;
+										return {
+											ctor: '_Tuple2',
+											_0: {ctor: '_Tuple2', _0: _p46, _1: newG},
+											_1: msg
+										};
+									},
+									model));
+					}
+			}
+		}
+	});
 
 var _concourse$atc$Job$paginationParam = function (page) {
 	var _p0 = page.direction;
@@ -36268,17 +36702,22 @@ var _concourse$atc$SubPage$init = F2(
 						{
 							turbulencePath: flags.turbulencePath,
 							csrfToken: flags.csrfToken,
-							search: _concourse$atc$SubPage$querySearchForRoute(route)
+							search: _concourse$atc$SubPage$querySearchForRoute(route),
+							highDensity: false
 						}));
 			default:
 				return A2(
 					_concourse$atc$SubPage$superDupleWrap,
-					{ctor: '_Tuple2', _0: _concourse$atc$SubPage$DashboardHdModel, _1: _concourse$atc$SubPage$DashboardHdMsg},
-					A3(
-						_concourse$atc$DashboardHd$init,
+					{ctor: '_Tuple2', _0: _concourse$atc$SubPage$DashboardModel, _1: _concourse$atc$SubPage$DashboardMsg},
+					A2(
+						_concourse$atc$Dashboard$init,
 						{title: _concourse$atc$SubPage$setTitle},
-						flags.turbulencePath,
-						_concourse$atc$SubPage$querySearchForRoute(route)));
+						{
+							turbulencePath: flags.turbulencePath,
+							csrfToken: flags.csrfToken,
+							search: _concourse$atc$SubPage$querySearchForRoute(route),
+							highDensity: true
+						}));
 		}
 	});
 var _concourse$atc$SubPage$update = F5(

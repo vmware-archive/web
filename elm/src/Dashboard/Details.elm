@@ -9,6 +9,7 @@ type alias Details =
     { now : Time
     , dragState : Group.DragState
     , dropState : Group.DropState
+    , showHelp : Bool
     }
 
 
@@ -25,3 +26,8 @@ dragStateLens =
 dropStateLens : Monocle.Lens.Lens Details Group.DropState
 dropStateLens =
     Monocle.Lens.Lens .dropState (\ds ss -> { ss | dropState = ds })
+
+
+toggleHelp : Details -> Details
+toggleHelp details =
+    { details | showHelp = not details.showHelp }

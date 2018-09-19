@@ -2,13 +2,16 @@ module Dashboard.Pipeline
     exposing
         ( Msg(..)
         , PipelineWithJobs
+        , Pipeline
         , pipelineNotSetView
         , pipelineView
+        , hdPipelineView
         , pipelineStatus
         , pipelineStatusFromJobs
         )
 
 import Concourse
+import Concourse.PipelineStatus
 import Duration
 import DashboardPreview
 import Date
@@ -22,6 +25,14 @@ import StrictEvents exposing (onLeftClick)
 import Time exposing (Time)
 
 
+type SummaryPipeline
+    = SummaryPipeline PipelineWithJobs
+
+
+type PreviewPipeline
+    = PreviewPipeline PipelineWithJobs
+
+
 type alias PipelineWithJobs =
     { pipeline : Concourse.Pipeline
     , jobs : List Concourse.Job
@@ -31,6 +42,7 @@ type alias PipelineWithJobs =
 
 type Msg
     = Tooltip String String
+    | TooltipHd String String
     | TogglePipelinePaused Concourse.Pipeline
 
 
@@ -49,8 +61,47 @@ pipelineNotSetView =
         ]
 
 
-pipelineView : Time -> PipelineWithJobs -> Int -> Html Msg
-pipelineView now ({ pipeline, jobs, resourceError } as pipelineWithJobs) index =
+view : Time -> Pipeline -> Html Msg
+view now pipeline =
+    case pipeline of
+        Preview pwj ->
+            pipelineView now pwj
+
+        Summary pwj ->
+            hdPipelineView pwj
+
+
+hdPipelineView : PipelineWithJobs -> Html Msg
+hdPipelineView { pipeline, jobs, resourceError } =
+    Html.div
+        [ classList
+            [ ( "dashboard-pipeline", True )
+            , ( "dashboard-paused", pipeline.paused )
+            , ( "dashboard-running", List.any (\job -> job.nextBuild /= Nothing) jobs )
+            , ( "dashboard-status-" ++ Concourse.PipelineStatus.show (pipelineStatusFromJobs jobs False), not pipeline.paused )
+            ]
+        , attribute "data-pipeline-name" pipeline.name
+        , attribute "data-team-name" pipeline.teamName
+        ]
+        [ Html.div [ class "dashboard-pipeline-banner" ] []
+        , Html.div
+            [ class "dashboard-pipeline-content"
+            , onMouseEnter <| TooltipHd pipeline.name pipeline.teamName
+            ]
+            [ Html.a [ href <| Routes.pipelineRoute pipeline ]
+                [ Html.div
+                    [ class "dashboardhd-pipeline-name"
+                    , attribute "data-team-name" pipeline.teamName
+                    ]
+                    [ Html.text pipeline.name ]
+                ]
+            ]
+        , Html.div [ classList [ ( "dashboard-resource-error", resourceError ) ] ] []
+        ]
+
+
+pipelineView : Time -> PipelineWithJobs -> Html Msg
+pipelineView now ({ pipeline, jobs, resourceError } as pipelineWithJobs) =
     Html.div [ class "dashboard-pipeline-content" ]
         [ headerView pipelineWithJobs
         , DashboardPreview.view jobs

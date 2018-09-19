@@ -15,6 +15,10 @@ import Monocle.Lens
     Monocle.Optional.compose << Monocle.Optional.fromLens
 
 
+
+-- bind, like in Haskell
+
+
 (>>=) : Monocle.Optional.Optional a b -> (b -> Monocle.Optional.Optional a c) -> Monocle.Optional.Optional a c
 (>>=) opt f =
     { getOption = \a -> opt.getOption a |> Maybe.map (\b -> (f b).getOption a) |> Maybe.Extra.join

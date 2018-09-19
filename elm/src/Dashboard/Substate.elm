@@ -23,6 +23,11 @@ detailsOptional =
     Monocle.Optional.Optional .details (\d ss -> { ss | details = Just d })
 
 
+detailsLens : Monocle.Lens.Lens SubState (Maybe Details.Details)
+detailsLens =
+    Monocle.Lens.Lens .details (\d ss -> { ss | details = d })
+
+
 teamDataLens : Monocle.Lens.Lens SubState TeamData
 teamDataLens =
     Monocle.Lens.Lens .teamData (\td ss -> { ss | teamData = td })
